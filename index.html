@@ -1,0 +1,1719 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>優雷卡 NM 追蹤器 · Eureka Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Geist+Mono:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Firebase SDK (compat build, works without bundler) -->
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-database-compat.js"></script>
+<style>
+  /*
+    =================================
+    FFXIV Eureka NM Tracker
+    Aesthetic: Arcane / Eorzean grimoire
+    Palette: deep indigo parchment with elemental accents
+    =================================
+  */
+
+  :root {
+    /* base palette */
+    --bg-deep: #0a0e1a;
+    --bg-mid: #131826;
+    --bg-card: #1a2030;
+    --bg-card-hover: #212840;
+    --parchment: #e8dcc4;
+    --parchment-dim: #b8ad95;
+    --ink: #d4c8a8;
+    --ink-bright: #f4ead0;
+    --ink-faded: #8a8268;
+    --gold: #d4a84b;
+    --gold-bright: #f0c869;
+    --gold-deep: #8a6d20;
+    --crimson: #a83a3a;
+    --border: #3a3520;
+    --border-light: #5a5235;
+
+    /* element colors */
+    --el-wind: #8fc8a3;
+    --el-ice: #8ec5e8;
+    --el-fire: #e8825a;
+    --el-water: #6d92d4;
+
+    /* status */
+    --ready: #6dc785;
+    --cooldown: #c75d3e;
+    --waiting: #d4a84b;
+
+    /* shadows */
+    --shadow-card: 0 4px 20px rgba(0,0,0,0.4), 0 0 0 1px var(--border);
+    --shadow-card-hover: 0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px var(--border-light);
+
+    /* typography */
+    --font-display: 'Cinzel', 'Noto Serif TC', serif;
+    --font-body: 'Cormorant Garamond', 'Noto Serif TC', serif;
+    --font-cjk: 'Noto Serif TC', serif;
+    --font-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body {
+    background: var(--bg-deep);
+    color: var(--ink);
+    font-family: var(--font-cjk);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* atmospheric background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(143, 200, 163, 0.04) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(232, 130, 90, 0.04) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(212, 168, 75, 0.03) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2' seed='5'/><feColorMatrix values='0 0 0 0 0.8  0 0 0 0 0.7  0 0 0 0 0.4  0 0 0 0.04 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    pointer-events: none;
+    opacity: 0.4;
+    z-index: 1;
+  }
+
+  /* ============ HEADER ============ */
+  .app-shell {
+    position: relative;
+    z-index: 2;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+
+  header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 24px;
+    padding-bottom: 24px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 120px;
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold) 0%, transparent 100%);
+  }
+
+  .title-block h1 {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--ink-bright);
+    line-height: 1;
+  }
+
+  .title-block .subtitle {
+    font-family: var(--font-body);
+    font-style: italic;
+    font-size: 16px;
+    color: var(--ink-faded);
+    margin-top: 8px;
+    letter-spacing: 0.04em;
+  }
+
+  .title-block .subtitle::before {
+    content: '— ';
+    color: var(--gold);
+  }
+
+  /* eorzea clock + weather */
+  .status-strip {
+    display: flex;
+    gap: 16px;
+    align-items: stretch;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .status-card {
+    background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-mid) 100%);
+    border: 1px solid var(--border);
+    padding: 12px 18px;
+    min-width: 140px;
+    position: relative;
+  }
+
+  .status-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-deep), transparent);
+  }
+
+  .status-card .label {
+    font-family: var(--font-display);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--ink-faded);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .status-card .value {
+    font-family: var(--font-mono);
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--ink-bright);
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1, "ss01" 1;
+  }
+
+  .status-card .meta {
+    font-family: var(--font-cjk);
+    font-size: 12px;
+    color: var(--parchment-dim);
+    margin-top: 4px;
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .status-card .meta .eta {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  /* ============ ZONE TABS ============ */
+  .zone-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .zone-tab {
+    background: transparent;
+    border: none;
+    padding: 14px 24px;
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    color: var(--ink-faded);
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s ease;
+    text-transform: uppercase;
+  }
+
+  .zone-tab .zh {
+    font-family: var(--font-cjk);
+    font-size: 16px;
+    margin-right: 8px;
+    letter-spacing: 0.1em;
+  }
+
+  .zone-tab:hover {
+    color: var(--ink);
+  }
+
+  .zone-tab.active {
+    color: var(--ink-bright);
+  }
+
+  .zone-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 12%;
+    right: 12%;
+    height: 2px;
+    background: var(--gold);
+    box-shadow: 0 0 12px var(--gold);
+  }
+
+  .zone-tab[data-zone="anemos"].active { color: var(--el-wind); }
+  .zone-tab[data-zone="anemos"].active::after { background: var(--el-wind); box-shadow: 0 0 12px var(--el-wind); }
+  .zone-tab[data-zone="pagos"].active { color: var(--el-ice); }
+  .zone-tab[data-zone="pagos"].active::after { background: var(--el-ice); box-shadow: 0 0 12px var(--el-ice); }
+  .zone-tab[data-zone="pyros"].active { color: var(--el-fire); }
+  .zone-tab[data-zone="pyros"].active::after { background: var(--el-fire); box-shadow: 0 0 12px var(--el-fire); }
+  .zone-tab[data-zone="hydatos"].active { color: var(--el-water); }
+  .zone-tab[data-zone="hydatos"].active::after { background: var(--el-water); box-shadow: 0 0 12px var(--el-water); }
+
+  /* ============ ZONE TOOLBAR ============ */
+  .zone-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .zone-summary {
+    font-family: var(--font-body);
+    font-style: italic;
+    color: var(--parchment-dim);
+    font-size: 16px;
+    max-width: 600px;
+    line-height: 1.5;
+  }
+
+  .new-instance-btn {
+    background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-deep) 100%);
+    border: 1px solid var(--gold-deep);
+    color: var(--gold-bright);
+    padding: 12px 24px;
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .new-instance-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(212, 168, 75, 0.15), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+  }
+
+  .new-instance-btn:hover {
+    border-color: var(--gold);
+    color: var(--ink-bright);
+    box-shadow: 0 0 20px rgba(212, 168, 75, 0.3);
+  }
+
+  .new-instance-btn:hover::before {
+    transform: translateX(100%);
+  }
+
+  .new-instance-btn:active {
+    transform: translateY(1px);
+  }
+
+  /* ============ NM CARDS ============ */
+  .nm-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 20px;
+  }
+
+  .nm-card {
+    background: linear-gradient(160deg, var(--bg-card) 0%, var(--bg-mid) 100%);
+    border: 1px solid var(--border);
+    padding: 22px 24px 20px;
+    position: relative;
+    transition: all 0.3s ease;
+    overflow: hidden;
+  }
+
+  .nm-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--border-light);
+    transition: background 0.3s ease;
+  }
+
+  .nm-card[data-status="ready"]::before { background: var(--ready); box-shadow: 0 0 20px var(--ready); }
+  .nm-card[data-status="cooldown"]::before { background: var(--cooldown); }
+  .nm-card[data-status="waiting"]::before { background: var(--waiting); box-shadow: 0 0 16px var(--waiting); }
+
+  .nm-card[data-status="ready"] {
+    border-color: rgba(109, 199, 133, 0.3);
+  }
+
+  .nm-card[data-status="ready"]::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at top right, rgba(109, 199, 133, 0.08), transparent 60%);
+    pointer-events: none;
+  }
+
+  .nm-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .nm-name-block {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .nm-name {
+    font-family: var(--font-cjk);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink-bright);
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+  }
+
+  .nm-name .nickname {
+    font-size: 14px;
+    color: var(--parchment-dim);
+    margin-left: 8px;
+    font-weight: 400;
+  }
+
+  .nm-name .nickname::before { content: '· '; color: var(--gold); }
+
+  .nm-meta {
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--ink-faded);
+    margin-top: 4px;
+    font-style: italic;
+    letter-spacing: 0.02em;
+  }
+
+  .nm-meta .en {
+    font-family: var(--font-display);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .nm-level-badge {
+    background: var(--bg-deep);
+    border: 1px solid var(--border-light);
+    padding: 6px 10px;
+    font-family: var(--font-display);
+    font-size: 11px;
+    color: var(--gold-bright);
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    text-align: center;
+    min-width: 56px;
+  }
+
+  .nm-level-badge .lv-num {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 20px;
+    color: var(--ink-bright);
+    font-weight: 700;
+    line-height: 1;
+    margin-top: 2px;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+
+  .nm-conditions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .condition-tag {
+    background: rgba(212, 168, 75, 0.08);
+    border: 1px solid rgba(212, 168, 75, 0.25);
+    color: var(--gold-bright);
+    padding: 4px 10px;
+    font-size: 12px;
+    font-family: var(--font-cjk);
+    letter-spacing: 0.05em;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .condition-tag.no-condition {
+    background: transparent;
+    border-color: var(--border);
+    color: var(--ink-faded);
+  }
+
+  .condition-tag .icon { font-size: 11px; }
+
+  .nm-drop {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--parchment-dim);
+    margin-bottom: 18px;
+    padding: 8px 12px;
+    background: rgba(0,0,0,0.2);
+    border-left: 2px solid var(--gold-deep);
+    font-style: italic;
+  }
+
+  .nm-drop .label {
+    font-family: var(--font-display);
+    font-style: normal;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    margin-right: 6px;
+    text-transform: uppercase;
+  }
+
+  /* status display */
+  .nm-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--border);
+    margin-bottom: 14px;
+    min-height: 60px;
+  }
+
+  .status-text {
+    font-family: var(--font-display);
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: var(--ink-faded);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .status-text.zh { font-family: var(--font-cjk); letter-spacing: 0.1em; font-size: 13px; }
+
+  .nm-card[data-status="ready"] .status-text { color: var(--ready); }
+  .nm-card[data-status="cooldown"] .status-text { color: var(--cooldown); }
+  .nm-card[data-status="waiting"] .status-text { color: var(--waiting); }
+
+  .status-value {
+    font-family: var(--font-mono);
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--ink-bright);
+    letter-spacing: 0.02em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1, "ss01" 1;
+  }
+
+  .nm-card[data-status="cooldown"] .status-value {
+    color: #ffd0c0;
+  }
+
+  .nm-card[data-status="ready"] .status-value {
+    color: var(--ready);
+    font-size: 32px;
+    text-shadow: 0 0 16px rgba(109, 199, 133, 0.4);
+  }
+
+  .status-detail {
+    font-family: var(--font-cjk);
+    font-size: 13px;
+    color: var(--parchment-dim);
+    margin-top: 6px;
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+
+  /* highlight the HH:MM part inside detail */
+  .status-detail .eta {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* report button */
+  .report-btn {
+    width: 100%;
+    background: linear-gradient(180deg, rgba(168, 58, 58, 0.2), rgba(168, 58, 58, 0.05));
+    border: 1px solid rgba(168, 58, 58, 0.5);
+    color: #e8a5a5;
+    padding: 12px;
+    font-family: var(--font-cjk);
+    font-size: 14px;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 600;
+  }
+
+  .report-btn:hover {
+    background: linear-gradient(180deg, rgba(168, 58, 58, 0.4), rgba(168, 58, 58, 0.15));
+    border-color: var(--crimson);
+    color: #ffd0d0;
+  }
+
+  .report-btn:active { transform: translateY(1px); }
+
+  .reset-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--ink-faded);
+    padding: 8px;
+    font-family: var(--font-cjk);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 8px;
+  }
+
+  .reset-btn:hover {
+    border-color: var(--ink-faded);
+    color: var(--ink);
+  }
+
+  /* zone hidden by default */
+  .zone-content { display: none; }
+  .zone-content.active { display: block; animation: fadeIn 0.3s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ready pulse */
+  @keyframes readyPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  .nm-card[data-status="ready"] .status-text {
+    animation: readyPulse 2s ease-in-out infinite;
+  }
+
+  /* sync indicator */
+  .sync-indicator {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-faded);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+  }
+
+  .sync-indicator:hover { opacity: 1; }
+
+  .sync-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--ready);
+    box-shadow: 0 0 8px var(--ready);
+  }
+
+  .sync-dot.error { background: var(--crimson); box-shadow: 0 0 8px var(--crimson); }
+  .sync-dot.syncing {
+    background: var(--gold);
+    box-shadow: 0 0 8px var(--gold);
+    animation: readyPulse 1s ease-in-out infinite;
+  }
+
+  /* footer */
+  footer {
+    margin-top: 60px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-family: var(--font-body);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--ink-faded);
+  }
+
+  footer .ornament {
+    color: var(--gold-deep);
+    margin: 0 8px;
+  }
+
+  /* mobile */
+  @media (max-width: 640px) {
+    header { grid-template-columns: 1fr; }
+    .status-strip { justify-content: flex-start; }
+    .nm-grid { grid-template-columns: 1fr; }
+    .zone-tab { padding: 12px 14px; font-size: 12px; }
+    .zone-tab .zh { font-size: 14px; }
+  }
+
+  /* confirm modal */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-backdrop.active { display: flex; }
+
+  .modal {
+    background: var(--bg-card);
+    border: 1px solid var(--gold-deep);
+    padding: 32px;
+    max-width: 420px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    position: relative;
+  }
+
+  .modal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .modal h3 {
+    font-family: var(--font-display);
+    font-size: 20px;
+    color: var(--ink-bright);
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+
+  .modal p {
+    font-family: var(--font-cjk);
+    font-size: 15px;
+    color: var(--ink);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+
+  .modal-btn {
+    padding: 10px 20px;
+    font-family: var(--font-cjk);
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    border: 1px solid var(--border-light);
+    background: transparent;
+    color: var(--ink);
+    transition: all 0.2s ease;
+  }
+
+  .modal-btn:hover { background: var(--bg-mid); }
+
+  .modal-btn.primary {
+    background: linear-gradient(180deg, rgba(168, 58, 58, 0.3), rgba(168, 58, 58, 0.1));
+    border-color: var(--crimson);
+    color: #ffd0d0;
+  }
+
+  .modal-btn.primary:hover {
+    background: linear-gradient(180deg, rgba(168, 58, 58, 0.5), rgba(168, 58, 58, 0.2));
+  }
+
+  /* time-input modal extras */
+  .time-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .time-input-label {
+    font-family: var(--font-display);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faded);
+  }
+
+  .time-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .time-mode-tabs {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  .time-mode-tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--ink-faded);
+    padding: 8px 12px;
+    font-family: var(--font-cjk);
+    font-size: 13px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    border-right: 1px solid var(--border);
+    transition: all 0.15s ease;
+  }
+
+  .time-mode-tab:last-child { border-right: none; }
+
+  .time-mode-tab.active {
+    background: rgba(212, 168, 75, 0.1);
+    color: var(--gold-bright);
+  }
+
+  .time-mode-tab:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--ink);
+  }
+
+  .time-input {
+    background: var(--bg-deep);
+    border: 1px solid var(--border-light);
+    color: var(--ink-bright);
+    padding: 10px 12px;
+    font-family: var(--font-mono);
+    font-size: 16px;
+    width: 100%;
+    letter-spacing: 0.05em;
+  }
+
+  .time-input:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 1px var(--gold);
+  }
+
+  .time-input-hint {
+    font-family: var(--font-body);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--parchment-dim);
+    margin-top: 8px;
+    line-height: 1.4;
+  }
+
+  .time-input-error {
+    color: #e88a8a;
+    font-family: var(--font-cjk);
+    font-size: 12px;
+    margin-top: 6px;
+    min-height: 16px;
+  }
+
+  /* secondary action button on card (long-press / right-click for manual time) */
+  .manual-time-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px dashed var(--border-light);
+    color: var(--ink-faded);
+    padding: 8px;
+    font-family: var(--font-cjk);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 8px;
+  }
+
+  .manual-time-btn:hover {
+    border-color: var(--gold-deep);
+    border-style: solid;
+    color: var(--gold-bright);
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- HEADER -->
+  <header>
+    <div class="title-block">
+      <h1>Eureka NM Tracker</h1>
+      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特</div>
+    </div>
+    <div class="status-strip">
+      <div class="status-card" id="eorzeaTimeCard">
+        <div class="label">Eorzea Time</div>
+        <div class="value" id="eorzeaTime">--:--</div>
+        <div class="meta" id="eorzeaPeriod">—</div>
+      </div>
+      <div class="status-card" id="weatherCard">
+        <div class="label">Weather</div>
+        <div class="value" id="currentWeather" style="font-size: 16px;">—</div>
+        <div class="meta" id="weatherCountdown">—</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ZONE TABS -->
+  <nav class="zone-tabs" id="zoneTabs">
+    <button class="zone-tab active" data-zone="anemos"><span class="zh">常風之地</span>Anemos</button>
+    <button class="zone-tab" data-zone="pagos"><span class="zh">恆冰之地</span>Pagos</button>
+    <button class="zone-tab" data-zone="pyros"><span class="zh">湧火之地</span>Pyros</button>
+    <button class="zone-tab" data-zone="hydatos"><span class="zh">豐水之地</span>Hydatos</button>
+  </nav>
+
+  <!-- ZONE CONTENT -->
+  <main id="zoneContainer">
+    <!-- generated dynamically -->
+  </main>
+
+  <footer>
+    <span class="ornament">❦</span>
+		FINAL FANTASY XIV ©2010 - 2023 SQUARE ENIX CO., LTD. 
+		FINAL FANTASY is a registered trademark of Square Enix Holdings Co., Ltd. All material used under license. 
+    <span class="ornament">❦</span>
+  </footer>
+
+</div>
+
+<!-- sync indicator -->
+<div class="sync-indicator">
+  <div class="sync-dot" id="syncDot"></div>
+  <span id="syncText">已同步</span>
+</div>
+
+<!-- confirm modal (also used for manual time input) -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <h3 id="modalTitle">確認操作</h3>
+    <p id="modalMessage">確定要進行這個操作嗎？</p>
+    <div id="modalExtra" style="display:none;"></div>
+    <div class="modal-actions">
+      <button class="modal-btn" id="modalCancel">取消</button>
+      <button class="modal-btn primary" id="modalConfirm">確認</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ====================================================
+   FFXIV Eureka NM Tracker
+   ====================================================
+   Storage strategy:
+     - shared key 'eureka:state' holds all NM death timestamps + instance reset timestamps
+     - polled every 4 seconds for cross-device sync
+   Time strategy:
+     - cooldown = 120 real-life minutes from last death
+     - Eorzea time: 1 EH = 175 real seconds, 1 ED = 4200 real seconds
+     - Weather: 8 EH blocks; computed via xivapi public formula
+   ==================================================== */
+
+  /* ----------- NM DATA ----------- */
+  const NM_DATA = {
+    anemos: {
+      label: '常風之地 Anemos',
+      summary: '僅追蹤島主。',
+      nms: [
+        { id: 'pazuzu', name: '帕祖祖', nickname: '島主(PZZ)', en: 'Pazuzu', fate: 'I Amm Bemhart', level: 20, weather: '強風', timeReq: null, drop: '帕祖祖之羽 · 帕祖祖祭壇 · 小帕祖祖' },
+      ],
+    },
+    pagos: {
+      label: '恆冰之地 Pagos',
+      summary: '追蹤螃蟹、凱西與島主，請留意天氣與時段。',
+      nms: [
+        { id: 'arthro', name: '亞瑟羅王', nickname: '螃蟹', en: 'King Arthro', fate: 'Morte Arthro', level: 29, weather: '薄霧', timeReq: null, drop: '雷光戒指 BlitzRing' },
+        { id: 'cassie', name: '凱西', nickname: 'KC', en: 'Copycat Cassie', fate: 'Cassie and the Copycats', level: 35, weather: '暴雪', timeReq: null, drop: '凱西耳環 · 銅鈸耳環' },
+        { id: 'louhi', name: '婁希', nickname: '島主(Louhi)', en: 'Louhi', fate: 'Lousy Louhi', level: 35, weather: null, timeReq: '夜晚', drop: '婁希之冰' },
+      ],
+    },
+    pyros: {
+      label: '湧火之地 Pyros',
+      summary: '追蹤傭兵、陰陽、斯庫爾與島主，後兩者有天氣需求。',
+      nms: [
+        { id: 'lamebrix', name: '傭兵雷姆普里克斯', nickname: '傭兵', en: 'Lamebrix Strikebocks', fate: 'Thirty Whacks', level: 45, weather: null, timeReq: null, drop: '雷姆普里克斯的骰子' },
+        { id: 'yinyang', name: '陰陽', nickname: 'YY', en: 'Yin-Yang', fate: 'Haunter of the Dark', level: 49, weather: null, timeReq: null, drop: '陰陽的紙片' },
+        { id: 'skoll', name: '斯庫爾', nickname: '狼', en: 'Skoll', fate: "Heavens' Warg", level: 50, weather: '暴雪', timeReq: null, drop: '斯庫爾之爪' },
+        { id: 'penthesilea', name: '彤忒希勒亞', nickname: '島主(Penny)', en: 'Penthesilea', fate: 'Lost Epic', level: 50, weather: '熱浪', timeReq: null, drop: '彤忒希勒亞之炎' },
+      ],
+    },
+    hydatos: {
+      label: '豐水之地 Hydatos',
+      summary: '追蹤牛、馬王、Ceto、島主',
+      nms: [
+        { id: 'molech', name: '摩洛', nickname: '牛', en: 'Molech', fate: 'Bullheaded Berserker', level: 52, weather: null, timeReq: null, drop: '摩洛之角' },
+        { id: 'goldemar', name: '戈爾德馬爾王', nickname: '馬王', en: 'King Goldemar', fate: 'Duty-free', level: 56, weather: null, timeReq: null, drop: '戈爾德馬爾之角' },
+        { id: 'ceto', name: '刻托', nickname: 'CT', en: 'Ceto', fate: 'Stone-cold Killer', level: 59, weather: null, timeReq: null, drop: '刻托之爪' },
+        { id: 'pw', name: '起源守望者', nickname: '島主(PW)', en: 'Provenance Watcher', fate: 'Crystalline Provenance', level: 60, weather: null, timeReq: null, drop: '結晶鱗片' },
+      ],
+    },
+  };
+
+  /* ----------- CONSTANTS ----------- */
+  const COOLDOWN_MS = 120 * 60 * 1000;          // 120 minutes
+  const TICK_MS = 1000;
+
+  /* ----------- FIREBASE INIT ----------- */
+  const firebaseConfig = {
+    apiKey: "AIzaSyByUqft2CSq7kkMqgbR_L74AByUGOY3L0o",
+    authDomain: "eureka-tracker-64cc3.firebaseapp.com",
+    databaseURL: "https://eureka-tracker-64cc3-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "eureka-tracker-64cc3",
+    storageBucket: "eureka-tracker-64cc3.firebasestorage.app",
+    messagingSenderId: "358629909816",
+    appId: "1:358629909816:web:1d07ac8fd3a3326544cdcd"
+  };
+  // initialise
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  const stateRef = db.ref('eureka/state');
+
+  /* ----------- WEATHER SYSTEM ----------- */
+  // Weather rate tables (cumulative thresholds).
+  // Source: eorzea-weather npm package v3.2.0 (cross-checked with xivapi datamining).
+  // Each entry: [maxExclusive, weatherName_zh]
+  // For example, anemos: chance < 30 → 晴朗, < 60 → 強風, < 90 → 暴雨, else → 雪
+  const WEATHER_RATES = {
+    anemos: [
+      [30,  '晴朗'],   // fairSkies
+      [60,  '強風'],   // gales
+      [90,  '暴雨'],   // showers
+      [100, '小雪'],     // snow
+    ],
+    pagos: [
+      [10,  '晴朗'],   // fairSkies
+      [28,  '薄霧'],   // fog
+      [46,  '熱浪'],   // heatWaves
+      [64,  '小雪'],     // snow
+      [82,  '打雷'],     // thunder
+      [100, '暴雪'],   // blizzards
+    ],
+    pyros: [
+      [10,  '晴朗'],   // fairSkies
+      [28,  '熱浪'],   // heatWaves
+      [46,  '打雷'],     // thunder
+      [64,  '暴雪'],   // blizzards
+      [82,  '靈風'],   // umbralWind
+      [100, '小雪'],     // snow
+    ],
+    hydatos: [
+      [12,  '晴朗'],   // fairSkies
+      [34,  '暴雨'],   // showers
+      [56,  '妖霧'],   // gloom
+      [78,  '雷雨'],   // thunderstorms
+      [100, '小雪'],     // snow
+    ],
+  };
+
+  // Weather chance calculation (xivapi public algorithm)
+  function calculateWeatherChance(unixSeconds) {
+    const bell = unixSeconds / 175;
+    const increment = ((bell + 8 - (bell % 8)) % 24) | 0;
+    let totalDays = (unixSeconds / 4200) | 0;
+    totalDays = (totalDays * 100 + increment) >>> 0;
+    const step1 = ((totalDays << 11) ^ totalDays) >>> 0;
+    const step2 = ((step1 >>> 8) ^ step1) >>> 0;
+    return step2 % 100;
+  }
+
+  function getWeatherForChance(zone, chance) {
+    const rates = WEATHER_RATES[zone];
+    for (const [max, name] of rates) {
+      if (chance < max) return name;
+    }
+    return rates[rates.length - 1][1];
+  }
+
+  // Get the start of the current weather window (UTC unix seconds).
+  // Each window is 8 Eorzea hours = 8 * 175 = 1400 real seconds.
+  function getCurrentWeatherWindowStart(unixSeconds) {
+    const WINDOW = 1400;
+    return Math.floor(unixSeconds / WINDOW) * WINDOW;
+  }
+
+  // Returns array of {start, end, weather} for upcoming weather windows for a zone.
+  function getWeatherForecast(zone, count = 12) {
+    const now = Math.floor(Date.now() / 1000);
+    const WINDOW = 1400;
+    const start = getCurrentWeatherWindowStart(now);
+    const out = [];
+    for (let i = 0; i < count; i++) {
+      const ws = start + i * WINDOW;
+      const we = ws + WINDOW;
+      const chance = calculateWeatherChance(ws);
+      const w = getWeatherForChance(zone, chance);
+      out.push({ start: ws, end: we, weather: w });
+    }
+    return out;
+  }
+
+  // Find the next time `targetWeather` will START in the given zone.
+  // Returns { startsIn: secondsUntilStart, isCurrent: bool, endsIn: secondsUntilCurrentWindowEnd }
+  function findNextWeather(zone, targetWeather) {
+    const forecast = getWeatherForecast(zone, 50);
+    const nowSec = Math.floor(Date.now() / 1000);
+    const cur = forecast[0];
+    if (cur.weather === targetWeather) {
+      return {
+        isCurrent: true,
+        endsIn: cur.end - nowSec,
+        startsIn: 0,
+      };
+    }
+    for (let i = 1; i < forecast.length; i++) {
+      if (forecast[i].weather === targetWeather) {
+        return {
+          isCurrent: false,
+          startsIn: forecast[i].start - nowSec,
+          endsIn: 0,
+        };
+      }
+    }
+    return null;
+  }
+
+  /* ----------- EORZEA TIME ----------- */
+  function getEorzeaTime() {
+    const epoch = Date.now();
+    const eorzeaMs = epoch * (1440 / 70);  // 1 ED = 70 real minutes; ratio is 1440/70 = ~20.571
+    // Equivalently: 1 EH = 175 real seconds → 1 real second = 24/175 EH minutes-equivalent
+    // simplest: total Eorzea minutes since unix epoch:
+    const totalEMinutes = Math.floor(epoch / (175000 / 60));  // 175s/EH * 1000ms/s / 60min/EH
+    const eMinute = totalEMinutes % 60;
+    const eHour = Math.floor(totalEMinutes / 60) % 24;
+    return { hour: eHour, minute: eMinute };
+  }
+
+  function isEorzeaNight() {
+    const { hour } = getEorzeaTime();
+    // Night = 18:00 - 5:59 (Eorzean time)
+    return hour >= 18 || hour < 6;
+  }
+
+  // Returns seconds until next night start (if currently day) or seconds until night ends (if currently night)
+  function getNightInfo() {
+    const { hour, minute } = getEorzeaTime();
+    const isNight = isEorzeaNight();
+    // Eorzea minute → real second: 1 EH = 175s, 1 EM = 175/60 s
+    const EM_PER_REAL_SEC = 60 / 175;  // Eorzea minutes per real second
+    const REAL_SEC_PER_EM = 175 / 60;  // real seconds per Eorzea minute
+
+    if (isNight) {
+      // ends at 06:00
+      let emRemaining;
+      if (hour >= 18) {
+        // hours till 24, then 6 more
+        emRemaining = (24 - hour) * 60 - minute + 6 * 60;
+      } else {
+        // 0..5
+        emRemaining = (6 - hour) * 60 - minute;
+      }
+      return { isNight: true, secondsUntilTransition: emRemaining * REAL_SEC_PER_EM };
+    } else {
+      // day, ends at 18:00
+      const emRemaining = (18 - hour) * 60 - minute;
+      return { isNight: false, secondsUntilTransition: emRemaining * REAL_SEC_PER_EM };
+    }
+  }
+
+  /* ----------- STATE / FIREBASE SYNC ----------- */
+  // State shape: { spawns: { nmId: timestamp }, instanceResets: { zone: timestamp } }
+  // 'spawns' records the moment an NM appeared; cooldown = 120 min from spawn time.
+  let state = { spawns: {}, instanceResets: {} };
+  let firstSnapshotReceived = false;
+
+  function attachRealtimeListener() {
+    setSyncStatus('syncing', '連線中…');
+    // 'value' fires once on connect with current data, then again every time data changes.
+    stateRef.on('value', (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        state = {
+          spawns: data.spawns || {},
+          instanceResets: data.instanceResets || {},
+        };
+      } else {
+        // empty database — first ever use, that's fine
+        state = { spawns: {}, instanceResets: {} };
+      }
+      firstSnapshotReceived = true;
+      setSyncStatus('ok', '已同步');
+      updateCards();
+    }, (err) => {
+      console.error('[firebase] listener error:', err);
+      setSyncStatus('error', '連線失敗');
+    });
+
+    // also reflect online/offline state
+    db.ref('.info/connected').on('value', (snap) => {
+      if (snap.val() === true) {
+        if (firstSnapshotReceived) setSyncStatus('ok', '已同步');
+      } else {
+        setSyncStatus('error', '離線中');
+      }
+    });
+  }
+
+  async function saveState() {
+    setSyncStatus('syncing', '儲存中…');
+    try {
+      // Firebase doesn't store undefined; ensure clean object
+      const payload = {
+        spawns: state.spawns || {},
+        instanceResets: state.instanceResets || {},
+        lastUpdated: firebase.database.ServerValue.TIMESTAMP,
+      };
+      await stateRef.set(payload);
+      setSyncStatus('ok', '已同步');
+    } catch (err) {
+      console.error('[firebase] write error:', err);
+      setSyncStatus('error', '同步失敗');
+    }
+  }
+
+  function setSyncStatus(kind, text) {
+    const dot = document.getElementById('syncDot');
+    const txt = document.getElementById('syncText');
+    if (!dot || !txt) return;
+    dot.className = 'sync-dot' + (kind === 'error' ? ' error' : kind === 'syncing' ? ' syncing' : '');
+    txt.textContent = text;
+  }
+
+  /* ----------- BUSINESS LOGIC ----------- */
+  // For a given NM, return { status, secondsRemaining, weatherInfo, nightInfo }
+  function getNmStatus(zone, nm) {
+    const spawnTs = state.spawns[nm.id];
+    const resetTs = state.instanceResets[zone];
+
+    // If instance was reset after the last spawn, treat as no spawn record.
+    let lastSpawn = null;
+    if (spawnTs && (!resetTs || spawnTs > resetTs)) lastSpawn = spawnTs;
+
+    const now = Date.now();
+    const cooldownEndsAt = lastSpawn ? lastSpawn + COOLDOWN_MS : 0;
+    const onCooldown = cooldownEndsAt > now;
+    const cooldownMsRemaining = onCooldown ? cooldownEndsAt - now : 0;
+
+    // Weather check
+    let weatherSatisfied = true;
+    let weatherInfo = null;
+    if (nm.weather) {
+      const w = findNextWeather(zone, nm.weather);
+      weatherInfo = w;
+      weatherSatisfied = w && w.isCurrent;
+    }
+
+    // Night check (only Louhi)
+    let nightSatisfied = true;
+    let nightInfo = null;
+    if (nm.timeReq === '夜晚') {
+      nightInfo = getNightInfo();
+      nightSatisfied = nightInfo.isNight;
+    }
+
+    let status;
+    if (onCooldown) status = 'cooldown';
+    else if (!weatherSatisfied || !nightSatisfied) status = 'waiting';
+    else status = 'ready';
+
+    return {
+      status,
+      cooldownMsRemaining,
+      cooldownEndsAt,
+      lastSpawn,
+      weatherInfo,
+      weatherSatisfied,
+      nightInfo,
+      nightSatisfied,
+    };
+  }
+
+  function formatCooldown(ms) {
+    if (ms <= 0) return '00:00';
+    const totalMin = Math.ceil(ms / 60000);
+    const m = Math.floor(totalMin / 60);
+    const min = totalMin % 60;
+    if (m > 0) return `${m}h ${String(min).padStart(2, '0')}m`;
+    return `${min}分`;
+  }
+
+  function formatSeconds(sec) {
+    if (sec <= 0) return '已開始';
+    if (sec < 60) return `${Math.ceil(sec)}秒`;
+    const totalMin = Math.ceil(sec / 60);
+    const m = Math.floor(totalMin / 60);
+    const min = totalMin % 60;
+    if (m > 0) return `${m}小時 ${min}分`;
+    return `${min}分`;
+  }
+
+  /* ----------- RENDER ----------- */
+  let activeZone = 'anemos';
+
+  function buildZoneContent() {
+    const container = document.getElementById('zoneContainer');
+    container.innerHTML = '';
+    Object.entries(NM_DATA).forEach(([zoneId, zoneData]) => {
+      const section = document.createElement('section');
+      section.className = 'zone-content' + (zoneId === activeZone ? ' active' : '');
+      section.id = `zone-${zoneId}`;
+      section.dataset.zone = zoneId;
+
+      const toolbar = document.createElement('div');
+      toolbar.className = 'zone-toolbar';
+      toolbar.innerHTML = `
+        <div class="zone-summary">${zoneData.summary}</div>
+        <button class="new-instance-btn" data-zone="${zoneId}">⟁ 新島重置</button>
+      `;
+      section.appendChild(toolbar);
+
+      const grid = document.createElement('div');
+      grid.className = 'nm-grid';
+      zoneData.nms.forEach(nm => {
+        const card = document.createElement('article');
+        card.className = 'nm-card';
+        card.id = `nm-${nm.id}`;
+        card.dataset.nm = nm.id;
+        card.dataset.zone = zoneId;
+        card.innerHTML = renderCardInner(nm);
+        grid.appendChild(card);
+      });
+      section.appendChild(grid);
+      container.appendChild(section);
+    });
+  }
+
+  function renderCardInner(nm) {
+    // condition tags
+    let conds = '';
+    if (nm.weather) conds += `<span class="condition-tag"><span class="icon">❅</span>${nm.weather}</span>`;
+    if (nm.timeReq) conds += `<span class="condition-tag"><span class="icon">☾</span>${nm.timeReq}</span>`;
+    if (!nm.weather && !nm.timeReq) conds += `<span class="condition-tag no-condition">無條件限制</span>`;
+
+    return `
+      <div class="nm-header">
+        <div class="nm-name-block">
+          <div class="nm-name">${nm.name}<span class="nickname">${nm.nickname}</span></div>
+          <div class="nm-meta"><span class="en">${nm.en}</span> · ${nm.fate}</div>
+        </div>
+        <div class="nm-level-badge">LV<span class="lv-num">${nm.level}</span></div>
+      </div>
+      <div class="nm-conditions">${conds}</div>
+      <div class="nm-drop"><span class="label">Drops</span>${nm.drop}</div>
+      <div class="nm-status">
+        <div>
+          <div class="status-text zh" data-role="statusLabel">—</div>
+          <div class="status-detail" data-role="statusDetail">—</div>
+        </div>
+        <div class="status-value" data-role="statusValue">—</div>
+      </div>
+      <button class="report-btn" data-action="report" data-nm="${nm.id}">⚔ 出現回報</button>
+      <button class="manual-time-btn" data-action="manual-time" data-nm="${nm.id}">✎ 手動輸入時間</button>
+      <button class="reset-btn" data-action="reset-single" data-nm="${nm.id}" style="display:none;">取消此次回報</button>
+    `;
+  }
+
+  // Update only the dynamic parts of all visible cards
+  function updateCards() {
+    const zoneData = NM_DATA[activeZone];
+    if (!zoneData) return;
+    zoneData.nms.forEach(nm => {
+      const card = document.getElementById(`nm-${nm.id}`);
+      if (!card) return;
+      const info = getNmStatus(activeZone, nm);
+      card.dataset.status = info.status;
+
+      const labelEl = card.querySelector('[data-role="statusLabel"]');
+      const valueEl = card.querySelector('[data-role="statusValue"]');
+      const detailEl = card.querySelector('[data-role="statusDetail"]');
+      const resetBtn = card.querySelector('[data-action="reset-single"]');
+
+      // show 'reset' button when there is a recorded spawn
+      if (info.lastSpawn) resetBtn.style.display = '';
+      else resetBtn.style.display = 'none';
+
+      if (info.status === 'cooldown') {
+        labelEl.textContent = '冷卻中';
+        valueEl.textContent = formatCooldown(info.cooldownMsRemaining);
+        const endTime = new Date(info.cooldownEndsAt);
+        const t = `${String(endTime.getHours()).padStart(2,'0')}:${String(endTime.getMinutes()).padStart(2,'0')}`;
+        detailEl.innerHTML = `預計 <span class="eta">${t}</span> 解除冷卻`;
+      } else if (info.status === 'waiting') {
+        // weather or night not satisfied
+        let detail = [];
+        if (nm.weather && info.weatherInfo && !info.weatherInfo.isCurrent) {
+          const eta = new Date(Date.now() + info.weatherInfo.startsIn * 1000);
+          const etaHM = `${String(eta.getHours()).padStart(2,'0')}:${String(eta.getMinutes()).padStart(2,'0')}`;
+          detail.push(`下次「${nm.weather}」：${formatSeconds(info.weatherInfo.startsIn)}後（<span class="eta">${etaHM}</span>）`);
+        }
+        if (nm.timeReq === '夜晚' && info.nightInfo && !info.nightInfo.isNight) {
+          const eta = new Date(Date.now() + info.nightInfo.secondsUntilTransition * 1000);
+          const etaHM = `${String(eta.getHours()).padStart(2,'0')}:${String(eta.getMinutes()).padStart(2,'0')}`;
+          detail.push(`入夜還剩：${formatSeconds(info.nightInfo.secondsUntilTransition)}（<span class="eta">${etaHM}</span>）`);
+        }
+        labelEl.textContent = '等待條件';
+        valueEl.textContent = '—';
+        detailEl.innerHTML = detail.join(' · ') || '等待中';
+      } else {
+        // ready
+        labelEl.textContent = '可以觸發';
+        let extra = [];
+        if (nm.weather && info.weatherInfo && info.weatherInfo.isCurrent) {
+          const eta = new Date(Date.now() + info.weatherInfo.endsIn * 1000);
+          const etaHM = `${String(eta.getHours()).padStart(2,'0')}:${String(eta.getMinutes()).padStart(2,'0')}`;
+          extra.push(`「${nm.weather}」剩 ${formatSeconds(info.weatherInfo.endsIn)}（至 <span class="eta">${etaHM}</span>）`);
+        }
+        if (nm.timeReq === '夜晚' && info.nightInfo && info.nightInfo.isNight) {
+          const eta = new Date(Date.now() + info.nightInfo.secondsUntilTransition * 1000);
+          const etaHM = `${String(eta.getHours()).padStart(2,'0')}:${String(eta.getMinutes()).padStart(2,'0')}`;
+          extra.push(`夜晚剩 ${formatSeconds(info.nightInfo.secondsUntilTransition)}（至 <span class="eta">${etaHM}</span>）`);
+        }
+        valueEl.textContent = '✦';
+        detailEl.innerHTML = extra.length ? extra.join(' · ') : '隨時可觸發';
+      }
+    });
+  }
+
+  function updateClock() {
+    const et = getEorzeaTime();
+    const t = `${String(et.hour).padStart(2,'0')}:${String(et.minute).padStart(2,'0')}`;
+    document.getElementById('eorzeaTime').textContent = t;
+    const isNight = isEorzeaNight();
+    const period = isNight ? '夜晚' : '白晝';
+    const ni = getNightInfo();
+    const transitionEta = new Date(Date.now() + ni.secondsUntilTransition * 1000);
+    const transitionHM = `${String(transitionEta.getHours()).padStart(2,'0')}:${String(transitionEta.getMinutes()).padStart(2,'0')}`;
+    document.getElementById('eorzeaPeriod').innerHTML =
+      `${period} · ${isNight ? '日出' : '日落'} ${formatSeconds(ni.secondsUntilTransition)}後（<span class="eta">${transitionHM}</span>）`;
+
+    // current weather for active zone
+    const forecast = getWeatherForecast(activeZone, 2);
+    if (forecast.length) {
+      const cur = forecast[0];
+      const next = forecast[1];
+      const nowSec = Math.floor(Date.now()/1000);
+      const remainingSec = cur.end - nowSec;
+      const weatherEta = new Date(cur.end * 1000);
+      const weatherHM = `${String(weatherEta.getHours()).padStart(2,'0')}:${String(weatherEta.getMinutes()).padStart(2,'0')}`;
+      document.getElementById('currentWeather').textContent = cur.weather;
+      document.getElementById('weatherCountdown').innerHTML =
+        `本區 · ${formatSeconds(remainingSec)}後變「${next.weather}」（<span class="eta">${weatherHM}</span>）`;
+    }
+  }
+
+  /* ----------- ACTIONS ----------- */
+  function showModal(title, message, onConfirm, opts = {}) {
+    const backdrop = document.getElementById('modalBackdrop');
+    document.getElementById('modalTitle').textContent = title;
+    const msgEl = document.getElementById('modalMessage');
+    msgEl.textContent = message;
+    msgEl.style.display = message ? '' : 'none';
+
+    const extraEl = document.getElementById('modalExtra');
+    if (opts.extraHtml) {
+      extraEl.innerHTML = opts.extraHtml;
+      extraEl.style.display = '';
+    } else {
+      extraEl.innerHTML = '';
+      extraEl.style.display = 'none';
+    }
+
+    backdrop.classList.add('active');
+    const confirmBtn = document.getElementById('modalConfirm');
+    const cancelBtn = document.getElementById('modalCancel');
+    confirmBtn.textContent = opts.confirmText || '確認';
+    cancelBtn.textContent = opts.cancelText || '取消';
+
+    const close = () => {
+      backdrop.classList.remove('active');
+      // re-clone to clear all listeners safely
+      const nc = confirmBtn.cloneNode(true);
+      confirmBtn.parentNode.replaceChild(nc, confirmBtn);
+      const nx = cancelBtn.cloneNode(true);
+      cancelBtn.parentNode.replaceChild(nx, cancelBtn);
+    };
+
+    document.getElementById('modalConfirm').addEventListener('click', () => {
+      // if confirmation handler returns false, keep modal open (validation failure)
+      const result = onConfirm();
+      if (result !== false) close();
+    });
+    document.getElementById('modalCancel').addEventListener('click', close);
+
+    // run setup hook (e.g. autofocus an input) after DOM is ready
+    if (opts.afterShow) setTimeout(opts.afterShow, 0);
+  }
+
+  /* --- manual time input --- */
+  // Format a Date as HH:MM (local 24h)
+  function fmtHM(date) {
+    return `${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
+  }
+
+  // Parse user's input (either "5" / "12" minutes-ago, or "14:30" wall-clock).
+  // Returns timestamp (ms) or null on invalid.
+  function parseManualTime(input, mode) {
+    if (!input) return null;
+    const s = input.trim();
+    if (mode === 'ago') {
+      // accept "5", "5分", "5 min" etc.
+      const m = s.match(/^(\d+)\s*(?:分|min|m)?$/i);
+      if (!m) return null;
+      const mins = parseInt(m[1], 10);
+      if (isNaN(mins) || mins < 0 || mins > 119) return null;
+      return Date.now() - mins * 60 * 1000;
+    } else {
+      // wall-clock HH:MM
+      const m = s.match(/^(\d{1,2}):(\d{2})$/);
+      if (!m) return null;
+      const hh = parseInt(m[1], 10);
+      const mm = parseInt(m[2], 10);
+      if (hh < 0 || hh > 23 || mm < 0 || mm > 59) return null;
+      const now = new Date();
+      const candidate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm, 0, 0);
+      // If user gave a future time, assume they meant yesterday
+      if (candidate.getTime() > now.getTime()) {
+        candidate.setDate(candidate.getDate() - 1);
+      }
+      // Reject if more than 119 min in the past (cooldown is 120 min, would be useless)
+      const diffMin = (now.getTime() - candidate.getTime()) / 60000;
+      if (diffMin > 119) return null;
+      if (diffMin < 0) return null;
+      return candidate.getTime();
+    }
+  }
+
+  function openManualTimeModal(nmId) {
+    const nm = findNm(nmId);
+    if (!nm) return;
+    const now = new Date();
+    const nowHM = fmtHM(now);
+    const extraHtml = `
+      <div class="time-mode-tabs">
+        <button class="time-mode-tab active" data-mode="ago">${'幾分鐘前出現'}</button>
+        <button class="time-mode-tab" data-mode="clock">${'指定時間出現'}</button>
+      </div>
+      <div class="time-input-group" data-pane="ago">
+        <span class="time-input-label">分鐘前 (0–119)</span>
+        <input class="time-input" id="modalTimeAgo" type="text" inputmode="numeric" placeholder="例如：15" />
+        <div class="time-input-hint">輸入「15」表示 15 分鐘前出現，現在冷卻剩 105 分鐘。</div>
+      </div>
+      <div class="time-input-group" data-pane="clock" style="display:none;">
+        <span class="time-input-label">出現時間（24 小時制）</span>
+        <input class="time-input" id="modalTimeClock" type="text" inputmode="numeric" placeholder="HH:MM 例如：${nowHM}" />
+        <div class="time-input-hint">使用裝置時間。若輸入未來的時間，視為昨天的同時刻。</div>
+      </div>
+      <div class="time-input-error" id="modalTimeError"></div>
+    `;
+    showModal(
+      `回報「${nm.name}」出現時間`,
+      '',
+      () => {
+        const activeTab = document.querySelector('.time-mode-tab.active');
+        const mode = activeTab ? activeTab.dataset.mode : 'ago';
+        const input = mode === 'ago'
+          ? document.getElementById('modalTimeAgo').value
+          : document.getElementById('modalTimeClock').value;
+        const ts = parseManualTime(input, mode);
+        const errEl = document.getElementById('modalTimeError');
+        if (!ts) {
+          errEl.textContent = mode === 'ago'
+            ? '請輸入 0 到 119 之間的分鐘數。'
+            : '請輸入 HH:MM 格式（24 小時制），且不能超過 119 分鐘前。';
+          return false; // keep modal open
+        }
+        // commit
+        state.spawns[nmId] = ts;
+        // ensure instance reset doesn't shadow this entry
+        const zone = findZoneOfNm(nmId);
+        if (zone && state.instanceResets[zone] && state.instanceResets[zone] > ts) {
+          // user explicitly entered a time; they probably want it to count, so push reset slightly earlier
+          state.instanceResets[zone] = ts - 1;
+        }
+        saveState();
+        updateCards();
+      },
+      {
+        extraHtml,
+        confirmText: '確認回報',
+        afterShow: () => {
+          // wire mode tabs
+          document.querySelectorAll('.time-mode-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+              document.querySelectorAll('.time-mode-tab').forEach(t => t.classList.toggle('active', t === tab));
+              document.querySelectorAll('[data-pane]').forEach(p => {
+                p.style.display = p.dataset.pane === tab.dataset.mode ? '' : 'none';
+              });
+              const focusEl = tab.dataset.mode === 'ago'
+                ? document.getElementById('modalTimeAgo')
+                : document.getElementById('modalTimeClock');
+              if (focusEl) focusEl.focus();
+            });
+          });
+          // enter to submit
+          ['modalTimeAgo', 'modalTimeClock'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('keydown', e => {
+              if (e.key === 'Enter') document.getElementById('modalConfirm').click();
+            });
+          });
+          const ago = document.getElementById('modalTimeAgo');
+          if (ago) ago.focus();
+        },
+      }
+    );
+  }
+
+  function findZoneOfNm(nmId) {
+    for (const [zoneId, zoneData] of Object.entries(NM_DATA)) {
+      if (zoneData.nms.some(n => n.id === nmId)) return zoneId;
+    }
+    return null;
+  }
+
+  async function handleReport(nmId) {
+    state.spawns[nmId] = Date.now();
+    // brief visual flash on the button so user knows it registered
+    const btn = document.querySelector(`button[data-action="report"][data-nm="${nmId}"]`);
+    if (btn) {
+      btn.style.transition = 'background 0.15s ease, color 0.15s ease';
+      const origBg = btn.style.background;
+      const origColor = btn.style.color;
+      btn.style.background = 'linear-gradient(180deg, rgba(168, 58, 58, 0.7), rgba(168, 58, 58, 0.4))';
+      btn.style.color = '#ffffff';
+      setTimeout(() => {
+        btn.style.background = origBg;
+        btn.style.color = origColor;
+      }, 200);
+    }
+    await saveState();
+    updateCards();
+  }
+
+  async function handleResetSingle(nmId) {
+    delete state.spawns[nmId];
+    await saveState();
+    updateCards();
+  }
+
+  async function handleNewInstance(zone) {
+    state.instanceResets[zone] = Date.now();
+    // clear spawns in that zone too, keeps storage tidy
+    NM_DATA[zone].nms.forEach(nm => { delete state.spawns[nm.id]; });
+    await saveState();
+    updateCards();
+  }
+
+  /* ----------- EVENT WIRING ----------- */
+  function wireEvents() {
+    // tab switching
+    document.querySelectorAll('.zone-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const z = tab.dataset.zone;
+        if (z === activeZone) return;
+        activeZone = z;
+        document.querySelectorAll('.zone-tab').forEach(t => t.classList.toggle('active', t === tab));
+        document.querySelectorAll('.zone-content').forEach(s => s.classList.toggle('active', s.dataset.zone === z));
+        updateCards();
+        updateClock();
+      });
+    });
+
+    // delegate clicks on zone content
+    document.getElementById('zoneContainer').addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      if (btn.classList.contains('new-instance-btn')) {
+        const zone = btn.dataset.zone;
+        showModal(
+          '確認新島重置',
+          `將清除 ${NM_DATA[zone].label} 全部 NM 的冷卻紀錄。確定？`,
+          () => handleNewInstance(zone)
+        );
+      } else if (btn.dataset.action === 'report') {
+        // direct-fire: no confirmation
+        handleReport(btn.dataset.nm);
+      } else if (btn.dataset.action === 'manual-time') {
+        openManualTimeModal(btn.dataset.nm);
+      } else if (btn.dataset.action === 'reset-single') {
+        const nmId = btn.dataset.nm;
+        const nm = findNm(nmId);
+        showModal(
+          '取消此次回報',
+          `取消「${nm.name}」的死亡回報？冷卻計時將清除。`,
+          () => handleResetSingle(nmId)
+        );
+      }
+    });
+  }
+
+  function findNm(nmId) {
+    for (const zone of Object.values(NM_DATA)) {
+      for (const nm of zone.nms) if (nm.id === nmId) return nm;
+    }
+    return null;
+  }
+
+  /* ----------- BOOT ----------- */
+  function boot() {
+    buildZoneContent();
+    wireEvents();
+    // attach realtime listener — first snapshot will populate state and trigger updateCards
+    attachRealtimeListener();
+    updateClock();
+
+    // tick every second for clock + cooldown countdowns
+    setInterval(() => {
+      updateClock();
+      updateCards();
+    }, TICK_MS);
+  }
+
+  boot();
+</script>
+
+</body>
+</html>
