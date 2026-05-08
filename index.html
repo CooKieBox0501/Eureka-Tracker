@@ -151,6 +151,24 @@
     color: var(--gold);
   }
 
+  .version-btn {
+    background: transparent;
+    border: none;
+    color: var(--ink-faded);
+    padding: 2px 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    opacity: 0.6;
+  }
+
+  .version-btn:hover {
+    color: var(--gold-bright);
+    opacity: 1;
+  }
+
   /* eorzea clock + weather */
   .status-strip {
     display: flex;
@@ -498,11 +516,22 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
     padding: 12px 14px;
     background: rgba(0,0,0,0.25);
     border: 1px solid var(--border);
     margin-bottom: 14px;
     min-height: 60px;
+  }
+
+  .nm-status > div:first-child {
+    flex: 1;
+    min-width: 0; /* allow shrink */
+  }
+
+  .nm-status .status-value {
+    flex-shrink: 0;
+    white-space: nowrap; /* never wrap the big countdown */
   }
 
   .status-text {
@@ -550,6 +579,8 @@
     letter-spacing: 0.02em;
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum" 1;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   /* highlight the HH:MM part inside detail */
@@ -763,6 +794,46 @@
     background: linear-gradient(180deg, rgba(168, 58, 58, 0.5), rgba(168, 58, 58, 0.2));
   }
 
+  /* changelog modal */
+  .changelog-entry {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .changelog-entry:last-of-type {
+    border-bottom: none;
+  }
+
+  .changelog-version {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--gold-bright);
+    margin-bottom: 10px;
+  }
+
+  .changelog-date {
+    font-family: var(--font-cjk);
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--ink-faded);
+  }
+
+  .changelog-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .changelog-list li {
+    font-family: var(--font-cjk);
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.7;
+    padding-left: 0;
+  }
+
   /* time-input modal extras */
   .time-input-group {
     display: flex;
@@ -882,7 +953,7 @@
   <header>
     <div class="title-block">
       <h1>Eureka NM Tracker</h1>
-      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特</div>
+      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v1.2.0</button></div>
     </div>
     <div class="status-strip">
       <div class="status-card" id="eorzeaTimeCard">
@@ -913,8 +984,11 @@
 
   <footer>
     <span class="ornament">❦</span>
-		FINAL FANTASY XIV ©2010 - 2023 SQUARE ENIX CO., LTD. 
-		FINAL FANTASY is a registered trademark of Square Enix Holdings Co., Ltd. All material used under license. 
+    <div class="copyright">
+      FINAL FANTASY XIV © SQUARE ENIX CO., LTD. All Rights Reserved.<br>
+      FINAL FANTASY is a registered trademark of Square Enix Holdings Co., Ltd.<br>
+      本網站為非官方愛好者工具，與 SQUARE ENIX 無關。
+    </div>
     <span class="ornament">❦</span>
   </footer>
 
@@ -939,6 +1013,40 @@
   </div>
 </div>
 
+<!-- changelog modal -->
+<div class="modal-backdrop" id="changelogBackdrop">
+  <div class="modal" style="max-width: 520px; max-height: 70vh; overflow-y: auto;">
+    <h3>📜 更新日誌</h3>
+    <div class="changelog-entry">
+      <div class="changelog-version">v1.2.0 <span class="changelog-date">— 2026/05/09</span></div>
+      <ul class="changelog-list">
+        <li>✦ 新增版本號與更新日誌</li>
+        <li>✦ 補報時間支援無冒號格式（1800 / 600）與 12 小時制自動推論</li>
+		<li>✦ 現在冷卻中也會顯示天氣資訊</li>
+      </ul>
+    </div>
+    <div class="changelog-entry">
+      <div class="changelog-version">v1.1.0 <span class="changelog-date">— 2026/05/05</span></div>
+      <ul class="changelog-list">
+        <li>✦ 升級為 Firebase 即時同步</li>
+        <li>✦ 新增手動輸入時間功能</li>
+        <li>✦ 部分字體更換及文本修正</li>
+		<li>✦ 跨裝置同步</li>
+      </ul>
+    </div>
+    <div class="changelog-entry">
+      <div class="changelog-version">v1.0.0 <span class="changelog-date">— 2026/05/05</span></div>
+      <ul class="changelog-list">
+        <li>✦ 12 NM 冷卻追蹤計算</li>
+        <li>✦ 即時艾歐傑亞時間 + 天氣預報</li>
+      </ul>
+    </div>
+    <div class="modal-actions" style="margin-top: 20px;">
+      <button class="modal-btn" id="changelogClose">關閉</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ====================================================
    FFXIV Eureka NM Tracker
@@ -956,14 +1064,14 @@
   const NM_DATA = {
     anemos: {
       label: '常風之地 Anemos',
-      summary: '僅追蹤島主。',
+      summary: '風蝕奇巖林立，疾風終年長嘯。',
       nms: [
         { id: 'pazuzu', name: '帕祖祖', nickname: '島主(PZZ)', en: 'Pazuzu', fate: 'I Amm Bemhart', level: 20, weather: '強風', timeReq: null, drop: '帕祖祖的羽毛 · 帕祖祖的祭壇' },
       ],
     },
     pagos: {
       label: '恆冰之地 Pagos',
-      summary: '追蹤螃蟹、凱西與島主，請留意天氣與時段。',
+      summary: '萬古冰封，極寒不化之地。',
       nms: [
         { id: 'arthro', name: '亞瑟羅王', nickname: '螃蟹', en: 'King Arthro', fate: 'Morte Arthro', level: 29, weather: '薄霧', timeReq: null, drop: '閃襲戒指' },
         { id: 'cassie', name: '凱西', nickname: 'KC', en: 'Copycat Cassie', fate: 'Cassie and the Copycats', level: 35, weather: '暴雪', timeReq: null, drop: '凱西耳墜' },
@@ -972,20 +1080,20 @@
     },
     pyros: {
       label: '湧火之地 Pyros',
-      summary: '追蹤傭兵、陰陽、斯庫爾與島主，後兩者有天氣需求。',
+      summary: '雪覆熔岩，烈焰與寒霜共舞。',
       nms: [
         { id: 'lamebrix', name: '傭兵雷姆普里克斯', nickname: '傭兵', en: 'Lamebrix Strikebocks', fate: 'Thirty Whacks', level: 45, weather: null, timeReq: null, drop: '雷姆普里克斯的骰子' },
         { id: 'yinyang', name: '陰陽', nickname: 'YY', en: 'Yin-Yang', fate: 'Haunter of the Dark', level: 49, weather: null, timeReq: null, drop: '陰陽的皮膜' },
-        { id: 'skoll', name: '斯庫爾', nickname: '狼', en: 'Skoll', fate: "Heavens' Warg", level: 50, weather: '暴雪', timeReq: null, drop: '斯庫爾的牙' },
+        { id: 'skoll', name: '斯庫爾', nickname: '狗', en: 'Skoll', fate: "Heavens' Warg", level: 50, weather: '暴雪', timeReq: null, drop: '斯庫爾的牙' },
         { id: 'penthesilea', name: '彭忒希勒亞', nickname: '島主(Penny)', en: 'Penthesilea', fate: 'Lost Epic', level: 50, weather: '熱浪', timeReq: null, drop: '彭忒希勒亞的火種' },
       ],
     },
     hydatos: {
       label: '豐水之地 Hydatos',
-      summary: '追蹤牛、馬王、Ceto、島主',
+      summary: '湖光晶瑩，水族棲息之鄉。',
       nms: [
         { id: 'molech', name: '摩洛', nickname: '牛', en: 'Molech', fate: 'Bullheaded Berserker', level: 52, weather: null, timeReq: null, drop: '摩洛的角' },
-        { id: 'goldemar', name: '戈爾德馬爾王', nickname: '馬王', en: 'King Goldemar', fate: 'Duty-free', level: 56, weather: null, timeReq: null, drop: '戈爾德馬爾的角' },
+        { id: 'goldemar', name: '戈爾德馬爾王', nickname: '馬王', en: 'King Goldemar', fate: 'Duty-free', level: 56, weather: null, timeReq: '夜晚', drop: '戈爾德馬爾的角' },
         { id: 'ceto', name: '刻托', nickname: 'CT', en: 'Ceto', fate: 'Stone-cold Killer', level: 59, weather: null, timeReq: null, drop: '刻托的爪子' },
         { id: 'pw', name: '起源守望者', nickname: '島主(PW)', en: 'Provenance Watcher', fate: 'Crystalline Provenance', level: 60, weather: null, timeReq: null, drop: '水晶龍之鱗' },
       ],
@@ -1380,7 +1488,30 @@
         valueEl.textContent = formatCooldown(info.cooldownMsRemaining);
         const endTime = new Date(info.cooldownEndsAt);
         const t = `${String(endTime.getHours()).padStart(2,'0')}:${String(endTime.getMinutes()).padStart(2,'0')}`;
-        detailEl.innerHTML = `預計 <span class="eta">${t}</span> 解除冷卻`;
+        const lines = [`預計 <span class="eta">${t}</span> 解除冷卻`];
+
+        // condition info on its own line(s)
+        if (nm.weather && info.weatherInfo) {
+          if (info.weatherInfo.isCurrent) {
+            const wEndEta = new Date(Date.now() + info.weatherInfo.endsIn * 1000);
+            const wEndHM = `${String(wEndEta.getHours()).padStart(2,'0')}:${String(wEndEta.getMinutes()).padStart(2,'0')}`;
+            lines.push(`「${nm.weather}」至 <span class="eta">${wEndHM}</span>`);
+          } else {
+            const wEta = new Date(Date.now() + info.weatherInfo.startsIn * 1000);
+            const wHM = `${String(wEta.getHours()).padStart(2,'0')}:${String(wEta.getMinutes()).padStart(2,'0')}`;
+            lines.push(`下次「${nm.weather}」<span class="eta">${wHM}</span>`);
+          }
+        }
+        if (nm.timeReq === '夜晚' && info.nightInfo) {
+          const nEta = new Date(Date.now() + info.nightInfo.secondsUntilTransition * 1000);
+          const nHM = `${String(nEta.getHours()).padStart(2,'0')}:${String(nEta.getMinutes()).padStart(2,'0')}`;
+          if (info.nightInfo.isNight) {
+            lines.push(`夜晚至 <span class="eta">${nHM}</span>`);
+          } else {
+            lines.push(`下次入夜 <span class="eta">${nHM}</span>`);
+          }
+        }
+        detailEl.innerHTML = lines.join('<br>');
       } else if (info.status === 'waiting') {
         // weather or night not satisfied
         let detail = [];
@@ -1493,36 +1624,67 @@
     return `${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
   }
 
-  // Parse user's input (either "5" / "12" minutes-ago, or "14:30" wall-clock).
+  // Parse user's input (either "5" / "12" minutes-ago, or "14:30" / "1800" wall-clock).
   // Returns timestamp (ms) or null on invalid.
   function parseManualTime(input, mode) {
     if (!input) return null;
-    const s = input.trim();
+    const s = input.trim().replace(/[:\s]/g, ''); // strip colon and spaces
     if (mode === 'ago') {
       // accept "5", "5分", "5 min" etc.
-      const m = s.match(/^(\d+)\s*(?:分|min|m)?$/i);
+      const m = s.match(/^(\d+)(?:分|min|m)?$/i);
       if (!m) return null;
       const mins = parseInt(m[1], 10);
       if (isNaN(mins) || mins < 0 || mins > 119) return null;
       return Date.now() - mins * 60 * 1000;
     } else {
-      // wall-clock HH:MM
-      const m = s.match(/^(\d{1,2}):(\d{2})$/);
+      // wall-clock: accept "1800", "600", "18:00" (already stripped colon)
+      const m = s.match(/^(\d{1,4})$/);
       if (!m) return null;
-      const hh = parseInt(m[1], 10);
-      const mm = parseInt(m[2], 10);
-      if (hh < 0 || hh > 23 || mm < 0 || mm > 59) return null;
-      const now = new Date();
-      const candidate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm, 0, 0);
-      // If user gave a future time, assume they meant yesterday
-      if (candidate.getTime() > now.getTime()) {
-        candidate.setDate(candidate.getDate() - 1);
+      const digits = m[1];
+      let hh, mm;
+      if (digits.length === 4) {
+        // HHMM
+        hh = parseInt(digits.substr(0, 2), 10);
+        mm = parseInt(digits.substr(2, 2), 10);
+      } else if (digits.length === 3) {
+        // HMM
+        hh = parseInt(digits.substr(0, 1), 10);
+        mm = parseInt(digits.substr(1, 2), 10);
+      } else if (digits.length === 2) {
+        // HH
+        hh = parseInt(digits, 10);
+        mm = 0;
+      } else if (digits.length === 1) {
+        // H
+        hh = parseInt(digits, 10);
+        mm = 0;
+      } else {
+        return null;
       }
-      // Reject if more than 119 min in the past (cooldown is 120 min, would be useless)
-      const diffMin = (now.getTime() - candidate.getTime()) / 60000;
-      if (diffMin > 119) return null;
-      if (diffMin < 0) return null;
-      return candidate.getTime();
+      if (hh < 0 || hh > 23 || mm < 0 || mm > 59) return null;
+
+      const now = new Date();
+      const tryTime = (hour) => {
+        const candidate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, mm, 0, 0);
+        if (candidate.getTime() > now.getTime()) {
+          candidate.setDate(candidate.getDate() - 1);
+        }
+        const diffMin = (now.getTime() - candidate.getTime()) / 60000;
+        if (diffMin >= 0 && diffMin <= 119) return candidate.getTime();
+        return null;
+      };
+
+      // Try 24h first
+      let result = tryTime(hh);
+      if (result) return result;
+
+      // Try 12h conversion
+      if (hh < 12) {
+        result = tryTime(hh + 12);
+        if (result) return result;
+      }
+
+      return null;
     }
   }
 
@@ -1542,9 +1704,9 @@
         <div class="time-input-hint">輸入「15」表示 15 分鐘前出現，現在冷卻剩 105 分鐘。</div>
       </div>
       <div class="time-input-group" data-pane="clock" style="display:none;">
-        <span class="time-input-label">出現時間（24 小時制）</span>
-        <input class="time-input" id="modalTimeClock" type="text" inputmode="numeric" placeholder="HH:MM 例如：${nowHM}" />
-        <div class="time-input-hint">使用裝置時間。若輸入未來的時間，視為昨天的同時刻。</div>
+        <span class="time-input-label">出現時間（24 或 12 小時制）</span>
+        <input class="time-input" id="modalTimeClock" type="text" inputmode="numeric" placeholder="例如：1800 或 18:00" />
+        <div class="time-input-hint">支援無冒號格式（1800 / 600）。若 24 小時制超過冷卻範圍，自動試 12 小時制（例如 0600 → 1800）。</div>
       </div>
       <div class="time-input-error" id="modalTimeError"></div>
     `;
@@ -1562,7 +1724,7 @@
         if (!ts) {
           errEl.textContent = mode === 'ago'
             ? '請輸入 0 到 119 之間的分鐘數。'
-            : '請輸入 HH:MM 格式（24 小時制），且不能超過 119 分鐘前。';
+            : '請輸入有效時間（支援 1800、18:00、600 等格式），且不能超過 119 分鐘前。';
           return false; // keep modal open
         }
         // commit
@@ -1660,6 +1822,16 @@
         updateCards();
         updateClock();
       });
+    });
+
+    // version button -> changelog modal
+    const vBtn = document.getElementById('versionBtn');
+    const clBackdrop = document.getElementById('changelogBackdrop');
+    const clClose = document.getElementById('changelogClose');
+    if (vBtn) vBtn.addEventListener('click', () => clBackdrop.classList.add('active'));
+    if (clClose) clClose.addEventListener('click', () => clBackdrop.classList.remove('active'));
+    if (clBackdrop) clBackdrop.addEventListener('click', (e) => {
+      if (e.target === clBackdrop) clBackdrop.classList.remove('active');
     });
 
     // delegate clicks on zone content
