@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>優雷卡 NM 追蹤器 · Eureka Tracker</title>
+
+<!-- inline SVG favicon (印章 E design) -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='30' fill='%231a1610' stroke='%233a3520' stroke-width='1'/><circle cx='32' cy='32' r='27' fill='none' stroke='%238b7340' stroke-width='1'/><circle cx='32' cy='32' r='22' fill='none' stroke='%23d4a84b' stroke-width='0.8' opacity='0.6'/><circle cx='32' cy='4' r='1.5' fill='%23d4a84b'/><circle cx='60' cy='32' r='1.5' fill='%23d4a84b'/><circle cx='32' cy='60' r='1.5' fill='%23d4a84b'/><circle cx='4' cy='32' r='1.5' fill='%23d4a84b'/><circle cx='13' cy='13' r='1' fill='%238b7340'/><circle cx='51' cy='13' r='1' fill='%238b7340'/><circle cx='13' cy='51' r='1' fill='%238b7340'/><circle cx='51' cy='51' r='1' fill='%238b7340'/><path d='M 21 16 L 21 48 L 44 48 L 44 43 L 26 43 L 26 34 L 40 34 L 40 30 L 26 30 L 26 21 L 44 21 L 44 16 Z' fill='%23e8d9b8' stroke='%23d4a84b' stroke-width='0.6'/></svg>">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Geist+Mono:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -377,6 +381,30 @@
     transform: translateY(1px);
   }
 
+  .history-btn-toolbar {
+    background: transparent;
+    border: 1px solid var(--border-light);
+    color: var(--ink-faded);
+    padding: 12px 18px;
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .history-btn-toolbar:hover {
+    border-color: var(--gold-deep);
+    color: var(--gold-bright);
+    background: rgba(212, 168, 75, 0.05);
+  }
+
+  .history-btn-toolbar:active {
+    transform: translateY(1px);
+  }
+
   /* ============ NM CARDS ============ */
   .nm-grid {
     display: grid;
@@ -420,19 +448,27 @@
     pointer-events: none;
   }
 
-  /* cooldown breathing red glow animation */
+  /* "killed but on cooldown" — calm, no animation */
   .nm-card[data-status="cooldown"] {
-    animation: cooldown-breathe 3s ease-in-out infinite;
+    border-color: rgba(80, 50, 50, 0.5);
+    opacity: 0.85;
   }
 
-  @keyframes cooldown-breathe {
+  /* "in progress" — strong red breathing animation, full opacity */
+  .nm-card[data-active="true"] {
+    opacity: 1 !important;
+    animation: cooldown-breathe-strong 2s ease-in-out infinite;
+    border-color: rgba(220, 80, 80, 0.6);
+  }
+
+  @keyframes cooldown-breathe-strong {
     0%, 100% {
-      border-color: var(--border);
-      box-shadow: 0 0 0 rgba(168, 58, 58, 0);
+      border-color: rgba(168, 58, 58, 0.5);
+      box-shadow: 0 0 10px rgba(168, 58, 58, 0.25);
     }
     50% {
-      border-color: rgba(168, 58, 58, 0.5);
-      box-shadow: 0 0 18px rgba(168, 58, 58, 0.25), inset 0 0 10px rgba(168, 58, 58, 0.08);
+      border-color: rgba(255, 100, 100, 1);
+      box-shadow: 0 0 36px rgba(255, 80, 80, 0.6), inset 0 0 20px rgba(255, 80, 80, 0.18);
     }
   }
 
@@ -719,6 +755,39 @@
 
   .sync-indicator:hover { opacity: 1; }
 
+  /* GitHub link — floats just above the sync indicator */
+  .github-link {
+    position: fixed;
+    bottom: 56px;
+    right: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    font-family: var(--font-cjk);
+    font-size: 12px;
+    color: var(--ink-faded);
+    text-decoration: none;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.7;
+    transition: opacity 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    letter-spacing: 0.05em;
+  }
+
+  .github-link:hover {
+    opacity: 1;
+    color: var(--gold-bright);
+    border-color: var(--gold-deep);
+  }
+
+  .github-link svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+  }
+
   .sync-dot {
     width: 8px;
     height: 8px;
@@ -880,6 +949,89 @@
     padding-left: 0;
   }
 
+  /* history modal */
+  .history-empty {
+    text-align: center;
+    color: var(--ink-faded);
+    font-family: var(--font-cjk);
+    font-size: 13px;
+    padding: 32px 12px;
+    font-style: italic;
+  }
+
+  .history-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .history-item {
+    padding: 10px 0;
+    border-bottom: 1px dashed rgba(58, 53, 32, 0.5);
+    font-family: var(--font-cjk);
+    font-size: 13px;
+    line-height: 1.5;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .history-item:last-child {
+    border-bottom: none;
+  }
+
+  .history-item .h-time {
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    color: var(--ink-faded);
+    font-size: 12px;
+    width: 50px;
+    font-variant-numeric: tabular-nums;
+    padding-top: 2px;
+  }
+
+  .history-item .h-icon {
+    flex-shrink: 0;
+    width: 18px;
+    text-align: center;
+    font-size: 14px;
+    padding-top: 1px;
+  }
+
+  .history-item.h-kill .h-icon { color: var(--ready); }
+  .history-item.h-unknown .h-icon { color: var(--waiting); }
+  .history-item.h-reset .h-icon { color: var(--gold-bright); }
+
+  .history-item .h-text {
+    flex: 1;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .history-item .h-name {
+    color: var(--ink-bright);
+    font-weight: 600;
+  }
+
+  .history-item .h-zone {
+    color: var(--ink-faded);
+    font-size: 12px;
+  }
+
+  .history-item .h-detail {
+    display: block;
+    color: var(--parchment-dim);
+    font-size: 12px;
+    margin-top: 2px;
+    font-family: var(--font-mono);
+  }
+
+  .history-item.h-reset .h-text {
+    color: var(--gold-bright);
+    font-style: italic;
+    font-size: 12px;
+  }
+
   /* time-input modal extras */
   .time-input-group {
     display: flex;
@@ -994,21 +1146,41 @@
   .map-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.92);
+    background: rgba(0, 0, 0, 0.75);
     display: none;
     z-index: 1000;
-    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
   }
 
   .map-backdrop.active {
     display: flex;
   }
 
+  /* the actual floating window — 70% of viewport */
+  .map-window {
+    width: 80%;
+    height: 80%;
+    max-width: 1600px;
+    background: var(--bg-deep);
+    border: 1px solid var(--border-light);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  @media (max-width: 768px) {
+    .map-backdrop { padding: 0; }
+    .map-window { width: 100%; height: 100%; border: none; }
+  }
+
   .map-toolbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 14px 20px;
+    padding: 12px 16px;
     background: var(--bg-deep);
     border-bottom: 1px solid var(--border);
     gap: 12px;
@@ -1104,8 +1276,8 @@
 
   .map-image {
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: 0;
+    left: 0;
     transform-origin: 0 0;
     transition: none;
     user-select: none;
@@ -1140,6 +1312,244 @@
     pointer-events: none;
   }
 
+  /* ============ ACTIVE EVENTS PANEL ============ */
+  /* On desktop: floats on the left as a sticky sidebar.
+     On mobile: collapses into a top accordion. */
+  .active-panel {
+    position: fixed;
+    left: 16px;
+    top: 90px;
+    width: 260px;
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    z-index: 50;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  .active-panel.empty {
+    opacity: 0.55;
+  }
+
+  .active-panel-header {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(168, 58, 58, 0.12), transparent);
+    font-family: var(--font-display);
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: var(--gold-bright);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .active-panel-header .count {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--ink);
+    background: rgba(168, 58, 58, 0.2);
+    padding: 2px 8px;
+    border: 1px solid rgba(168, 58, 58, 0.4);
+  }
+
+  .active-panel-body {
+    padding: 8px;
+  }
+
+  .active-panel-empty {
+    text-align: center;
+    color: var(--ink-faded);
+    font-family: var(--font-cjk);
+    font-size: 12px;
+    padding: 24px 12px;
+    font-style: normal;
+  }
+
+  .active-event-card {
+    background: var(--bg-deep);
+    border: 1px solid rgba(168, 58, 58, 0.4);
+    padding: 12px;
+    margin-bottom: 8px;
+    position: relative;
+  }
+
+  .active-event-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--cooldown);
+    box-shadow: 0 0 8px rgba(168, 58, 58, 0.6);
+    animation: panel-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes panel-pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  .active-event-card:last-child {
+    margin-bottom: 0;
+  }
+
+  .ae-name {
+    font-family: var(--font-cjk);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink-bright);
+    letter-spacing: 0.04em;
+  }
+
+  .ae-zone {
+    font-family: var(--font-cjk);
+    font-size: 11px;
+    color: var(--ink-faded);
+    letter-spacing: 0.05em;
+    margin-top: 2px;
+  }
+
+  .ae-divider {
+    border: none;
+    border-top: 1px dashed var(--border);
+    margin: 8px 0;
+  }
+
+  .ae-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-cjk);
+    font-size: 12px;
+    color: var(--parchment-dim);
+    line-height: 1.6;
+  }
+
+  .ae-row .label {
+    color: var(--ink-faded);
+  }
+
+  .ae-row .value {
+    font-family: var(--font-mono);
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ae-pull-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+  }
+
+  .ae-pull-input {
+    flex: 1;
+    background: var(--bg-deep);
+    border: 1px solid var(--border-light);
+    color: var(--ink-bright);
+    padding: 5px 7px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    width: 60px;
+  }
+
+  .ae-pull-input:focus {
+    outline: none;
+    border-color: var(--gold);
+  }
+
+  .ae-pull-tag {
+    font-family: var(--font-cjk);
+    font-size: 10px;
+    padding: 2px 5px;
+    color: var(--ink-faded);
+    border: 1px solid var(--border-light);
+    letter-spacing: 0.05em;
+  }
+
+  .ae-pull-tag.manual {
+    color: var(--gold-bright);
+    border-color: var(--gold-deep);
+    background: rgba(212, 168, 75, 0.1);
+  }
+
+  .ae-countdown {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink-bright);
+    text-align: center;
+    margin: 8px 0;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.03em;
+  }
+
+  .ae-countdown.passed {
+    color: #ff6b6b;
+    animation: pulse-warning 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse-warning {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  .ae-kill-btn {
+    width: 100%;
+    background: linear-gradient(180deg, rgba(109, 199, 133, 0.18), rgba(109, 199, 133, 0.05));
+    border: 1px solid rgba(109, 199, 133, 0.45);
+    color: #b8e8c5;
+    padding: 8px;
+    font-family: var(--font-cjk);
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .ae-kill-btn:hover {
+    background: linear-gradient(180deg, rgba(109, 199, 133, 0.3), rgba(109, 199, 133, 0.1));
+    color: #ffffff;
+  }
+
+  /* On smaller screens: panel becomes a top collapsible bar */
+  @media (max-width: 1199px) {
+    .active-panel {
+      position: relative;
+      left: 0;
+      top: 0;
+      width: 100%;
+      max-height: none;
+      margin-bottom: 16px;
+      box-shadow: none;
+    }
+  }
+
+  @media (max-width: 1199px) {
+    .active-panel.collapsed .active-panel-body {
+      display: none;
+    }
+    .active-panel-header {
+      cursor: pointer;
+      user-select: none;
+    }
+    .active-panel-header::after {
+      content: '▾';
+      font-family: var(--font-mono);
+      font-size: 14px;
+      transition: transform 0.2s;
+    }
+    .active-panel.collapsed .active-panel-header::after {
+      transform: rotate(-90deg);
+    }
+  }
+
   @media (max-width: 600px) {
     .map-toolbar { padding: 10px 12px; }
     .map-zone-tab { padding: 6px 10px; font-size: 12px; }
@@ -1156,7 +1566,7 @@
   <header>
     <div class="title-block">
       <h1>Eureka NM Tracker</h1>
-      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v1.3.0</button></div>
+      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v1.6.0</button></div>
     </div>
     <div class="status-strip">
       <div class="status-card" id="eorzeaTimeCard">
@@ -1180,6 +1590,17 @@
     <button class="zone-tab" data-zone="hydatos"><span class="zh">豐水之地</span>Hydatos</button>
   </nav>
 
+  <!-- ACTIVE EVENTS PANEL -->
+  <aside class="active-panel collapsed" id="activePanel">
+    <div class="active-panel-header" id="activePanelHeader">
+      <span>⚔ 進行中</span>
+      <span class="count" id="activePanelCount">0</span>
+    </div>
+    <div class="active-panel-body" id="activePanelBody">
+      <div class="active-panel-empty">目前無進行中事件</div>
+    </div>
+  </aside>
+
   <!-- ZONE CONTENT -->
   <main id="zoneContainer">
     <!-- generated dynamically -->
@@ -1196,6 +1617,14 @@
   </footer>
 
 </div>
+
+<!-- GitHub link -->
+<a class="github-link" href="https://github.com/CooKieBox0501/Eureka-Tracker" target="_blank" rel="noopener noreferrer" title="GitHub 原始碼">
+  <svg viewBox="0 0 16 16" aria-hidden="true">
+    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+  </svg>
+  <span>GitHub</span>
+</a>
 
 <!-- sync indicator -->
 <div class="sync-indicator">
@@ -1221,7 +1650,49 @@
   <div class="modal" style="max-width: 520px; max-height: 70vh; overflow-y: auto;">
     <h3>📜 更新日誌</h3>
     <div class="changelog-entry">
-      <div class="changelog-version">v1.3.0 <span class="changelog-date">— 2026/05/10</span></div>
+      <div class="changelog-version">v1.5.2 <span class="changelog-date">— 2026/05/11</span></div>
+      <ul class="changelog-list">
+        <li>✦ 新增網頁圖示</li>
+        <li>✦ 右下角加入 GitHub 連結</li>
+      </ul>
+    </div>
+    <div class="changelog-entry">
+      <div class="changelog-version">v1.5.1 <span class="changelog-date">— 2026/05/10</span></div>
+      <ul class="changelog-list">
+        <li>✦ 進行中事件若「開打後 5 分鐘」未回報死亡也將會自動視為結束</li>
+        <li>✦ 紀錄改用出現時間排序，移除死亡時間與戰鬥時長</li>
+        <li>✦ 地圖改為懸浮視窗（80% 大小），點外面可直接關閉</li>
+        <li>✦ 紀錄按鈕移至島嶼工具列</li>
+      </ul>
+    </div>
+    <div class="changelog-entry">
+      <div class="changelog-version">v1.5.0 <span class="changelog-date">— 2026/05/09</span></div>
+      <ul class="changelog-list">
+        <li>✦ 新增 12 小時內歷史紀錄（頁首「📜 紀錄」按鈕）</li>
+        <li>✦ 同 NM 60 分鐘內多次回報自動合併（防止重複紀錄）</li>
+        <li>✦ 新島重置將會作為強制分隔線，防止紀錄合併</li>
+        <li>✦ 30 分鐘超時自動標記為「死亡時間未回報」</li>
+      </ul>
+    </div>
+    <div class="changelog-entry">
+      <div class="changelog-version">v1.4.1 <span class="changelog-date">— 2026/05/07</span></div>
+      <ul class="changelog-list">
+        <li>✦ 已死亡 NM 卡片不再呼吸動畫，僅進行中事件閃爍紅光</li>
+        <li>✦ 使兩種狀態視覺差異化更明顯</li>
+      </ul>
+    </div>
+    <div class="changelog-entry">
+      <div class="changelog-version">v1.4.0 <span class="changelog-date">— 2026/05/07</span></div>
+      <ul class="changelog-list">
+        <li>✦ 新增「進行中事件」面板，支援兩段式回報</li>
+        <li>✦ 出現回報後自動建立進行中事件，預設 3 分鐘後開打（剩餘27分）</li>
+        <li>✦ 任何人可調整開打時間，標記區分「預設／已調整」</li>
+        <li>✦ 進行中事件的 NM 卡片改為強紅光呼吸動畫</li>
+        <li>✦ 30 分鐘後自動清理過期事件</li>
+      </ul>
+    </div>
+    <div class="changelog-entry">
+      <div class="changelog-version">v1.3.0 <span class="changelog-date">— 2026/05/06</span></div>
       <ul class="changelog-list">
         <li>✦ 新增地圖檢視器（自由縮放與拖曳）</li>
         <li>✦ 冷卻中卡片加入呼吸式紅光動畫，視覺更清晰</li>
@@ -1229,7 +1700,7 @@
       </ul>
     </div>
     <div class="changelog-entry">
-      <div class="changelog-version">v1.2.0 <span class="changelog-date">— 2026/05/09</span></div>
+      <div class="changelog-version">v1.2.0 <span class="changelog-date">— 2026/05/06</span></div>
       <ul class="changelog-list">
         <li>✦ 新增版本號與更新日誌</li>
         <li>✦ 補報時間支援無冒號格式（1800 / 600）與 12 小時制自動推論</li>
@@ -1258,26 +1729,41 @@
   </div>
 </div>
 
-<!-- map viewer (full-screen) -->
-<div class="map-backdrop" id="mapBackdrop">
-  <div class="map-toolbar">
-    <div class="map-zone-tabs" id="mapZoneTabs">
-      <button class="map-zone-tab" data-zone="anemos">常風</button>
-      <button class="map-zone-tab" data-zone="pagos">恆冰</button>
-      <button class="map-zone-tab" data-zone="pyros">湧火</button>
-      <button class="map-zone-tab" data-zone="hydatos">豐水</button>
+<!-- history modal -->
+<div class="modal-backdrop" id="historyBackdrop">
+  <div class="modal" style="max-width: 600px; max-height: 75vh; overflow-y: auto;">
+    <h3>📜 12 小時內紀錄</h3>
+    <div id="historyBody">
+      <div class="history-empty">尚無紀錄</div>
     </div>
-    <div class="map-controls">
-      <button class="map-control-btn" id="mapZoomOut" title="縮小">−</button>
-      <button class="map-control-btn" id="mapReset" title="重置" style="font-size:14px;">⟲</button>
-      <button class="map-control-btn" id="mapZoomIn" title="放大">+</button>
-      <button class="map-close-btn" id="mapClose">✕ 關閉</button>
+    <div class="modal-actions" style="margin-top: 20px;">
+      <button class="modal-btn" id="historyClose">關閉</button>
     </div>
   </div>
-  <div class="map-canvas-wrap" id="mapCanvasWrap">
-    <div class="map-loading" id="mapLoading">載入地圖中…</div>
-    <img class="map-image" id="mapImage" alt="" draggable="false" />
-    <div class="map-zoom-indicator" id="mapZoomIndicator">100%</div>
+</div>
+
+<!-- map viewer (full-screen) -->
+<div class="map-backdrop" id="mapBackdrop">
+  <div class="map-window" id="mapWindow">
+    <div class="map-toolbar">
+      <div class="map-zone-tabs" id="mapZoneTabs">
+        <button class="map-zone-tab" data-zone="anemos">常風</button>
+        <button class="map-zone-tab" data-zone="pagos">恆冰</button>
+        <button class="map-zone-tab" data-zone="pyros">湧火</button>
+        <button class="map-zone-tab" data-zone="hydatos">豐水</button>
+      </div>
+      <div class="map-controls">
+        <button class="map-control-btn" id="mapZoomOut" title="縮小">−</button>
+        <button class="map-control-btn" id="mapReset" title="重置" style="font-size:14px;">⟲</button>
+        <button class="map-control-btn" id="mapZoomIn" title="放大">+</button>
+        <button class="map-close-btn" id="mapClose">✕ 關閉</button>
+      </div>
+    </div>
+    <div class="map-canvas-wrap" id="mapCanvasWrap">
+      <div class="map-loading" id="mapLoading">載入地圖中…</div>
+      <img class="map-image" id="mapImage" alt="" draggable="false" />
+      <div class="map-zoom-indicator" id="mapZoomIndicator">100%</div>
+    </div>
   </div>
 </div>
 
@@ -1300,14 +1786,14 @@
       label: '常風之地 Anemos',
       summary: '風蝕奇巖林立，疾風終年長嘯。',
       nms: [
-        { id: 'pazuzu', name: '帕祖祖', nickname: '島主(PZZ)', en: 'Pazuzu', fate: 'I Amm Bemhart', level: 20, weather: '強風', timeReq: null, drop: '帕祖祖的羽毛 · 帕祖祖的祭壇' },
+        { id: 'pazuzu', name: '帕祖祖', nickname: '島主(PZZ)', en: 'Pazuzu', fate: 'I Amm Bemhart', level: 20, weather: '強風', timeReq: null, drop: '帕祖祖的羽毛' },
       ],
     },
     pagos: {
       label: '恆冰之地 Pagos',
       summary: '萬古冰封，極寒不化之地。',
       nms: [
-        { id: 'arthro', name: '亞瑟羅王', nickname: '螃蟹', en: 'King Arthro', fate: 'Morte Arthro', level: 29, weather: '薄霧', timeReq: null, drop: '閃襲戒指' },
+        { id: 'arthro', name: '亞瑟羅王', nickname: '螃蟹', en: 'King Arthro', fate: 'Morte Arthro', level: 29, weather: '薄霧', timeReq: null, drop: '閃襲指環' },
         { id: 'cassie', name: '凱西', nickname: 'KC', en: 'Copycat Cassie', fate: 'Cassie and the Copycats', level: 35, weather: '暴雪', timeReq: null, drop: '凱西耳墜' },
         { id: 'louhi', name: '婁希', nickname: '島主(Louhi)', en: 'Louhi', fate: 'Lousy Louhi', level: 35, weather: null, timeReq: '夜晚', drop: '婁希的冰片' },
       ],
@@ -1502,10 +1988,20 @@
   }
 
   /* ----------- STATE / FIREBASE SYNC ----------- */
-  // State shape: { spawns: { nmId: timestamp }, instanceResets: { zone: timestamp } }
+  // State shape: { spawns, instanceResets, activeEvents }
   // 'spawns' records the moment an NM appeared; cooldown = 120 min from spawn time.
-  let state = { spawns: {}, instanceResets: {} };
+  // 'activeEvents' records ongoing battles (each has spawnedAt, pullSecondsLeft, pullSetBy).
+  let state = { spawns: {}, instanceResets: {}, activeEvents: {}, history: {} };
   let firstSnapshotReceived = false;
+
+  // NM lifetime constant (FF14 NMs live 30 min from spawn)
+  const NM_LIFETIME_SEC = 1800;
+  // Default "pull time": 27 min remaining = 3 min after spawn before group attacks
+  const DEFAULT_PULL_SECONDS_LEFT = 1620;
+  // History retention: 12 hours
+  const HISTORY_RETENTION_MS = 12 * 60 * 60 * 1000;
+  // History merge window: 60 min for same NM = treat as correction
+  const HISTORY_MERGE_WINDOW_MS = 60 * 60 * 1000;
 
   function attachRealtimeListener() {
     setSyncStatus('syncing', '連線中…');
@@ -1516,14 +2012,19 @@
         state = {
           spawns: data.spawns || {},
           instanceResets: data.instanceResets || {},
+          activeEvents: data.activeEvents || {},
+          history: data.history || {},
         };
       } else {
         // empty database — first ever use, that's fine
-        state = { spawns: {}, instanceResets: {} };
+        state = { spawns: {}, instanceResets: {}, activeEvents: {}, history: {} };
       }
       firstSnapshotReceived = true;
       setSyncStatus('ok', '已同步');
+      pruneStaleActiveEvents();
       updateCards();
+      updateActivePanel();
+      updateHistoryModal();
     }, (err) => {
       console.error('[firebase] listener error:', err);
       setSyncStatus('error', '連線失敗');
@@ -1546,6 +2047,8 @@
       const payload = {
         spawns: state.spawns || {},
         instanceResets: state.instanceResets || {},
+        activeEvents: state.activeEvents || {},
+        history: state.history || {},
         lastUpdated: firebase.database.ServerValue.TIMESTAMP,
       };
       await stateRef.set(payload);
@@ -1650,6 +2153,7 @@
         <div class="zone-summary">${zoneData.summary}</div>
         <div class="zone-toolbar-buttons">
           <button class="map-btn" data-zone="${zoneId}">🗺 地圖</button>
+          <button class="history-btn-toolbar">📜 紀錄</button>
           <button class="new-instance-btn" data-zone="${zoneId}">⟁ 新島重置</button>
         </div>
       `;
@@ -1702,6 +2206,221 @@
   }
 
   // Update only the dynamic parts of all visible cards
+  /* ----------- ACTIVE PANEL RENDERING ----------- */
+  function findNmData(nmId) {
+    for (const [zoneId, zoneData] of Object.entries(NM_DATA)) {
+      const nm = zoneData.nms.find(n => n.id === nmId);
+      if (nm) return { nm, zoneId, zoneLabel: zoneData.label };
+    }
+    return null;
+  }
+
+  function fmtMmSs(totalSec) {
+    const sign = totalSec < 0 ? '-' : '';
+    const s = Math.abs(Math.floor(totalSec));
+    const mm = Math.floor(s / 60);
+    const ss = s % 60;
+    return `${sign}${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+  }
+
+  // Convert seconds to MMSS format (e.g. 1620s -> "2700" meaning 27m00s)
+  function secsToMMSS(totalSec) {
+    const s = Math.max(0, Math.floor(totalSec));
+    const mm = Math.floor(s / 60);
+    const ss = s % 60;
+    return `${String(mm).padStart(2,'0')}${String(ss).padStart(2,'0')}`;
+  }
+
+  // Parse MMSS-style input back to seconds
+  // Accepts: "2700" (27m00s), "27:00", "2530" (25m30s), "2:30" (2m30s), "27" (=27m, treat as MM)
+  function parsePullInput(raw) {
+    const s = String(raw || '').trim();
+    if (!s) return null;
+    // with colon: M:SS or MM:SS
+    let m = s.match(/^(\d{1,2}):(\d{2})$/);
+    if (m) {
+      const mm = parseInt(m[1], 10), ss = parseInt(m[2], 10);
+      if (ss >= 60) return null;
+      return mm * 60 + ss;
+    }
+    // numeric only
+    if (!/^\d+$/.test(s)) return null;
+    const n = parseInt(s, 10);
+    // length-based heuristic
+    if (s.length <= 2) {
+      // pure minutes (e.g. "27" = 27 min)
+      return n * 60;
+    } else if (s.length === 3) {
+      // M SS (e.g. "230" = 2m30s)
+      const mm = parseInt(s.substr(0,1), 10);
+      const ss = parseInt(s.substr(1,2), 10);
+      if (ss >= 60) return null;
+      return mm * 60 + ss;
+    } else if (s.length === 4) {
+      // MM SS (e.g. "2700" = 27m00s)
+      const mm = parseInt(s.substr(0,2), 10);
+      const ss = parseInt(s.substr(2,2), 10);
+      if (ss >= 60) return null;
+      return mm * 60 + ss;
+    }
+    return null;
+  }
+
+  function fmtHM(date) {
+    return `${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
+  }
+
+  function updateActivePanel() {
+    const events = state.activeEvents || {};
+    const ids = Object.keys(events);
+    const panel = document.getElementById('activePanel');
+    const body = document.getElementById('activePanelBody');
+    const countEl = document.getElementById('activePanelCount');
+    if (!panel || !body || !countEl) return;
+
+    countEl.textContent = String(ids.length);
+    panel.classList.toggle('empty', ids.length === 0);
+
+    if (ids.length === 0) {
+      body.innerHTML = '<div class="active-panel-empty">目前無進行中事件</div>';
+      return;
+    }
+
+    // sort by spawn time (oldest first)
+    const sorted = ids.map(id => ({ id, ev: events[id] }))
+      .sort((a, b) => a.ev.spawnedAt - b.ev.spawnedAt);
+
+    const now = Date.now();
+    let html = '';
+    sorted.forEach(({ id, ev }) => {
+      const data = findNmData(ev.nmId);
+      if (!data) return;
+      const { nm, zoneLabel } = data;
+
+      // Compute "time until pull": NM lifetime - elapsed since spawn = current secondsLeft on enmity timer
+      // Pull happens when secondsLeft = ev.pullSecondsLeft
+      // So "time until pull" = currentSecondsLeft - pullSecondsLeft
+      const elapsedSec = (now - ev.spawnedAt) / 1000;
+      const currentSecondsLeft = NM_LIFETIME_SEC - elapsedSec;
+      const timeUntilPull = currentSecondsLeft - ev.pullSecondsLeft;
+      const passed = timeUntilPull <= 0;
+
+      const spawnHM = fmtHM(new Date(ev.spawnedAt));
+      const tag = ev.pullSetBy === 'manual' ? '已調整' : '預設';
+      const tagClass = ev.pullSetBy === 'manual' ? 'manual' : '';
+
+      html += `
+        <div class="active-event-card" data-evt="${id}">
+          <div class="ae-name">${nm.name}${nm.nickname ? ` <span style="font-size:11px;color:var(--ink-faded);">· ${nm.nickname}</span>` : ''}</div>
+          <div class="ae-zone">${zoneLabel} · Lv ${nm.level}</div>
+          <hr class="ae-divider">
+          <div class="ae-row">
+            <span class="label">出現於</span>
+            <span class="value">${spawnHM}</span>
+          </div>
+          <div class="ae-row" style="margin-top:6px;">
+            <span class="label">開打時間</span>
+            <div class="ae-pull-row">
+              <input class="ae-pull-input" type="text" inputmode="numeric"
+                     value="${secsToMMSS(ev.pullSecondsLeft)}" data-evt="${id}" data-action="pull-input"
+                     title="NM 剩餘時間 (MMSS 格式，例 2700 = 27分00秒)" />
+              <span class="ae-pull-tag ${tagClass}">${tag}</span>
+            </div>
+          </div>
+          <div class="ae-countdown ${passed ? 'passed' : ''}">
+            ${passed ? `已開打 ${fmtMmSs(-timeUntilPull)}` : `距開打 ${fmtMmSs(timeUntilPull)}`}
+          </div>
+          <button class="ae-kill-btn" data-evt="${id}" data-action="kill-event">✓ 已死亡</button>
+        </div>`;
+    });
+
+    body.innerHTML = html;
+  }
+
+  // Updates only the countdown text (every tick) without rebuilding the whole panel.
+  // This preserves input focus and avoids stuttering.
+  function tickActivePanel() {
+    const events = state.activeEvents || {};
+    const now = Date.now();
+    document.querySelectorAll('.active-event-card').forEach(card => {
+      const evtId = card.dataset.evt;
+      const ev = events[evtId];
+      if (!ev) return;
+      const elapsedSec = (now - ev.spawnedAt) / 1000;
+      const currentSecondsLeft = NM_LIFETIME_SEC - elapsedSec;
+      const timeUntilPull = currentSecondsLeft - ev.pullSecondsLeft;
+      const passed = timeUntilPull <= 0;
+      const cd = card.querySelector('.ae-countdown');
+      if (cd) {
+        cd.classList.toggle('passed', passed);
+        cd.textContent = passed
+          ? `已開打 ${fmtMmSs(-timeUntilPull)}`
+          : `距開打 ${fmtMmSs(timeUntilPull)}`;
+      }
+    });
+  }
+
+  /* ----------- HISTORY MODAL RENDERING ----------- */
+  function updateHistoryModal() {
+    const body = document.getElementById('historyBody');
+    if (!body) return;
+
+    const items = Object.entries(state.history || {})
+      .map(([id, h]) => ({ id, h }))
+      .filter(({ h }) => {
+        const ts = h.spawnedAt || h.occurredAt || 0;
+        return Date.now() - ts < HISTORY_RETENTION_MS;
+      });
+
+    if (items.length === 0) {
+      body.innerHTML = '<div class="history-empty">12 小時內尚無紀錄</div>';
+      return;
+    }
+
+    // sort by spawn/occurred time (newest first)
+    // For NM kills/unknowns: use spawnedAt
+    // For resets: use occurredAt
+    items.sort((a, b) => {
+      const ta = a.h.spawnedAt || a.h.occurredAt || 0;
+      const tb = b.h.spawnedAt || b.h.occurredAt || 0;
+      return tb - ta;
+    });
+
+    let html = '<ul class="history-list">';
+    items.forEach(({ h }) => {
+      if (h.type === 'reset') {
+        const time = fmtHM(new Date(h.occurredAt));
+        const zoneLabel = (NM_DATA[h.zone] && NM_DATA[h.zone].label) || h.zone;
+        html += `
+          <li class="history-item h-reset">
+            <span class="h-time">${time}</span>
+            <span class="h-icon">⟳</span>
+            <span class="h-text">新島重置 · ${zoneLabel}</span>
+          </li>`;
+      } else {
+        const data = findNmData(h.nmId);
+        if (!data) return;
+        const { nm, zoneLabel } = data;
+        const spawnHM = fmtHM(new Date(h.spawnedAt));
+        const isKill = h.type === 'kill' && h.killedAt;
+        const cls = isKill ? 'h-kill' : 'h-unknown';
+        const icon = isKill ? '✓' : '⚠';
+        const shortZone = zoneLabel.replace(/ [A-Za-z]+$/, '');
+        html += `
+          <li class="history-item ${cls}">
+            <span class="h-time">${spawnHM}</span>
+            <span class="h-icon">${icon}</span>
+            <span class="h-text">
+              <span class="h-name">${nm.name}</span>
+              <span class="h-zone">（${shortZone}）出現</span>
+            </span>
+          </li>`;
+      }
+    });
+    html += '</ul>';
+    body.innerHTML = html;
+  }
+
   function updateCards() {
     const zoneData = NM_DATA[activeZone];
     if (!zoneData) return;
@@ -1710,6 +2429,14 @@
       if (!card) return;
       const info = getNmStatus(activeZone, nm);
       card.dataset.status = info.status;
+
+      // mark as "active" if there's an in-progress event for this NM
+      const hasActiveEvent = Object.values(state.activeEvents || {}).some(ev => ev.nmId === nm.id);
+      if (hasActiveEvent) {
+        card.dataset.active = 'true';
+      } else {
+        delete card.dataset.active;
+      }
 
       const labelEl = card.querySelector('[data-role="statusLabel"]');
       const valueEl = card.querySelector('[data-role="statusValue"]');
@@ -1943,7 +2670,7 @@
       <div class="time-input-group" data-pane="clock" style="display:none;">
         <span class="time-input-label">出現時間（24 或 12 小時制）</span>
         <input class="time-input" id="modalTimeClock" type="text" inputmode="numeric" placeholder="例如：1800 或 18:00" />
-        <div class="time-input-hint">支援無冒號格式（1800 / 600）。若 24 小時制超過冷卻範圍，自動試 12 小時制（例如 0600 → 1800）。</div>
+        <div class="time-input-hint">支援無冒號格式（1800 / 600）。若 24 小時制超過冷卻範圍，自動判定為 12 小時制（例如 0600 → 1800）。</div>
       </div>
       <div class="time-input-error" id="modalTimeError"></div>
     `;
@@ -1965,15 +2692,10 @@
           return false; // keep modal open
         }
         // commit
-        state.spawns[nmId] = ts;
-        // ensure instance reset doesn't shadow this entry
-        const zone = findZoneOfNm(nmId);
-        if (zone && state.instanceResets[zone] && state.instanceResets[zone] > ts) {
-          // user explicitly entered a time; they probably want it to count, so push reset slightly earlier
-          state.instanceResets[zone] = ts - 1;
-        }
+        commitManualSpawn(nmId, ts);
         saveState();
         updateCards();
+        updateActivePanel();
       },
       {
         extraHtml,
@@ -2014,8 +2736,30 @@
   }
 
   async function handleReport(nmId) {
-    state.spawns[nmId] = Date.now();
-    // brief visual flash on the button so user knows it registered
+    const now = Date.now();
+    state.spawns[nmId] = now;
+    // also create an active event entry, so others know group is forming
+    const zone = findZoneOfNm(nmId);
+    if (zone) {
+      // dedupe: if this NM already has an active event from very recent (< 5 min),
+      // treat as a re-report (overwrite spawn time, preserve user-set pull time)
+      const existing = Object.values(state.activeEvents).find(
+        ev => ev.nmId === nmId && (now - ev.spawnedAt) < 5 * 60 * 1000
+      );
+      if (existing) {
+        existing.spawnedAt = now;
+      } else {
+        const evtId = `evt_${nmId}_${now}`;
+        state.activeEvents[evtId] = {
+          nmId,
+          zone,
+          spawnedAt: now,
+          pullSecondsLeft: DEFAULT_PULL_SECONDS_LEFT,
+          pullSetBy: 'default',
+        };
+      }
+    }
+    // brief visual flash on the button
     const btn = document.querySelector(`button[data-action="report"][data-nm="${nmId}"]`);
     if (btn) {
       btn.style.transition = 'background 0.15s ease, color 0.15s ease';
@@ -2030,20 +2774,222 @@
     }
     await saveState();
     updateCards();
+    updateActivePanel();
   }
 
   async function handleResetSingle(nmId) {
     delete state.spawns[nmId];
+    // also kill any active event for this NM
+    Object.entries(state.activeEvents).forEach(([id, ev]) => {
+      if (ev.nmId === nmId) delete state.activeEvents[id];
+    });
     await saveState();
     updateCards();
+    updateActivePanel();
   }
 
   async function handleNewInstance(zone) {
-    state.instanceResets[zone] = Date.now();
-    // clear spawns in that zone too, keeps storage tidy
+    const now = Date.now();
+    state.instanceResets[zone] = now;
+    // clear spawns + active events in that zone
     NM_DATA[zone].nms.forEach(nm => { delete state.spawns[nm.id]; });
+    Object.entries(state.activeEvents).forEach(([id, ev]) => {
+      if (ev.zone === zone) delete state.activeEvents[id];
+    });
+    // record reset in history
+    recordHistory({ type: 'reset', zone, occurredAt: now }, /*deferSave=*/true);
+    pruneStaleHistory();
     await saveState();
     updateCards();
+    updateActivePanel();
+    updateHistoryModal();
+  }
+
+  // Manual report (from manual time modal) — same as handleReport but with given timestamp
+  function commitManualSpawn(nmId, timestamp) {
+    state.spawns[nmId] = timestamp;
+    const zone = findZoneOfNm(nmId);
+    // ensure instance reset doesn't shadow this entry
+    if (zone && state.instanceResets[zone] && state.instanceResets[zone] > timestamp) {
+      state.instanceResets[zone] = timestamp - 1;
+    }
+    // also create active event if recent enough (< 30 min from now)
+    const ageMin = (Date.now() - timestamp) / 60000;
+    if (zone && ageMin < 30) {
+      const existing = Object.values(state.activeEvents).find(ev => ev.nmId === nmId);
+      if (!existing) {
+        const evtId = `evt_${nmId}_${timestamp}`;
+        state.activeEvents[evtId] = {
+          nmId,
+          zone,
+          spawnedAt: timestamp,
+          pullSecondsLeft: DEFAULT_PULL_SECONDS_LEFT,
+          pullSetBy: 'default',
+        };
+      } else {
+        existing.spawnedAt = timestamp;
+      }
+    }
+  }
+
+  // Active event mutators
+  async function handleKillEvent(evtId) {
+    const ev = state.activeEvents[evtId];
+    if (ev) {
+      // record to history before removing
+      recordHistory({
+        type: 'kill',
+        nmId: ev.nmId,
+        zone: ev.zone,
+        spawnedAt: ev.spawnedAt,
+        killedAt: Date.now(),
+      }, /*deferSave=*/true);
+    }
+    delete state.activeEvents[evtId];
+    pruneStaleHistory();
+    await saveState();
+    updateCards();
+    updateActivePanel();
+    updateHistoryModal();
+  }
+
+  async function handleSetPullTime(evtId, secondsLeft) {
+    const ev = state.activeEvents[evtId];
+    if (!ev) return;
+    ev.pullSecondsLeft = Math.max(0, Math.min(NM_LIFETIME_SEC, secondsLeft));
+    ev.pullSetBy = 'manual';
+    await saveState();
+    updateActivePanel();
+  }
+
+  // Auto-cleanup events that are likely killed but not manually reported.
+  // Logic: 5 minutes after the scheduled pull time, assume the NM is dead.
+  function pruneStaleActiveEvents() {
+    const now = Date.now();
+    let changed = false;
+    Object.entries(state.activeEvents).forEach(([id, ev]) => {
+      // pull time = spawnedAt + (NM_LIFETIME - pullSecondsLeft) seconds
+      const pullAt = ev.spawnedAt + (NM_LIFETIME_SEC - ev.pullSecondsLeft) * 1000;
+      const autoExpireAt = pullAt + 5 * 60 * 1000; // 5 min after pull
+      // failsafe: also expire if elapsed > NM_LIFETIME + 10 min
+      const failSafe = ev.spawnedAt + (NM_LIFETIME_SEC + 600) * 1000;
+      if (now > autoExpireAt || now > failSafe) {
+        recordHistory({
+          type: 'unknown',
+          nmId: ev.nmId,
+          zone: ev.zone,
+          spawnedAt: ev.spawnedAt,
+          killedAt: null,
+        }, /*deferSave=*/true);
+        delete state.activeEvents[id];
+        changed = true;
+      }
+    });
+    if (changed) {
+      pruneStaleHistory();
+      saveState();
+      updateHistoryModal();
+    }
+  }
+
+  /* ----------- HISTORY ----------- */
+  // Find the most recent reset for a given zone (timestamp), or 0 if none.
+  function lastResetTimeForZone(zone) {
+    return state.instanceResets[zone] || 0;
+  }
+
+  // Record (or merge) a history entry.
+  //   type: 'kill' | 'reset' | 'unknown'
+  //   For 'kill'/'unknown': pass nmId, zone, spawnedAt, killedAt (null for unknown)
+  //   For 'reset': pass zone, occurredAt
+  // Merge rules:
+  //   - Same NM, within HISTORY_MERGE_WINDOW_MS (60 min), AND no instance reset between
+  //     the existing entry and the new one => update existing (treat as correction)
+  //   - Otherwise create a new record
+  function recordHistory(entry, deferSave = false) {
+    const now = Date.now();
+    state.history = state.history || {};
+
+    if (entry.type === 'reset') {
+      // resets are never merged
+      const id = `h_reset_${entry.zone}_${entry.occurredAt || now}`;
+      state.history[id] = {
+        type: 'reset',
+        zone: entry.zone,
+        occurredAt: entry.occurredAt || now,
+        createdAt: now,
+        updatedAt: now,
+      };
+    } else {
+      // kill / unknown — try to find an existing recent entry for the same NM
+      const resetTs = lastResetTimeForZone(entry.zone);
+      const newSpawnedAt = entry.spawnedAt;
+
+      let mergedId = null;
+      Object.entries(state.history).forEach(([id, h]) => {
+        if (mergedId) return;
+        if (h.type === 'reset') return;
+        if (h.nmId !== entry.nmId) return;
+
+        // Both entries must be on the same side of the most recent reset
+        // (i.e., both after the last reset, or both before)
+        const existingAfterReset = h.spawnedAt > resetTs;
+        const newAfterReset = newSpawnedAt > resetTs;
+        if (existingAfterReset !== newAfterReset) return;
+
+        // Time window check
+        const diff = Math.abs(h.spawnedAt - newSpawnedAt);
+        if (diff > HISTORY_MERGE_WINDOW_MS) return;
+
+        mergedId = id;
+      });
+
+      if (mergedId) {
+        // Update existing record with the new (more accurate) info
+        const existing = state.history[mergedId];
+        existing.spawnedAt = newSpawnedAt;
+        if (entry.type === 'kill') {
+          existing.type = 'kill';
+          existing.killedAt = entry.killedAt;
+        } else if (entry.type === 'unknown' && existing.type !== 'kill') {
+          // only downgrade if we don't already have a kill record
+          existing.type = 'unknown';
+          existing.killedAt = null;
+        }
+        existing.updatedAt = now;
+      } else {
+        // create new record
+        const id = `h_${entry.nmId}_${newSpawnedAt}`;
+        state.history[id] = {
+          type: entry.type,
+          nmId: entry.nmId,
+          zone: entry.zone,
+          spawnedAt: newSpawnedAt,
+          killedAt: entry.type === 'kill' ? entry.killedAt : null,
+          createdAt: now,
+          updatedAt: now,
+        };
+      }
+    }
+
+    if (!deferSave) {
+      pruneStaleHistory();
+      saveState();
+      updateHistoryModal();
+    }
+  }
+
+  function pruneStaleHistory() {
+    const now = Date.now();
+    let changed = false;
+    Object.entries(state.history || {}).forEach(([id, h]) => {
+      const ts = h.spawnedAt || h.occurredAt || h.createdAt || 0;
+      if (now - ts > HISTORY_RETENTION_MS) {
+        delete state.history[id];
+        changed = true;
+      }
+    });
+    return changed;
   }
 
   /* ----------- EVENT WIRING ----------- */
@@ -2073,7 +3019,10 @@
 
       // close button
       document.getElementById('mapClose').addEventListener('click', close);
-      // close on background click? No—because user might drag. Only the X button.
+      // close when clicking outside the window (on the dimmed backdrop area)
+      backdrop.addEventListener('click', (e) => {
+        if (e.target === backdrop) close();
+      });
 
       // zone tabs
       document.querySelectorAll('.map-zone-tab').forEach(tab => {
@@ -2258,6 +3207,47 @@
       });
     });
 
+    // active panel: collapse toggle on mobile
+    const apHeader = document.getElementById('activePanelHeader');
+    const apPanel = document.getElementById('activePanel');
+    if (apHeader && apPanel) {
+      apHeader.addEventListener('click', () => {
+        // Only collapse on narrow screens
+        if (window.matchMedia('(max-width: 1199px)').matches) {
+          apPanel.classList.toggle('collapsed');
+        }
+      });
+    }
+
+    // active panel: kill button & pull input
+    const apBody = document.getElementById('activePanelBody');
+    if (apBody) {
+      apBody.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-action="kill-event"]');
+        if (btn) {
+          handleKillEvent(btn.dataset.evt);
+        }
+      });
+      // commit pull-time on Enter or blur
+      apBody.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && e.target.matches('input[data-action="pull-input"]')) {
+          e.target.blur();
+        }
+      });
+      apBody.addEventListener('blur', (e) => {
+        if (!e.target.matches || !e.target.matches('input[data-action="pull-input"]')) return;
+        const evtId = e.target.dataset.evt;
+        const raw = e.target.value;
+        const secs = parsePullInput(raw);
+        if (secs !== null && secs >= 0 && secs <= NM_LIFETIME_SEC) {
+          handleSetPullTime(evtId, secs);
+        } else {
+          // invalid input — restore the panel
+          updateActivePanel();
+        }
+      }, true);
+    }
+
     // version button -> changelog modal
     const vBtn = document.getElementById('versionBtn');
     const clBackdrop = document.getElementById('changelogBackdrop');
@@ -2268,6 +3258,14 @@
       if (e.target === clBackdrop) clBackdrop.classList.remove('active');
     });
 
+    // history modal close handlers (open is wired in toolbar click handler above)
+    const hBackdrop = document.getElementById('historyBackdrop');
+    const hClose = document.getElementById('historyClose');
+    if (hClose) hClose.addEventListener('click', () => hBackdrop.classList.remove('active'));
+    if (hBackdrop) hBackdrop.addEventListener('click', (e) => {
+      if (e.target === hBackdrop) hBackdrop.classList.remove('active');
+    });
+
     // delegate clicks on zone content
     document.getElementById('zoneContainer').addEventListener('click', (e) => {
       const btn = e.target.closest('button');
@@ -2276,11 +3274,14 @@
         const zone = btn.dataset.zone;
         showModal(
           '確認新島重置',
-          `將清除 ${NM_DATA[zone].label} 全部 NM 的冷卻紀錄。確定？`,
+          `將清除 ${NM_DATA[zone].label} 全部 NM 的冷卻紀錄。`,
           () => handleNewInstance(zone)
         );
       } else if (btn.classList.contains('map-btn')) {
         openMapViewer(btn.dataset.zone || activeZone);
+      } else if (btn.classList.contains('history-btn-toolbar')) {
+        updateHistoryModal();
+        document.getElementById('historyBackdrop').classList.add('active');
       } else if (btn.dataset.action === 'report') {
         // direct-fire: no confirmation
         handleReport(btn.dataset.nm);
@@ -2318,7 +3319,19 @@
     setInterval(() => {
       updateClock();
       updateCards();
+      // update countdowns inside the panel WITHOUT rebuilding (preserves input focus)
+      tickActivePanel();
     }, TICK_MS);
+
+    // every 30 seconds, prune stale events + old history
+    setInterval(() => {
+      pruneStaleActiveEvents();
+      const changed = pruneStaleHistory();
+      if (changed) {
+        saveState();
+        updateHistoryModal();
+      }
+    }, 30000);
   }
 
   boot();
