@@ -654,8 +654,8 @@
 
   .status-detail {
     font-family: var(--font-cjk);
-    font-size: 13px;
-    color: var(--parchment-dim);
+    font-size: 14px;
+    color: var(--ink);
     margin-top: 6px;
     line-height: 1.4;
     letter-spacing: 0.02em;
@@ -669,7 +669,7 @@
   .status-detail .eta {
     font-family: var(--font-mono);
     font-weight: 600;
-    color: var(--ink);
+    color: var(--ink-bright);
     font-variant-numeric: tabular-nums;
   }
 
@@ -1566,7 +1566,7 @@
   <header>
     <div class="title-block">
       <h1>Eureka NM Tracker</h1>
-      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v1.5.2</button></div>
+      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v1.5.3</button></div>
     </div>
     <div class="status-strip">
       <div class="status-card" id="eorzeaTimeCard">
@@ -1591,7 +1591,7 @@
   </nav>
 
   <!-- ACTIVE EVENTS PANEL -->
-  <aside class="active-panel collapsed" id="activePanel">
+  <aside class="active-panel" id="activePanel">
     <div class="active-panel-header" id="activePanelHeader">
       <span>⚔ 進行中</span>
       <span class="count" id="activePanelCount">0</span>
@@ -1649,6 +1649,14 @@
 <div class="modal-backdrop" id="changelogBackdrop">
   <div class="modal" style="max-width: 520px; max-height: 70vh; overflow-y: auto;">
     <h3>📜 更新日誌</h3>
+    <div class="changelog-entry">
+      <div class="changelog-version">v1.5.3 <span class="changelog-date">— 2026/05/11</span></div>
+      <ul class="changelog-list">
+        <li>✦ 卡片條件文字加亮，更易閱讀</li>
+        <li>✦ 時間單位統一為英文短單位（s / m / h）</li>
+        <li>✦ 手機版進行中面板預設展開</li>
+      </ul>
+    </div>
     <div class="changelog-entry">
       <div class="changelog-version">v1.5.2 <span class="changelog-date">— 2026/05/11</span></div>
       <ul class="changelog-list">
@@ -1802,7 +1810,7 @@
       label: '湧火之地 Pyros',
       summary: '雪覆熔岩，烈焰與寒霜共舞。',
       nms: [
-        { id: 'lamebrix', name: '傭兵雷姆普里克斯', nickname: '傭兵', en: 'Lamebrix Strikebocks', fate: 'Thirty Whacks', level: 45, weather: null, timeReq: null, drop: '雷姆普里克斯的骰子' },
+        { id: 'lamebrix', name: '傭兵雷姆普里克斯', nickname: '傭兵', en: 'Lamebrix Strikebocks', fate: 'Thirty Whacks', level: 45, weather: null, timeReq: null, drop: '雷姆普里克斯骰子' },
         { id: 'yinyang', name: '陰陽', nickname: 'YY', en: 'Yin-Yang', fate: 'Haunter of the Dark', level: 49, weather: null, timeReq: null, drop: '陰陽的皮膜' },
         { id: 'skoll', name: '斯庫爾', nickname: '狗', en: 'Skoll', fate: "Heavens' Warg", level: 50, weather: '暴雪', timeReq: null, drop: '斯庫爾的牙' },
         { id: 'penthesilea', name: '彭忒希勒亞', nickname: '島主(Penny)', en: 'Penthesilea', fate: 'Lost Epic', level: 50, weather: '熱浪', timeReq: null, drop: '彭忒希勒亞的火種' },
@@ -2117,22 +2125,22 @@
   }
 
   function formatCooldown(ms) {
-    if (ms <= 0) return '00:00';
+    if (ms <= 0) return '0h 00m';
     const totalMin = Math.ceil(ms / 60000);
     const m = Math.floor(totalMin / 60);
     const min = totalMin % 60;
     if (m > 0) return `${m}h ${String(min).padStart(2, '0')}m`;
-    return `${min}分`;
+    return `${min}m`;
   }
 
   function formatSeconds(sec) {
     if (sec <= 0) return '已開始';
-    if (sec < 60) return `${Math.ceil(sec)}秒`;
+    if (sec < 60) return `${Math.ceil(sec)}s`;
     const totalMin = Math.ceil(sec / 60);
     const m = Math.floor(totalMin / 60);
     const min = totalMin % 60;
-    if (m > 0) return `${m}小時 ${min}分`;
-    return `${min}分`;
+    if (m > 0) return `${m}h ${min}m`;
+    return `${min}m`;
   }
 
   /* ----------- RENDER ----------- */
@@ -2982,13 +2990,18 @@
   function pruneStaleHistory() {
     const now = Date.now();
     let changed = false;
+    const deleted = [];
     Object.entries(state.history || {}).forEach(([id, h]) => {
       const ts = h.spawnedAt || h.occurredAt || h.createdAt || 0;
       if (now - ts > HISTORY_RETENTION_MS) {
+        deleted.push({ id, type: h.type, age_hours: ((now - ts) / 3600000).toFixed(1) });
         delete state.history[id];
         changed = true;
       }
     });
+    if (deleted.length > 0) {
+      console.warn('[history] pruned', deleted.length, 'stale entries:', deleted);
+    }
     return changed;
   }
 
