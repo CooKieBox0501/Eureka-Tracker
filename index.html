@@ -15,6 +15,7 @@
 <!-- Firebase SDK (compat build, works without bundler) -->
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 <style>
   /*
     =================================
@@ -788,6 +789,131 @@
     fill: currentColor;
   }
 
+  /* ============ AUTH / LOGIN UI ============ */
+  .auth-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    font-family: var(--font-cjk);
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    margin-top: 12px;
+  }
+
+  .auth-status-text {
+    color: var(--ink-faded);
+    font-size: 12px;
+  }
+
+  .auth-status-text.logged-in {
+    color: var(--ready);
+  }
+
+  .auth-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1px solid var(--gold-deep);
+  }
+
+  .auth-name {
+    color: var(--ink-bright);
+    font-weight: 600;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .auth-btn {
+    background: transparent;
+    border: 1px solid var(--border-light);
+    color: var(--ink-faded);
+    padding: 5px 12px;
+    font-family: var(--font-cjk);
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .auth-btn:hover {
+    color: var(--gold-bright);
+    border-color: var(--gold-deep);
+  }
+
+  .auth-btn.discord {
+    color: #b9bbf0;
+    border-color: #5865F2;
+  }
+
+  .auth-btn.discord:hover {
+    background: rgba(88, 101, 242, 0.15);
+    color: #ffffff;
+  }
+
+  /* small avatar shown next to reporter name in cards / history */
+  .reporter-line {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--ink-faded);
+    margin-top: 4px;
+  }
+
+  .reporter-avatar {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid var(--border-light);
+  }
+
+  .reporter-name {
+    color: var(--ink);
+  }
+
+  /* Login required modal */
+  .login-required-modal h3 {
+    margin-top: 0;
+  }
+
+  .login-required-modal p {
+    color: var(--parchment-dim);
+    font-family: var(--font-cjk);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .discord-login-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #5865F2;
+    color: #ffffff;
+    padding: 10px 20px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-cjk);
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    transition: background 0.15s ease;
+  }
+
+  .discord-login-cta:hover {
+    background: #4752c4;
+  }
+
+  .discord-login-cta svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+  }
+
   .sync-dot {
     width: 8px;
     height: 8px;
@@ -1011,6 +1137,13 @@
   .history-item .h-name {
     color: var(--ink-bright);
     font-weight: 600;
+  }
+
+  .history-item .h-by {
+    color: var(--gold-bright);
+    font-size: 11px;
+    font-style: italic;
+    margin-left: 2px;
   }
 
   .history-item .h-zone {
@@ -1566,7 +1699,11 @@
   <header>
     <div class="title-block">
       <h1>Eureka NM Tracker</h1>
-      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v1.5.3</button></div>
+      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.0.0</button></div>
+      <div class="auth-box" id="authBox">
+        <span class="auth-status-text" id="authStatusText">🔒 訪客</span>
+        <button class="auth-btn discord" id="loginBtn">Discord 登入</button>
+      </div>
     </div>
     <div class="status-strip">
       <div class="status-card" id="eorzeaTimeCard">
@@ -1650,7 +1787,17 @@
   <div class="modal" style="max-width: 520px; max-height: 70vh; overflow-y: auto;">
     <h3>📜 更新日誌</h3>
     <div class="changelog-entry">
-      <div class="changelog-version">v1.5.3 <span class="changelog-date">— 2026/05/11</span></div>
+      <div class="changelog-version">v2.0.0 <span class="changelog-date">— 2026/05/12</span></div>
+      <ul class="changelog-list">
+        <li>✦ <strong>網站開放給所有繁中玩家使用</strong></li>
+        <li>✦ 新增 Discord 帳號登入系統</li>
+        <li>✦ 限繁中支援群成員才能登入並進行操作</li>
+        <li>✦ 進行中事件與歷史紀錄會顯示回報者</li>
+        <li>✦ 訪客可瀏覽但不可操作</li>
+      </ul>
+    </div>
+	      <div class="changelog-entry">
+    <div class="changelog-version">v1.5.3 <span class="changelog-date">— 2026/05/12</span></div>
       <ul class="changelog-list">
         <li>✦ 卡片條件文字加亮，更易閱讀</li>
         <li>✦ 時間單位統一為英文短單位（s / m / h）</li>
@@ -1733,6 +1880,26 @@
     </div>
     <div class="modal-actions" style="margin-top: 20px;">
       <button class="modal-btn" id="changelogClose">關閉</button>
+    </div>
+  </div>
+</div>
+
+<!-- Login required modal -->
+<div class="modal-backdrop" id="loginRequiredBackdrop">
+  <div class="modal login-required-modal" style="max-width: 420px;">
+    <h3>🔐 請先登入</h3>
+    <p>
+      您必須登入 Discord 帳號才能進行回報、擊殺、補報等操作。<br>
+      登入後將驗證您是否為繁中支援群成員。
+    </p>
+    <div style="text-align: center; margin: 24px 0;">
+      <button class="discord-login-cta" id="loginCtaBtn" type="button">
+        <svg viewBox="0 0 24 24"><path d="M19.27 5.33C17.94 4.71 16.5 4.26 15 4a.09.09 0 00-.07.03c-.18.33-.39.76-.53 1.09a16.09 16.09 0 00-4.8 0c-.14-.34-.35-.76-.54-1.09a.09.09 0 00-.07-.03c-1.5.26-2.93.71-4.27 1.33a.07.07 0 00-.03.03A17.42 17.42 0 002 18.78a.08.08 0 00.03.06c1.82 1.34 3.58 2.15 5.31 2.69a.08.08 0 00.08-.03c.41-.56.77-1.15 1.08-1.77a.07.07 0 00-.04-.1c-.58-.22-1.13-.49-1.66-.79a.07.07 0 010-.12c.11-.08.22-.17.33-.25a.07.07 0 01.07-.01c3.48 1.59 7.24 1.59 10.68 0a.07.07 0 01.08.01c.11.08.22.17.33.25a.07.07 0 010 .12c-.53.3-1.08.57-1.66.79a.07.07 0 00-.04.1c.32.62.68 1.21 1.08 1.77a.08.08 0 00.08.03c1.74-.54 3.5-1.35 5.32-2.69a.08.08 0 00.03-.06c.44-4.79-.73-8.95-3.16-12.64a.07.07 0 00-.03-.03zM8.52 16.45c-1.03 0-1.89-.96-1.89-2.13s.84-2.13 1.89-2.13c1.06 0 1.91.97 1.89 2.13 0 1.17-.84 2.13-1.89 2.13zm6.97 0c-1.03 0-1.89-.96-1.89-2.13s.84-2.13 1.89-2.13c1.06 0 1.91.97 1.89 2.13 0 1.17-.83 2.13-1.89 2.13z"/></svg>
+        Discord 登入
+      </button>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn" id="loginRequiredClose">稍後再說</button>
     </div>
   </div>
 </div>
@@ -1846,6 +2013,128 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
   const stateRef = db.ref('eureka/state');
+  const auth = firebase.auth();
+
+  /* ----------- AUTH MODULE ----------- */
+  // OAuth 流程：
+  //   1) 使用者點「Discord 登入」 → 跳轉到 Worker 的 /login
+  //   2) Worker 處理 OAuth → 簽出 Firebase Custom Token → 重導回網站 #token=...
+  //   3) 網站偵測 #token=... → 用 token 登入 Firebase Auth
+  //   4) 登入成功 → 把 user 資訊存到 localStorage → 清除網址列的 hash
+  const AUTH_WORKER_URL = 'https://eureka-auth.cookiebox.workers.dev';
+  const AUTH_STORAGE_KEY = 'eureka_user_info';
+
+  // currentUser holds the Discord identity (id, name, avatar) once logged in.
+  let currentUser = null;
+
+  // Try to restore from localStorage early (avoids UI flicker)
+  try {
+    const cached = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (cached) currentUser = JSON.parse(cached);
+  } catch (e) { /* ignore */ }
+
+  // Process OAuth callback if present (after Discord redirect)
+  async function processAuthCallback() {
+    if (!window.location.hash || !window.location.hash.includes('token=')) return;
+    const params = new URLSearchParams(window.location.hash.substring(1));
+    const token = params.get('token');
+    const uid = params.get('uid');
+    const name = params.get('name');
+    const avatar = params.get('avatar');
+    const errorCode = params.get('error');
+
+    // clean up the URL immediately
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+
+    if (errorCode) {
+      console.error('[auth] OAuth error:', errorCode);
+      let msg = '登入失敗';
+      if (errorCode === 'not_in_guild') msg = '您不是繁中支援群成員，無法登入。';
+      else if (errorCode === 'token_exchange_failed') msg = 'Discord 授權失敗，請重試。';
+      else msg = `登入失敗：${errorCode}`;
+      alert(msg);
+      return;
+    }
+
+    if (!token || !uid) return;
+
+    try {
+      await auth.signInWithCustomToken(token);
+      currentUser = { id: uid, name, avatar };
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(currentUser));
+      updateAuthUI();
+      console.log('[auth] signed in as', name);
+    } catch (err) {
+      console.error('[auth] sign-in failed:', err);
+      alert('登入失敗：' + err.message);
+    }
+  }
+
+  // Listen to Firebase Auth state — if signed out, clear local state
+  auth.onAuthStateChanged((fbUser) => {
+    if (!fbUser && currentUser) {
+      // Firebase says we're signed out but we have local cache → clear it
+      currentUser = null;
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+      updateAuthUI();
+    }
+  });
+
+  function isLoggedIn() {
+    return !!currentUser && !!auth.currentUser;
+  }
+
+  function getUserStub() {
+    if (!currentUser) return null;
+    return { id: currentUser.id, name: currentUser.name, avatar: currentUser.avatar };
+  }
+
+  function updateAuthUI() {
+    const box = document.getElementById('authBox');
+    if (!box) return;
+    if (currentUser) {
+      box.innerHTML = `
+        <img class="auth-avatar" src="${currentUser.avatar}" alt="" />
+        <span class="auth-name">${currentUser.name}</span>
+        <button class="auth-btn" id="logoutBtn">登出</button>
+      `;
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+    } else {
+      box.innerHTML = `
+        <span class="auth-status-text">🔒 訪客</span>
+        <button class="auth-btn discord" id="loginBtn">Discord 登入</button>
+      `;
+      const loginBtn = document.getElementById('loginBtn');
+      if (loginBtn) loginBtn.addEventListener('click', startLogin);
+    }
+  }
+
+  function startLogin() {
+    window.location.href = `${AUTH_WORKER_URL}/login`;
+  }
+
+  async function handleLogout() {
+    try {
+      await auth.signOut();
+    } catch (e) { /* ignore */ }
+    currentUser = null;
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    updateAuthUI();
+  }
+
+  // Show "login required" modal when guest tries to write
+  function showLoginRequired() {
+    const bd = document.getElementById('loginRequiredBackdrop');
+    if (bd) bd.classList.add('active');
+  }
+
+  // Require login: returns true if user is logged in, otherwise pops modal and returns false
+  function requireLogin() {
+    if (isLoggedIn()) return true;
+    showLoginRequired();
+    return false;
+  }
 
   /* ----------- WEATHER SYSTEM ----------- */
   // Weather rate tables (cumulative thresholds).
@@ -2326,6 +2615,11 @@
             <span class="label">出現於</span>
             <span class="value">${spawnHM}</span>
           </div>
+          ${ev.reportedBy ? `
+            <div class="reporter-line">
+              <img class="reporter-avatar" src="${ev.reportedBy.avatar}" alt="" onerror="this.style.display='none'" />
+              <span>由 <span class="reporter-name">${ev.reportedBy.name}</span> 回報</span>
+            </div>` : ''}
           <div class="ae-row" style="margin-top:6px;">
             <span class="label">開打時間</span>
             <div class="ae-pull-row">
@@ -2399,11 +2693,14 @@
       if (h.type === 'reset') {
         const time = fmtHM(new Date(h.occurredAt));
         const zoneLabel = (NM_DATA[h.zone] && NM_DATA[h.zone].label) || h.zone;
+        const resetReporter = h.reportedBy
+          ? `<span class="h-by"> — ${h.reportedBy.name}</span>`
+          : '';
         html += `
           <li class="history-item h-reset">
             <span class="h-time">${time}</span>
             <span class="h-icon">⟳</span>
-            <span class="h-text">新島重置 · ${zoneLabel}</span>
+            <span class="h-text">新島重置 · ${zoneLabel}${resetReporter}</span>
           </li>`;
       } else {
         const data = findNmData(h.nmId);
@@ -2414,13 +2711,16 @@
         const cls = isKill ? 'h-kill' : 'h-unknown';
         const icon = isKill ? '✓' : '⚠';
         const shortZone = zoneLabel.replace(/ [A-Za-z]+$/, '');
+        const reporter = h.reportedBy
+          ? `<span class="h-by"> — ${h.reportedBy.name}</span>`
+          : '';
         html += `
           <li class="history-item ${cls}">
             <span class="h-time">${spawnHM}</span>
             <span class="h-icon">${icon}</span>
             <span class="h-text">
               <span class="h-name">${nm.name}</span>
-              <span class="h-zone">（${shortZone}）出現</span>
+              <span class="h-zone">（${shortZone}）出現</span>${reporter}
             </span>
           </li>`;
       }
@@ -2661,6 +2961,7 @@
   }
 
   function openManualTimeModal(nmId) {
+    if (!requireLogin()) return;
     const nm = findNm(nmId);
     if (!nm) return;
     const now = new Date();
@@ -2744,18 +3045,19 @@
   }
 
   async function handleReport(nmId) {
+    if (!requireLogin()) return;
+    const reporter = getUserStub();
     const now = Date.now();
     state.spawns[nmId] = now;
     // also create an active event entry, so others know group is forming
     const zone = findZoneOfNm(nmId);
     if (zone) {
-      // dedupe: if this NM already has an active event from very recent (< 5 min),
-      // treat as a re-report (overwrite spawn time, preserve user-set pull time)
       const existing = Object.values(state.activeEvents).find(
         ev => ev.nmId === nmId && (now - ev.spawnedAt) < 5 * 60 * 1000
       );
       if (existing) {
         existing.spawnedAt = now;
+        existing.reportedBy = reporter;
       } else {
         const evtId = `evt_${nmId}_${now}`;
         state.activeEvents[evtId] = {
@@ -2764,6 +3066,7 @@
           spawnedAt: now,
           pullSecondsLeft: DEFAULT_PULL_SECONDS_LEFT,
           pullSetBy: 'default',
+          reportedBy: reporter,
         };
       }
     }
@@ -2786,8 +3089,8 @@
   }
 
   async function handleResetSingle(nmId) {
+    if (!requireLogin()) return;
     delete state.spawns[nmId];
-    // also kill any active event for this NM
     Object.entries(state.activeEvents).forEach(([id, ev]) => {
       if (ev.nmId === nmId) delete state.activeEvents[id];
     });
@@ -2797,15 +3100,15 @@
   }
 
   async function handleNewInstance(zone) {
+    if (!requireLogin()) return;
+    const reporter = getUserStub();
     const now = Date.now();
     state.instanceResets[zone] = now;
-    // clear spawns + active events in that zone
     NM_DATA[zone].nms.forEach(nm => { delete state.spawns[nm.id]; });
     Object.entries(state.activeEvents).forEach(([id, ev]) => {
       if (ev.zone === zone) delete state.activeEvents[id];
     });
-    // record reset in history
-    recordHistory({ type: 'reset', zone, occurredAt: now }, /*deferSave=*/true);
+    recordHistory({ type: 'reset', zone, occurredAt: now, reportedBy: reporter }, true);
     pruneStaleHistory();
     await saveState();
     updateCards();
@@ -2815,6 +3118,7 @@
 
   // Manual report (from manual time modal) — same as handleReport but with given timestamp
   function commitManualSpawn(nmId, timestamp) {
+    const reporter = getUserStub();
     state.spawns[nmId] = timestamp;
     const zone = findZoneOfNm(nmId);
     // ensure instance reset doesn't shadow this entry
@@ -2833,24 +3137,31 @@
           spawnedAt: timestamp,
           pullSecondsLeft: DEFAULT_PULL_SECONDS_LEFT,
           pullSetBy: 'default',
+          reportedBy: reporter,
         };
       } else {
         existing.spawnedAt = timestamp;
+        existing.reportedBy = reporter;
       }
     }
   }
 
   // Active event mutators
   async function handleKillEvent(evtId) {
+    if (!requireLogin()) return;
+    const reporter = getUserStub();
     const ev = state.activeEvents[evtId];
     if (ev) {
-      // record to history before removing
+      // record to history before removing — preserve original spawn reporter,
+      // but also note who confirmed the kill
       recordHistory({
         type: 'kill',
         nmId: ev.nmId,
         zone: ev.zone,
         spawnedAt: ev.spawnedAt,
         killedAt: Date.now(),
+        reportedBy: ev.reportedBy || reporter,
+        killedBy: reporter,
       }, /*deferSave=*/true);
     }
     delete state.activeEvents[evtId];
@@ -2862,10 +3173,12 @@
   }
 
   async function handleSetPullTime(evtId, secondsLeft) {
+    if (!requireLogin()) return;
     const ev = state.activeEvents[evtId];
     if (!ev) return;
     ev.pullSecondsLeft = Math.max(0, Math.min(NM_LIFETIME_SEC, secondsLeft));
     ev.pullSetBy = 'manual';
+    ev.pullSetByUser = getUserStub();
     await saveState();
     updateActivePanel();
   }
@@ -2925,6 +3238,7 @@
         type: 'reset',
         zone: entry.zone,
         occurredAt: entry.occurredAt || now,
+        reportedBy: entry.reportedBy || null,
         createdAt: now,
         updatedAt: now,
       };
@@ -2940,7 +3254,6 @@
         if (h.nmId !== entry.nmId) return;
 
         // Both entries must be on the same side of the most recent reset
-        // (i.e., both after the last reset, or both before)
         const existingAfterReset = h.spawnedAt > resetTs;
         const newAfterReset = newSpawnedAt > resetTs;
         if (existingAfterReset !== newAfterReset) return;
@@ -2953,17 +3266,17 @@
       });
 
       if (mergedId) {
-        // Update existing record with the new (more accurate) info
         const existing = state.history[mergedId];
         existing.spawnedAt = newSpawnedAt;
         if (entry.type === 'kill') {
           existing.type = 'kill';
           existing.killedAt = entry.killedAt;
+          if (entry.killedBy) existing.killedBy = entry.killedBy;
         } else if (entry.type === 'unknown' && existing.type !== 'kill') {
-          // only downgrade if we don't already have a kill record
           existing.type = 'unknown';
           existing.killedAt = null;
         }
+        if (entry.reportedBy) existing.reportedBy = entry.reportedBy;
         existing.updatedAt = now;
       } else {
         // create new record
@@ -2974,6 +3287,8 @@
           zone: entry.zone,
           spawnedAt: newSpawnedAt,
           killedAt: entry.type === 'kill' ? entry.killedAt : null,
+          reportedBy: entry.reportedBy || null,
+          killedBy: entry.killedBy || null,
           createdAt: now,
           updatedAt: now,
         };
@@ -2990,16 +3305,16 @@
   function pruneStaleHistory() {
     const now = Date.now();
     let changed = false;
-    const deleted = [];
+	const deleted = [];
     Object.entries(state.history || {}).forEach(([id, h]) => {
       const ts = h.spawnedAt || h.occurredAt || h.createdAt || 0;
       if (now - ts > HISTORY_RETENTION_MS) {
-        deleted.push({ id, type: h.type, age_hours: ((now - ts) / 3600000).toFixed(1) });
+		deleted.push({ id, type: h.type, age_hours: ((now - ts) / 3600000).toFixed(1) });
         delete state.history[id];
         changed = true;
       }
     });
-    if (deleted.length > 0) {
+	if (deleted.length > 0) {
       console.warn('[history] pruned', deleted.length, 'stale entries:', deleted);
     }
     return changed;
@@ -3320,10 +3635,28 @@
   }
 
   /* ----------- BOOT ----------- */
-  function boot() {
+  async function boot() {
     buildZoneContent();
     wireEvents();
     MapViewer.init();
+
+    // Initialize auth UI (shows correct state based on localStorage cache)
+    updateAuthUI();
+
+    // Wire up "login required" modal close button
+    const lrClose = document.getElementById('loginRequiredClose');
+    const lrBackdrop = document.getElementById('loginRequiredBackdrop');
+    const lrCtaBtn = document.getElementById('loginCtaBtn');
+    if (lrClose) lrClose.addEventListener('click', () => lrBackdrop.classList.remove('active'));
+    if (lrBackdrop) lrBackdrop.addEventListener('click', (e) => {
+      if (e.target === lrBackdrop) lrBackdrop.classList.remove('active');
+    });
+    if (lrCtaBtn) lrCtaBtn.addEventListener('click', startLogin);
+
+    // Process OAuth callback BEFORE attaching realtime listener
+    // (so the listener fires after we've logged in)
+    await processAuthCallback();
+
     // attach realtime listener — first snapshot will populate state and trigger updateCards
     attachRealtimeListener();
     updateClock();
