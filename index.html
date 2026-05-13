@@ -1823,7 +1823,7 @@
   <header>
     <div class="title-block">
       <h1>Eureka NM Tracker</h1>
-      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.2.0</button></div>
+      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.2.1</button></div>
       <div class="auth-box" id="authBox">
         <span class="auth-status-text" id="authStatusText">🔒 請登入</span>
         <button class="auth-btn discord" id="loginBtn">Discord 登入</button>
@@ -1927,6 +1927,16 @@
 <div class="modal-backdrop" id="changelogBackdrop">
   <div class="modal" style="max-width: 520px; max-height: 70vh; overflow-y: auto;">
     <h3>📜 更新日誌</h3>
+	<div class="changelog-entry">
+      <div class="changelog-version">v2.2.1 <span class="changelog-date">— 2026/05/13</span></div>
+      <ul class="changelog-list">
+        <li>✦ 防濫用機制升級：加入凍結期</li>
+        <li>✦ 「注意」狀態凍結 30 秒，「警告」狀態凍結 30 分鐘</li>
+        <li>✦ 警告通知必須點「我知道了」才能關閉</li>
+        <li>✦ 修正未加入 Discord 群者登入後沒提示的問題</li>
+        <li>✦ 新增版本檢查：網站更新時自動提示重整</li>
+      </ul>
+    </div>
     <div class="changelog-entry">
       <div class="changelog-version">v2.2.0 <span class="changelog-date">— 2026/05/13</span></div>
       <ul class="changelog-list">
@@ -2133,8 +2143,10 @@
       請放慢速度，避免造成資料混亂。
     </p>
     <p style="color: var(--ink-faded); font-family: var(--font-cjk); font-size: 12px; line-height: 1.6; margin-bottom: 18px;">
-      您已被標記為「<strong style="color: #d4a84b;">注意</strong>」，標籤將在 30 分鐘後自動移除。<br>
-      若期間內再次過度操作，將升級為警告。
+      您已被標記為「<strong style="color: #d4a84b;">注意</strong>」狀態，<strong>操作將被凍結 30 秒</strong>。<br>
+      <br>
+      凍結結束後標籤仍會持續，需 30 分鐘內無違規才會自動解除。<br>
+      若期間內再次過度操作，將升級為警告（凍結 30 分鐘）。
     </p>
     <div class="modal-actions">
       <button class="modal-btn primary" id="abuseAttentionClose">我知道了</button>
@@ -2161,7 +2173,42 @@
     </div>
   </div>
 </div>
+	
+<!-- Abuse: FROZEN modal (during 30-sec or 30-min freeze period) -->
+<div class="modal-backdrop" id="abuseFrozenBackdrop">
+  <div class="modal" style="max-width: 460px; border: 2px solid #d4a84b;">
+    <h3 style="color: #d4a84b;">⏳ 操作已被凍結</h3>
+    <p id="abuseFrozenMessage" style="color: var(--ink); font-family: var(--font-cjk); font-size: 14px; line-height: 1.7; margin-bottom: 16px;">
+      您目前處於凍結期。
+    </p>
+    <p style="color: var(--ink-faded); font-family: var(--font-cjk); font-size: 12px; line-height: 1.6; margin-bottom: 18px;">
+      凍結期間請放慢操作節奏，避免再次升級。<br>
+      若認為這是誤判，請聯絡管理員 <strong style="color: var(--gold-bright);">cOoKiE_bOx</strong>（Discord）。
+    </p>
+    <div class="modal-actions">
+      <button class="modal-btn primary" id="abuseFrozenClose">我知道了</button>
+    </div>
+  </div>
+</div>
 
+<!-- Version mismatch modal -->
+<div class="modal-backdrop" id="versionUpdateBackdrop">
+  <div class="modal" style="max-width: 420px; border: 2px solid var(--gold-deep);">
+    <h3 style="color: var(--gold-bright);">📢 網站已更新</h3>
+    <p style="color: var(--ink); font-family: var(--font-cjk); font-size: 14px; line-height: 1.7; margin-bottom: 16px;">
+      網站已發布新版本，您目前使用的是舊版本。<br>
+      請重整頁面以使用最新功能、並避免資料同步問題。
+    </p>
+    <p style="color: var(--ink-faded); font-family: var(--font-cjk); font-size: 12px; line-height: 1.6; margin-bottom: 18px;">
+      目前版本：<span id="myVersion" style="color: var(--ink);">—</span><br>
+      最新版本：<span id="latestVersion" style="color: var(--gold-bright);">—</span>
+    </p>
+    <div class="modal-actions">
+      <button class="modal-btn primary" id="versionReloadBtn">立即重整</button>
+    </div>
+  </div>
+</div>
+	
 <!-- Abuse: BANNED modal -->
 <div class="modal-backdrop" id="abuseBannedBackdrop">
   <div class="modal" style="max-width: 460px; border: 2px solid #d44b4b;">
@@ -2299,7 +2346,26 @@
   //   4) 登入成功 → 把 user 資訊存到 localStorage → 清除網址列的 hash
   const AUTH_WORKER_URL = 'https://eureka-auth.cookiebox.workers.dev';
   const AUTH_STORAGE_KEY = 'eureka_user_info';
+	
+　// Current build version — must match Firebase eureka/meta/currentVersion
+  const APP_VERSION = 'v2.2.1';
+  const metaRef = db.ref('eureka/meta');
 
+  // Watch for version updates: if Firebase has a newer version, prompt reload
+  function attachVersionListener() {
+    metaRef.child('currentVersion').on('value', (snap) => {
+      const latest = snap.val();
+      if (!latest) return;
+      if (latest !== APP_VERSION) {
+        const myEl = document.getElementById('myVersion');
+        const latestEl = document.getElementById('latestVersion');
+        if (myEl) myEl.textContent = APP_VERSION;
+        if (latestEl) latestEl.textContent = latest;
+        const bd = document.getElementById('versionUpdateBackdrop');
+        if (bd) bd.classList.add('active');
+      }
+    });
+  }
   // currentUser holds the Discord identity (id, name, avatar) once logged in.
   let currentUser = null;
 
@@ -2310,8 +2376,10 @@
   } catch (e) { /* ignore */ }
 
   // Process OAuth callback if present (after Discord redirect)
-  async function processAuthCallback() {
-    if (!window.location.hash || !window.location.hash.includes('token=')) return;
+async function processAuthCallback() {
+    // Check for either token= (success) or error= (failure) in the URL hash
+    if (!window.location.hash) return;
+    if (!window.location.hash.includes('token=') && !window.location.hash.includes('error=')) return;
     const params = new URLSearchParams(window.location.hash.substring(1));
     const token = params.get('token');
     const uid = params.get('uid');
@@ -2494,23 +2562,30 @@
 
   // Check + record an action attempt. Returns true if allowed, false if blocked.
   // Call this BEFORE every write action.
-  async function checkAndRecordAction(actionType) {
-    if (!isLoggedIn()) return false; // safety: requireLogin already called
+async function checkAndRecordAction(actionType) {
+    if (!isLoggedIn()) return false;
     const uid = currentUser.id;
 
     // Admins bypass all abuse checks
     if (isAdmin()) return true;
 
-    // Check if currently banned (sync from Firebase via cached flag)
+    // Check if currently banned
     if (myUserFlag && myUserFlag.status === 'banned') {
       showBannedModal();
+      return false;
+    }
+
+    // Check if currently in a frozen period
+    if (myUserFlag && myUserFlag.freezeUntil && Date.now() < myUserFlag.freezeUntil) {
+      const remainingSec = Math.ceil((myUserFlag.freezeUntil - Date.now()) / 1000);
+      showFrozenModal(remainingSec, myUserFlag.status);
       return false;
     }
 
     const now = Date.now();
     recentActions.push(now);
 
-    // Trim to last 30 seconds (we never need older)
+    // Trim to last 30 seconds
     const cutoff = now - 30000;
     while (recentActions.length > 0 && recentActions[0] < cutoff) {
       recentActions.shift();
@@ -2520,42 +2595,81 @@
     const currentStatus = myUserFlag ? myUserFlag.status : 'normal';
     let threshold;
     let nextStatus;
+    let freezeDurationMs;
 
     if (currentStatus === 'normal') {
       threshold = ABUSE_CONFIG.NORMAL_THRESHOLD;
       nextStatus = 'attention';
+      freezeDurationMs = 30 * 1000; // 30 sec freeze
     } else if (currentStatus === 'attention') {
       threshold = ABUSE_CONFIG.ATTENTION_THRESHOLD;
       nextStatus = 'warning';
+      freezeDurationMs = 30 * 60 * 1000; // 30 min freeze
     } else if (currentStatus === 'warning') {
       threshold = ABUSE_CONFIG.WARNING_THRESHOLD;
       nextStatus = 'banned';
+      freezeDurationMs = 0; // no freeze, just banned
     } else {
-      // unknown status, allow
       return true;
     }
 
-    // Count actions in the relevant window
     const windowStart = now - threshold.windowMs;
     const recentCount = recentActions.filter(t => t >= windowStart).length;
 
     if (recentCount >= threshold.actions) {
-      // Threshold exceeded → escalate
-      await applyAbuseStatus(uid, nextStatus, `自動偵測：${threshold.windowMs/1000}秒內 ${recentCount} 次操作`);
-      // Show appropriate modal
+      await applyAbuseStatus(uid, nextStatus, `自動偵測：${threshold.windowMs/1000}秒內 ${recentCount} 次操作`, freezeDurationMs);
+      // Show appropriate modal (forced — must click "我知道了")
       if (nextStatus === 'attention') {
         showAttentionModal();
-        return false; // block this action too
       } else if (nextStatus === 'warning') {
         showWarningModal();
-        return false;
       } else if (nextStatus === 'banned') {
         showBannedModal();
-        return false;
       }
+      return false;
     }
 
     return true;
+  }
+
+  async function applyAbuseStatus(uid, status, reason, freezeDurationMs = 0) {
+    const now = Date.now();
+    const flag = {
+      status,
+      setAt: now,
+      reason,
+      setBy: 'system',
+    };
+    if (status === 'attention') {
+      flag.expiresAt = now + ABUSE_CONFIG.ATTENTION_DURATION_MS;
+    } else {
+      flag.expiresAt = null; // warning & banned are permanent
+    }
+    if (freezeDurationMs > 0) {
+      flag.freezeUntil = now + freezeDurationMs;
+    }
+    try {
+      await userFlagsRef.child(uid).set(flag);
+    } catch (err) {
+      console.error('[abuse] failed to write flag:', err);
+    }
+  }
+
+  // Show modal when user tries to act during freeze period
+  function showFrozenModal(remainingSec, status) {
+    const bd = document.getElementById('abuseFrozenBackdrop');
+    const msg = document.getElementById('abuseFrozenMessage');
+    if (!bd || !msg) return;
+    const statusLabel = status === 'attention' ? '注意' : '警告';
+    let timeText;
+    if (remainingSec >= 60) {
+      const min = Math.ceil(remainingSec / 60);
+      timeText = `${min} 分鐘`;
+    } else {
+      timeText = `${remainingSec} 秒`;
+    }
+    msg.innerHTML = `您目前處於「<strong>${statusLabel}</strong>」凍結期，<br>還剩 <strong style="color: #d4a84b;">${timeText}</strong> 才能再次操作。`;
+    bd.classList.add('active');
   }
 
   async function applyAbuseStatus(uid, status, reason) {
@@ -4355,14 +4469,17 @@
     });
     if (fbSubmit) fbSubmit.addEventListener('click', submitFeedback);
 
-    // Wire up abuse modals (attention/warning/banned)
-    ['Attention', 'Warning', 'Banned'].forEach((name) => {
+	// Wire up version update modal
+    const vrBtn = document.getElementById('versionReloadBtn');
+    if (vrBtn) vrBtn.addEventListener('click', () => location.reload());
+	  
+	// Wire up abuse modals (attention/warning/banned/frozen)
+    // These modals must be dismissed by clicking the button — clicking outside does NOT close.
+    ['Attention', 'Warning', 'Banned', 'Frozen'].forEach((name) => {
       const bd = document.getElementById(`abuse${name}Backdrop`);
       const close = document.getElementById(`abuse${name}Close`);
       if (close) close.addEventListener('click', () => bd.classList.remove('active'));
-      if (bd) bd.addEventListener('click', (e) => {
-        if (e.target === bd) bd.classList.remove('active');
-      });
+      // NOTE: deliberately NOT adding click-outside-to-close for abuse modals
     });
 
     // Process OAuth callback BEFORE attaching realtime listener
@@ -4371,6 +4488,7 @@
 
     // attach realtime listener — first snapshot will populate state and trigger updateCards
     attachRealtimeListener();
+    attachVersionListener();
     updateClock();
 
     // tick every second for clock + cooldown countdowns
