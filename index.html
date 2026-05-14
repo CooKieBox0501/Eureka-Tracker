@@ -864,6 +864,485 @@
     border-color: var(--gold-deep);
   }
 
+  /* Known issues button (above feedback) */
+  .known-issues-btn {
+    position: fixed;
+    bottom: 136px;
+    right: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    font-family: var(--font-cjk);
+    font-size: 12px;
+    color: var(--ink-faded);
+    cursor: pointer;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.7;
+    transition: opacity 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    letter-spacing: 0.05em;
+  }
+
+  .known-issues-btn:hover {
+    opacity: 1;
+    color: var(--gold-bright);
+    border-color: var(--gold-deep);
+  }
+
+  .ki-count {
+    background: rgba(212, 168, 75, 0.25);
+    color: var(--gold-bright);
+    padding: 1px 6px;
+    margin-left: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    display: none;
+  }
+
+  .ki-count.active {
+    display: inline;
+  }
+
+  /* Admin panel button (top of right-side stack) */
+  .admin-btn {
+    position: fixed;
+    bottom: 176px;
+    right: 16px;
+    background: linear-gradient(180deg, rgba(212, 168, 75, 0.2), rgba(212, 168, 75, 0.08));
+    border: 1px solid var(--gold-deep);
+    padding: 8px 14px;
+    font-family: var(--font-cjk);
+    font-size: 12px;
+    color: var(--gold-bright);
+    cursor: pointer;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    letter-spacing: 0.05em;
+  }
+
+  .admin-btn:hover {
+    background: linear-gradient(180deg, rgba(212, 168, 75, 0.35), rgba(212, 168, 75, 0.15));
+    color: #ffffff;
+  }
+
+  /* ============ KNOWN ISSUES LIST ============ */
+  .ki-empty {
+    color: var(--ink-faded);
+    font-family: var(--font-cjk);
+    font-size: 13px;
+    text-align: center;
+    padding: 24px 0;
+  }
+
+  .ki-item {
+    padding: 12px;
+    margin-bottom: 10px;
+    background: rgba(20, 16, 14, 0.4);
+    border-left: 3px solid var(--border-light);
+    font-family: var(--font-cjk);
+  }
+
+  .ki-item.pending { border-left-color: #d4a84b; }
+  .ki-item.in_progress { border-left-color: #5865F2; }
+  .ki-item.fixed { border-left-color: #4caf50; opacity: 0.65; }
+
+  .ki-item-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .ki-status-tag {
+    font-size: 10px;
+    padding: 2px 6px;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+
+  .ki-status-tag.pending { background: rgba(212, 168, 75, 0.2); color: #d4a84b; }
+  .ki-status-tag.in_progress { background: rgba(88, 101, 242, 0.2); color: #8b95ff; }
+  .ki-status-tag.fixed { background: rgba(76, 175, 80, 0.2); color: #6fc575; }
+
+  .ki-title {
+    font-size: 14px;
+    color: var(--ink-bright);
+    font-weight: 600;
+    flex: 1;
+  }
+
+  .ki-desc {
+    font-size: 12px;
+    color: var(--ink);
+    margin-top: 6px;
+    line-height: 1.6;
+  }
+
+  /* ============ ADMIN PANEL ============ */
+  .admin-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 18px;
+  }
+
+  .admin-tab {
+    background: transparent;
+    border: none;
+    color: var(--ink-faded);
+    padding: 8px 14px;
+    font-family: var(--font-cjk);
+    font-size: 13px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .admin-tab:hover {
+    color: var(--ink-bright);
+  }
+
+  .admin-tab.active {
+    color: var(--gold-bright);
+    border-bottom-color: var(--gold-deep);
+  }
+
+  .admin-tab-content {
+    display: none;
+  }
+
+  .admin-tab-content.active {
+    display: block;
+  }
+
+  .admin-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .admin-stat {
+    padding: 14px;
+    background: rgba(20, 16, 14, 0.5);
+    border: 1px solid var(--border);
+    text-align: center;
+  }
+
+  .admin-stat-label {
+    font-family: var(--font-display);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--ink-faded);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .admin-stat-value {
+    font-family: var(--font-mono);
+    font-size: 24px;
+    color: var(--gold-bright);
+    font-weight: 600;
+  }
+
+  .admin-online-list,
+  .admin-users-list,
+  .admin-reports-list,
+  .admin-flags-list,
+  .admin-issues-list,
+  .admin-memo-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .admin-user-row,
+  .admin-report-row,
+  .admin-flag-row,
+  .admin-issue-row,
+  .admin-memo-row,
+  .admin-online-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: rgba(20, 16, 14, 0.4);
+    border: 1px solid var(--border);
+    font-family: var(--font-cjk);
+    font-size: 13px;
+  }
+
+  .admin-user-row:hover,
+  .admin-report-row:hover {
+    border-color: var(--gold-deep);
+    cursor: pointer;
+  }
+
+  .admin-row-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--border-light);
+    flex-shrink: 0;
+  }
+
+  .admin-row-main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .admin-row-name {
+    color: var(--ink-bright);
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .admin-row-sub {
+    color: var(--ink-faded);
+    font-size: 11px;
+  }
+
+  .admin-row-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .admin-action-btn {
+    background: transparent;
+    border: 1px solid var(--border-light);
+    color: var(--ink-faded);
+    padding: 4px 10px;
+    font-family: var(--font-cjk);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .admin-action-btn:hover {
+    color: var(--gold-bright);
+    border-color: var(--gold-deep);
+  }
+
+  .admin-action-btn.danger {
+    color: #ff8855;
+    border-color: rgba(255, 136, 85, 0.4);
+  }
+
+  .admin-action-btn.danger:hover {
+    color: #ffffff;
+    background: rgba(212, 75, 75, 0.2);
+    border-color: #ff5555;
+  }
+
+  .admin-flag-status {
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  .admin-flag-status.attention { background: rgba(212, 168, 75, 0.2); color: #d4a84b; }
+  .admin-flag-status.warning { background: rgba(255, 136, 85, 0.2); color: #ff8855; }
+  .admin-flag-status.banned { background: rgba(255, 85, 85, 0.2); color: #ff5555; }
+
+  .admin-report-row.new { border-left: 3px solid #d4a84b; }
+  .admin-report-row.in_progress { border-left: 3px solid #5865F2; }
+  .admin-report-row.resolved { border-left: 3px solid #4caf50; opacity: 0.7; }
+  .admin-report-row.ignored { opacity: 0.5; }
+
+  .admin-online-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4caf50;
+    box-shadow: 0 0 6px #4caf50;
+    flex-shrink: 0;
+  }
+
+  .admin-online-dot.idle {
+    background: #888;
+    box-shadow: none;
+  }
+
+  /* User detail view */
+  .ud-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  .ud-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 1px solid var(--gold-deep);
+  }
+
+  .ud-name {
+    font-family: var(--font-cjk);
+    font-size: 20px;
+    color: var(--ink-bright);
+    font-weight: 600;
+  }
+
+  .ud-id {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-faded);
+  }
+
+  .ud-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  .ud-stat {
+    padding: 10px;
+    background: rgba(20, 16, 14, 0.4);
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+
+  .ud-stat-label {
+    font-family: var(--font-display);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--ink-faded);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .ud-stat-value {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    color: var(--gold-bright);
+  }
+
+  .ud-section {
+    margin-bottom: 18px;
+  }
+
+  .ud-section-title {
+    font-family: var(--font-display);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--ink-faded);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .ud-logs-list {
+    max-height: 320px;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .ud-log-item {
+    padding: 4px 0;
+    color: var(--ink);
+    border-bottom: 1px dotted rgba(255, 255, 255, 0.05);
+  }
+
+  .ud-log-time {
+    color: var(--ink-faded);
+    margin-right: 8px;
+  }
+
+  .ud-log-type {
+    color: var(--gold-bright);
+    font-weight: 600;
+    margin-right: 8px;
+  }
+
+  .ud-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    margin-right: 4px;
+    margin-bottom: 4px;
+    background: rgba(88, 101, 242, 0.2);
+    border: 1px solid rgba(88, 101, 242, 0.5);
+    color: #b9bbf0;
+    font-size: 11px;
+    cursor: pointer;
+  }
+
+  .ud-tag.active {
+    background: var(--gold-deep);
+    border-color: var(--gold-bright);
+    color: #ffffff;
+  }
+
+  .ud-notes {
+    width: 100%;
+    min-height: 60px;
+    background: var(--bg-deep);
+    border: 1px solid var(--border-light);
+    color: var(--ink-bright);
+    padding: 8px 10px;
+    font-family: var(--font-cjk);
+    font-size: 13px;
+    box-sizing: border-box;
+    resize: vertical;
+  }
+
+  /* Memo */
+  .admin-memo-row {
+    align-items: flex-start;
+  }
+
+  .admin-memo-row.done {
+    opacity: 0.5;
+  }
+
+  .admin-memo-check {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .admin-memo-text {
+    flex: 1;
+    color: var(--ink-bright);
+    line-height: 1.5;
+  }
+
+  .admin-memo-row.done .admin-memo-text {
+    text-decoration: line-through;
+  }
+
+  .admin-memo-time {
+    font-size: 11px;
+    color: var(--ink-faded);
+  }
+
+  /* Make modal-btn primary easier to identify */
+  .modal-btn.primary {
+    background: linear-gradient(180deg, rgba(212, 168, 75, 0.3), rgba(212, 168, 75, 0.1));
+    border-color: var(--gold-deep);
+    color: var(--gold-bright);
+  }
+
+  .modal-btn.primary:hover {
+    background: linear-gradient(180deg, rgba(212, 168, 75, 0.45), rgba(212, 168, 75, 0.2));
+    color: #ffffff;
+  }
+
   /* ============ AUTH / LOGIN UI ============ */
   .auth-box {
     display: flex;
@@ -1823,7 +2302,7 @@
   <header>
     <div class="title-block">
       <h1>Eureka NM Tracker</h1>
-      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.2.1</button></div>
+      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.2.2</button></div>
       <div class="auth-box" id="authBox">
         <span class="auth-status-text" id="authStatusText">🔒 請登入</span>
         <button class="auth-btn discord" id="loginBtn">Discord 登入</button>
@@ -1891,6 +2370,16 @@
 
 </div>
 
+<!-- Admin panel button (only visible to admins) -->
+<button class="admin-btn" id="adminPanelBtn" title="管理面板" style="display: none;">
+  <span>⚙ 管理面板</span>
+</button>
+
+<!-- Known issues button -->
+<button class="known-issues-btn" id="knownIssuesBtn" title="查看已知問題">
+  <span>⚠ 已知問題 <span id="knownIssuesCount" class="ki-count"></span></span>
+</button>
+
 <!-- Feedback button (above GitHub link) -->
 <button class="feedback-btn" id="feedbackBtn" title="回報問題或建議">
   <span>💬 問題回報</span>
@@ -1928,6 +2417,14 @@
   <div class="modal" style="max-width: 520px; max-height: 70vh; overflow-y: auto;">
     <h3>📜 更新日誌</h3>
 	<div class="changelog-entry">
+      <div class="changelog-version">v2.2.2 <span class="changelog-date">— 2026/05/13</span></div>
+      <ul class="changelog-list">
+        <li>✦ 修正凍結機制完全沒生效的 Bug</li>
+        <li>✦ 新增「⚠ 已知問題」區（右下角），可查看目前追蹤中的問題</li>
+        <li>✦ 累積一段時間後會邀請您填寫回饋問卷</li>
+      </ul>
+    </div>
+	<div class="changelog-entry">
       <div class="changelog-version">v2.2.1 <span class="changelog-date">— 2026/05/13</span></div>
       <ul class="changelog-list">
         <li>✦ 防濫用機制升級：加入凍結期</li>
@@ -1940,7 +2437,7 @@
     <div class="changelog-entry">
       <div class="changelog-version">v2.2.0 <span class="changelog-date">— 2026/05/13</span></div>
       <ul class="changelog-list">
-        <li>✦ <strong>新增防濫用機制</strong>：偵測連續快速操作</li>
+        <li>✦ 新增防濫用機制：偵測連續快速操作</li>
         <li>✦ 被限制者可繼續瀏覽，但無法回報、擊殺等寫入操作</li>
       </ul>
     </div>
@@ -2208,6 +2705,170 @@
     </div>
   </div>
 </div>
+
+<!-- Survey invitation modal -->
+<div class="modal-backdrop" id="surveyBackdrop">
+  <div class="modal" style="max-width: 460px; border: 2px solid var(--gold-deep);">
+    <h3 style="color: var(--gold-bright);">📝 想請您幫個忙</h3>
+    <p style="color: var(--ink); font-family: var(--font-cjk); font-size: 14px; line-height: 1.7; margin-bottom: 16px;">
+      您已使用本網站一段時間。<br>
+      方便撥 1-2 分鐘填一份簡短問卷嗎？<br>
+      您的回饋將幫助我改善網站。
+    </p>
+    <p style="color: var(--ink-faded); font-family: var(--font-cjk); font-size: 12px; line-height: 1.6; margin-bottom: 18px;">
+      問卷會在新分頁開啟，不會中斷您的使用。
+    </p>
+    <div class="modal-actions">
+      <button class="modal-btn" id="surveySnoozeBtn">稍後再說</button>
+      <button class="modal-btn primary" id="surveyAcceptBtn">填寫問卷</button>
+    </div>
+  </div>
+</div>
+
+<!-- Known issues modal -->
+<div class="modal-backdrop" id="knownIssuesBackdrop">
+  <div class="modal" style="max-width: 560px; max-height: 75vh; overflow-y: auto;">
+    <h3>⚠ 已知問題</h3>
+    <p style="color: var(--ink-faded); font-family: var(--font-cjk); font-size: 12px; margin-bottom: 16px;">
+      目前正在處理或追蹤中的問題。若您遇到的問題不在清單中，請使用「💬 問題回報」告訴我。
+    </p>
+    <div id="knownIssuesBody">
+      <div class="ki-empty">目前沒有已知問題</div>
+    </div>
+    <div class="modal-actions" style="margin-top: 18px;">
+      <button class="modal-btn" id="knownIssuesClose">關閉</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin panel modal (only visible to admins) -->
+<div class="modal-backdrop" id="adminPanelBackdrop">
+  <div class="modal" style="max-width: 900px; max-height: 85vh; overflow-y: auto; width: 95%;">
+    <h3>⚙ 管理面板</h3>
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-tab="overview">📊 概覽</button>
+      <button class="admin-tab" data-tab="users">👥 使用者</button>
+      <button class="admin-tab" data-tab="reports">💬 問題回報</button>
+      <button class="admin-tab" data-tab="flags">🚫 標籤管理</button>
+      <button class="admin-tab" data-tab="issues">⚠ 已知問題</button>
+      <button class="admin-tab" data-tab="memo">📝 備忘錄</button>
+    </div>
+
+    <!-- Overview tab -->
+    <div class="admin-tab-content active" data-content="overview">
+      <div class="admin-stats">
+        <div class="admin-stat"><div class="admin-stat-label">線上中</div><div class="admin-stat-value" id="ovOnline">—</div></div>
+        <div class="admin-stat"><div class="admin-stat-label">使用中 (5min)</div><div class="admin-stat-value" id="ovActive">—</div></div>
+        <div class="admin-stat"><div class="admin-stat-label">今日活躍</div><div class="admin-stat-value" id="ovToday">—</div></div>
+        <div class="admin-stat"><div class="admin-stat-label">累積用戶</div><div class="admin-stat-value" id="ovTotal">—</div></div>
+        <div class="admin-stat"><div class="admin-stat-label">24h 操作</div><div class="admin-stat-value" id="ov24h">—</div></div>
+        <div class="admin-stat"><div class="admin-stat-label">受限制中</div><div class="admin-stat-value" id="ovFlagged">—</div></div>
+      </div>
+      <h4 style="margin-top: 24px; font-family: var(--font-display); font-size: 11px; letter-spacing: 0.2em; color: var(--ink-faded); text-transform: uppercase;">目前線上</h4>
+      <div id="ovOnlineList" class="admin-online-list"></div>
+    </div>
+
+    <!-- Users tab -->
+    <div class="admin-tab-content" data-content="users">
+      <div style="margin-bottom: 12px;">
+        <input type="text" id="userSearch" placeholder="搜尋名稱或 ID..." style="width: 100%; background: var(--bg-deep); border: 1px solid var(--border-light); color: var(--ink-bright); padding: 8px 10px; font-family: var(--font-cjk); font-size: 13px; box-sizing: border-box;">
+      </div>
+      <div id="adminUsersList" class="admin-users-list"></div>
+    </div>
+
+    <!-- Reports tab -->
+    <div class="admin-tab-content" data-content="reports">
+      <div style="margin-bottom: 12px;">
+        <label style="color: var(--ink-faded); font-size: 12px; margin-right: 8px;">篩選：</label>
+        <select id="reportFilter" style="background: var(--bg-deep); border: 1px solid var(--border-light); color: var(--ink-bright); padding: 4px 8px; font-family: var(--font-cjk); font-size: 12px;">
+          <option value="all">全部</option>
+          <option value="new" selected>未處理</option>
+          <option value="in_progress">處理中</option>
+          <option value="resolved">已解決</option>
+          <option value="ignored">已忽略</option>
+        </select>
+      </div>
+      <div id="adminReportsList" class="admin-reports-list"></div>
+    </div>
+
+    <!-- Flags tab -->
+    <div class="admin-tab-content" data-content="flags">
+      <p style="color: var(--ink-faded); font-size: 12px; margin-bottom: 12px;">列出所有被標記的使用者。點擊「解除」可移除標籤。</p>
+      <div id="adminFlagsList" class="admin-flags-list"></div>
+    </div>
+
+    <!-- Known issues editor -->
+    <div class="admin-tab-content" data-content="issues">
+      <p style="color: var(--ink-faded); font-size: 12px; margin-bottom: 12px;">編輯顯示在「⚠ 已知問題」中的清單。</p>
+      <button class="modal-btn primary" id="addKnownIssueBtn" style="margin-bottom: 14px;">+ 新增問題</button>
+      <div id="adminIssuesList" class="admin-issues-list"></div>
+    </div>
+
+    <!-- Memo tab -->
+    <div class="admin-tab-content" data-content="memo">
+      <p style="color: var(--ink-faded); font-size: 12px; margin-bottom: 12px;">您的待辦事項清單（只有您看得到）。</p>
+      <div style="margin-bottom: 14px; display: flex; gap: 6px;">
+        <input type="text" id="newMemoInput" placeholder="輸入新待辦..." style="flex: 1; background: var(--bg-deep); border: 1px solid var(--border-light); color: var(--ink-bright); padding: 8px 10px; font-family: var(--font-cjk); font-size: 13px; box-sizing: border-box;">
+        <button class="modal-btn primary" id="addMemoBtn">新增</button>
+      </div>
+      <div id="adminMemoList" class="admin-memo-list"></div>
+    </div>
+
+    <div class="modal-actions" style="margin-top: 20px;">
+      <button class="modal-btn" id="adminPanelClose">關閉</button>
+    </div>
+  </div>
+</div>
+
+<!-- User detail modal (second level, opens from users tab) -->
+<div class="modal-backdrop" id="userDetailBackdrop">
+  <div class="modal" style="max-width: 700px; max-height: 85vh; overflow-y: auto; width: 95%;">
+    <div id="userDetailHeader"></div>
+    <div id="userDetailBody"></div>
+    <div class="modal-actions" style="margin-top: 20px;">
+      <button class="modal-btn" id="userDetailClose">關閉</button>
+    </div>
+  </div>
+</div>
+
+<!-- Report detail modal -->
+<div class="modal-backdrop" id="reportDetailBackdrop">
+  <div class="modal" style="max-width: 560px; max-height: 80vh; overflow-y: auto;">
+    <div id="reportDetailBody"></div>
+    <div class="modal-actions" style="margin-top: 20px;">
+      <button class="modal-btn" id="reportDetailClose">關閉</button>
+    </div>
+  </div>
+</div>
+
+<!-- Known issue edit modal -->
+<div class="modal-backdrop" id="issueEditBackdrop">
+  <div class="modal" style="max-width: 480px;">
+    <h3 id="issueEditTitle">編輯問題</h3>
+    <input type="hidden" id="issueEditId">
+    <div style="margin-bottom: 14px;">
+      <label style="display: block; margin-bottom: 6px; font-family: var(--font-display); font-size: 11px; letter-spacing: 0.2em; color: var(--ink-faded); text-transform: uppercase;">標題</label>
+      <input type="text" id="issueEditTitleInput" style="width: 100%; background: var(--bg-deep); border: 1px solid var(--border-light); color: var(--ink-bright); padding: 8px 10px; font-family: var(--font-cjk); font-size: 14px; box-sizing: border-box;">
+    </div>
+    <div style="margin-bottom: 14px;">
+      <label style="display: block; margin-bottom: 6px; font-family: var(--font-display); font-size: 11px; letter-spacing: 0.2em; color: var(--ink-faded); text-transform: uppercase;">描述</label>
+      <textarea id="issueEditDesc" rows="3" style="width: 100%; background: var(--bg-deep); border: 1px solid var(--border-light); color: var(--ink-bright); padding: 8px 10px; font-family: var(--font-cjk); font-size: 13px; box-sizing: border-box; resize: vertical;"></textarea>
+    </div>
+    <div style="margin-bottom: 14px;">
+      <label style="display: block; margin-bottom: 6px; font-family: var(--font-display); font-size: 11px; letter-spacing: 0.2em; color: var(--ink-faded); text-transform: uppercase;">狀態</label>
+      <select id="issueEditStatus" style="width: 100%; background: var(--bg-deep); border: 1px solid var(--border-light); color: var(--ink-bright); padding: 8px 10px; font-family: var(--font-cjk); font-size: 14px;">
+        <option value="pending">🟡 待處理</option>
+        <option value="in_progress">🔵 修復中</option>
+        <option value="fixed">🟢 已修復</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn" id="issueEditDelete" style="margin-right: auto; color: #ff5555;">刪除</button>
+      <button class="modal-btn" id="issueEditCancel">取消</button>
+      <button class="modal-btn primary" id="issueEditSave">儲存</button>
+    </div>
+  </div>
+</div>
 	
 <!-- Abuse: BANNED modal -->
 <div class="modal-backdrop" id="abuseBannedBackdrop">
@@ -2348,7 +3009,7 @@
   const AUTH_STORAGE_KEY = 'eureka_user_info';
 	
 　// Current build version — must match Firebase eureka/meta/currentVersion
-  const APP_VERSION = 'v2.2.1';
+  const APP_VERSION = 'v2.2.2';
   const metaRef = db.ref('eureka/meta');
 
   // Watch for version updates: if Firebase has a newer version, prompt reload
@@ -2404,6 +3065,7 @@ async function processAuthCallback() {
       localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(currentUser));
       updateAuthUI();
       attachUserFlagListener();
+      await initUserTracking();
       console.log('[auth] signed in as', name);
     } catch (err) {
       console.error('[auth] sign-in failed:', err);
@@ -2467,6 +3129,11 @@ async function processAuthCallback() {
       const loginBtn = document.getElementById('loginBtn');
       if (loginBtn) loginBtn.addEventListener('click', startLogin);
     }
+    // Show/hide admin panel button
+    const adminBtn = document.getElementById('adminPanelBtn');
+    if (adminBtn) {
+      adminBtn.style.display = isAdmin() ? '' : 'none';
+    }
   }
 
   function startLogin() {
@@ -2477,6 +3144,7 @@ async function processAuthCallback() {
     try {
       await auth.signOut();
     } catch (e) { /* ignore */ }
+    await teardownUserTracking();
     // Detach flag listener
     if (userFlagListener) {
       userFlagListener.off();
@@ -2499,6 +3167,286 @@ async function processAuthCallback() {
     if (isLoggedIn()) return true;
     showLoginRequired();
     return false;
+  }
+
+  /* ----------- USER TRACKING MODULE ----------- */
+  // Tracks user activity for the admin panel.
+  // Writes to: users/<uid>, userLogs/<uid>/<auto>, presence/<uid>
+  const usersRef = db.ref('eureka/users');
+  const userLogsRef = db.ref('eureka/userLogs');
+  const presenceRef = db.ref('eureka/presence');
+  const knownIssuesRef = db.ref('eureka/knownIssues');
+  const announcementsRef = db.ref('eureka/announcements');
+  const adminNotesRef = db.ref('eureka/adminNotes');
+  const userMetaRef = db.ref('eureka/userMeta');
+  const adminMemoRef = db.ref('eureka/adminMemo');
+
+  // Session tracking
+  let sessionStartTs = null;
+  let presenceInterval = null;
+
+  // Called immediately after successful login
+  async function initUserTracking() {
+    if (!currentUser) return;
+    const uid = currentUser.id;
+    const now = Date.now();
+    sessionStartTs = now;
+
+    // 1) Update users/<uid> — basic info + login count
+    try {
+      const userSnap = await usersRef.child(uid).once('value');
+      const existing = userSnap.val();
+      const userData = {
+        name: currentUser.name,
+        avatar: currentUser.avatar,
+        firstSeen: existing?.firstSeen || now,
+        lastSeen: now,
+        loginCount: (existing?.loginCount || 0) + 1,
+        stats: existing?.stats || {
+          totalActions: 0,
+          reports: 0,
+          kills: 0,
+          resets: 0,
+          manualReports: 0,
+          cancels: 0,
+          pullTimeAdjusts: 0,
+          feedbackSubmits: 0,
+        },
+      };
+      await usersRef.child(uid).set(userData);
+    } catch (err) {
+      console.error('[tracking] failed to update user record:', err);
+    }
+
+    // 2) Log the login event
+    await logUserAction('login', { sessionStart: now });
+
+    // 3) Setup presence: write online + auto-remove on disconnect
+    try {
+      const presence = {
+        name: currentUser.name,
+        avatar: currentUser.avatar,
+        since: now,
+        lastActive: now,
+      };
+      const myPresence = presenceRef.child(uid);
+      await myPresence.set(presence);
+      // Firebase will remove this entry if our connection drops
+      myPresence.onDisconnect().remove();
+      // Update lastActive every 60 seconds to indicate "active"
+      if (presenceInterval) clearInterval(presenceInterval);
+      presenceInterval = setInterval(() => {
+        myPresence.child('lastActive').set(Date.now()).catch(() => {});
+      }, 60000);
+    } catch (err) {
+      console.error('[tracking] presence setup failed:', err);
+    }
+  }
+
+  // Called on logout
+  async function teardownUserTracking() {
+    if (presenceInterval) {
+      clearInterval(presenceInterval);
+      presenceInterval = null;
+    }
+    if (currentUser) {
+      try {
+        await presenceRef.child(currentUser.id).remove();
+      } catch (e) { /* ignore */ }
+    }
+    sessionStartTs = null;
+  }
+
+  // Append a user log entry + bump stats counter
+  async function logUserAction(type, details) {
+    if (!currentUser) return;
+    const uid = currentUser.id;
+    const now = Date.now();
+    const entry = { type, timestamp: now, details: details || {} };
+    try {
+      // Push log entry
+      await userLogsRef.child(uid).push(entry);
+      // Bump stats (best-effort, no critical path)
+      if (type !== 'login') {
+        const statsRef = usersRef.child(uid).child('stats');
+        await statsRef.child('totalActions').transaction(v => (v || 0) + 1);
+        const statKey = ({
+          report: 'reports',
+          kill: 'kills',
+          reset: 'resets',
+          manual_report: 'manualReports',
+          cancel: 'cancels',
+          pull_adjust: 'pullTimeAdjusts',
+          feedback: 'feedbackSubmits',
+        })[type];
+        if (statKey) await statsRef.child(statKey).transaction(v => (v || 0) + 1);
+      }
+      // Update lastSeen + presence
+      await usersRef.child(uid).child('lastSeen').set(now);
+      await presenceRef.child(uid).child('lastActive').set(now).catch(() => {});
+
+      // Check survey eligibility (only for actions, not login)
+      if (type !== 'login') checkSurveyEligibility();
+    } catch (err) {
+      console.error('[tracking] log action failed:', err);
+    }
+  }
+
+  /* ----------- SURVEY INVITATION MODULE ----------- */
+  // Invite users to fill out a Google Form after they've used the site for a while.
+  // Trigger: 10+ actions OR 30+ minutes of session time
+  // Snooze: 12 hours after dismiss
+  const SURVEY_URL = 'https://forms.gle/Nq81yT9E3sb5Zch66';
+  const SURVEY_ACTION_THRESHOLD = 10;
+  const SURVEY_SESSION_THRESHOLD_MS = 30 * 60 * 1000; // 30 min
+  const SURVEY_SNOOZE_MS = 12 * 60 * 60 * 1000; // 12 hours
+
+  let surveyChecked = false; // only check once per session
+
+  async function checkSurveyEligibility() {
+    if (!currentUser || surveyChecked) return;
+    const uid = currentUser.id;
+    try {
+      const metaSnap = await userMetaRef.child(uid).once('value');
+      const meta = metaSnap.val() || {};
+      // Already completed? skip forever
+      if (meta.surveyCompleted) {
+        surveyChecked = true;
+        return;
+      }
+      // Snoozed within 12 hours? skip
+      if (meta.surveySnoozedUntil && Date.now() < meta.surveySnoozedUntil) {
+        return;
+      }
+      // Check thresholds
+      const userSnap = await usersRef.child(uid).child('stats').child('totalActions').once('value');
+      const totalActions = userSnap.val() || 0;
+      const sessionMs = sessionStartTs ? (Date.now() - sessionStartTs) : 0;
+
+      if (totalActions >= SURVEY_ACTION_THRESHOLD || sessionMs >= SURVEY_SESSION_THRESHOLD_MS) {
+        surveyChecked = true;
+        showSurveyModal();
+      }
+    } catch (err) {
+      console.error('[survey] eligibility check failed:', err);
+    }
+  }
+
+  function showSurveyModal() {
+    const bd = document.getElementById('surveyBackdrop');
+    if (bd) bd.classList.add('active');
+  }
+
+  async function handleSurveyAccept() {
+    window.open(SURVEY_URL, '_blank');
+    if (currentUser) {
+      try {
+        await userMetaRef.child(currentUser.id).update({
+          surveyCompleted: true,
+          surveyCompletedAt: Date.now(),
+        });
+      } catch (e) { /* ignore */ }
+    }
+    document.getElementById('surveyBackdrop').classList.remove('active');
+  }
+
+  async function handleSurveySnooze() {
+    if (currentUser) {
+      try {
+        await userMetaRef.child(currentUser.id).update({
+          surveySnoozedUntil: Date.now() + SURVEY_SNOOZE_MS,
+        });
+      } catch (e) { /* ignore */ }
+    }
+    document.getElementById('surveyBackdrop').classList.remove('active');
+  }
+
+  /* ----------- KNOWN ISSUES MODULE ----------- */
+  // Reads from Firebase eureka/knownIssues
+  // Displays in the right-side "⚠ 已知問題" button modal
+  let knownIssuesCache = {};
+
+  function attachKnownIssuesListener() {
+    knownIssuesRef.on('value', (snap) => {
+      knownIssuesCache = snap.val() || {};
+      updateKnownIssuesCount();
+      // If modal is open, refresh content
+      const bd = document.getElementById('knownIssuesBackdrop');
+      if (bd && bd.classList.contains('active')) {
+        renderKnownIssues();
+      }
+    });
+  }
+
+  function updateKnownIssuesCount() {
+    // Count unfixed issues
+    const unfixed = Object.values(knownIssuesCache).filter(i => i.status !== 'fixed').length;
+    const countEl = document.getElementById('knownIssuesCount');
+    if (countEl) {
+      if (unfixed > 0) {
+        countEl.textContent = `(${unfixed})`;
+        countEl.classList.add('active');
+      } else {
+        countEl.textContent = '';
+        countEl.classList.remove('active');
+      }
+    }
+  }
+
+  function renderKnownIssues() {
+    const body = document.getElementById('knownIssuesBody');
+    if (!body) return;
+    const issues = Object.entries(knownIssuesCache);
+    if (issues.length === 0) {
+      body.innerHTML = '<div class="ki-empty">目前沒有已知問題</div>';
+      return;
+    }
+    // Sort: pending > in_progress > fixed
+    const statusOrder = { pending: 0, in_progress: 1, fixed: 2 };
+    issues.sort((a, b) => {
+      const ord = (statusOrder[a[1].status] ?? 9) - (statusOrder[b[1].status] ?? 9);
+      if (ord !== 0) return ord;
+      return (b[1].createdAt || 0) - (a[1].createdAt || 0);
+    });
+    const statusLabels = {
+      pending: { icon: '🟡', text: '待處理' },
+      in_progress: { icon: '🔵', text: '修復中' },
+      fixed: { icon: '🟢', text: '已修復' },
+    };
+    let html = '';
+    issues.forEach(([id, issue]) => {
+      const s = statusLabels[issue.status] || statusLabels.pending;
+      const cls = issue.status || 'pending';
+      const escapedTitle = escapeHtml(issue.title || '');
+      const renderedDesc = renderMarkdown(issue.description || '');
+      html += `
+        <div class="ki-item ${cls}">
+          <div class="ki-item-header">
+            <span class="ki-status-tag ${cls}">${s.icon} ${s.text}</span>
+            <span class="ki-title">${escapedTitle}</span>
+          </div>
+          ${issue.description ? `<div class="ki-desc">${renderedDesc}</div>` : ''}
+        </div>`;
+    });
+    body.innerHTML = html;
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // Very simple Markdown renderer (bold, italic, links, line breaks)
+  function renderMarkdown(text) {
+    let html = escapeHtml(text);
+    // bold
+    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    // italic
+    html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    // links [text](url)
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" style="color: var(--gold-bright);">$1</a>');
+    // line breaks
+    html = html.replace(/\n/g, '<br>');
+    return html;
   }
 
   /* ----------- ABUSE DETECTION MODULE ----------- */
@@ -2648,6 +3596,10 @@ async function checkAndRecordAction(actionType) {
     if (freezeDurationMs > 0) {
       flag.freezeUntil = now + freezeDurationMs;
     }
+    // CRITICAL: update local cache immediately so the very next click is blocked,
+    // without waiting for the Firebase listener (which is async and may lag).
+    myUserFlag = flag;
+    updateAbuseUI();
     try {
       await userFlagsRef.child(uid).set(flag);
     } catch (err) {
@@ -2670,22 +3622,6 @@ async function checkAndRecordAction(actionType) {
     }
     msg.innerHTML = `您目前處於「<strong>${statusLabel}</strong>」凍結期，<br>還剩 <strong style="color: #d4a84b;">${timeText}</strong> 才能再次操作。`;
     bd.classList.add('active');
-  }
-
-  async function applyAbuseStatus(uid, status, reason) {
-    const now = Date.now();
-    const flag = {
-      status,
-      setAt: now,
-      reason,
-      setBy: 'system',
-      expiresAt: status === 'attention' ? now + ABUSE_CONFIG.ATTENTION_DURATION_MS : null,
-    };
-    try {
-      await userFlagsRef.child(uid).set(flag);
-    } catch (err) {
-      console.error('[abuse] failed to write flag:', err);
-    }
   }
 
   // Show modals for each status
@@ -2727,6 +3663,574 @@ async function checkAndRecordAction(actionType) {
 
   function isBanned() {
     return !!(myUserFlag && myUserFlag.status === 'banned');
+  }
+
+  /* ----------- ADMIN PANEL MODULE ----------- */
+  // Comprehensive admin dashboard with multiple tabs:
+  //   Overview, Users, Reports, Flags, Known Issues, Memo
+  let adminUsersCache = {};
+  let adminPresenceCache = {};
+  let adminFlagsCache = {};
+  let adminReportsCache = {};
+  let adminMemoCache = {};
+  let adminListenersAttached = false;
+  let currentDetailUid = null; // which user we're viewing in detail
+
+  function showAdminPanel() {
+    if (!isAdmin()) return;
+    if (!adminListenersAttached) {
+      attachAdminListeners();
+      adminListenersAttached = true;
+    }
+    const bd = document.getElementById('adminPanelBackdrop');
+    if (bd) bd.classList.add('active');
+    refreshAdminTab('overview');
+  }
+
+  function attachAdminListeners() {
+    usersRef.on('value', (snap) => {
+      adminUsersCache = snap.val() || {};
+      refreshAdminTab('overview');
+      refreshAdminTab('users');
+    });
+    presenceRef.on('value', (snap) => {
+      adminPresenceCache = snap.val() || {};
+      refreshAdminTab('overview');
+    });
+    userFlagsRef.on('value', (snap) => {
+      adminFlagsCache = snap.val() || {};
+      refreshAdminTab('flags');
+      refreshAdminTab('overview');
+      refreshAdminTab('users');
+    });
+    reportsRef.on('value', (snap) => {
+      adminReportsCache = snap.val() || {};
+      refreshAdminTab('reports');
+    });
+    adminMemoRef.on('value', (snap) => {
+      adminMemoCache = snap.val() || {};
+      refreshAdminTab('memo');
+    });
+  }
+
+  function refreshAdminTab(tab) {
+    const bd = document.getElementById('adminPanelBackdrop');
+    if (!bd || !bd.classList.contains('active')) return;
+    if (tab === 'overview') renderOverview();
+    if (tab === 'users') renderUsersList();
+    if (tab === 'reports') renderReportsList();
+    if (tab === 'flags') renderFlagsList();
+    if (tab === 'issues') renderIssuesList();
+    if (tab === 'memo') renderMemoList();
+  }
+
+  function renderOverview() {
+    const now = Date.now();
+    const fiveMin = 5 * 60 * 1000;
+    const oneDay = 24 * 60 * 60 * 1000;
+    // Online: presence entries with lastActive in last 5 min
+    const onlineEntries = Object.entries(adminPresenceCache).filter(([_, p]) => p && p.lastActive && (now - p.lastActive) < fiveMin);
+    const onlineCount = onlineEntries.length;
+    // Active: presence entries with lastActive in last 5 min AND had recent user action
+    // (we approximate: those whose users.lastSeen is also in last 5 min)
+    const activeCount = onlineEntries.filter(([uid]) => {
+      const u = adminUsersCache[uid];
+      return u && u.lastSeen && (now - u.lastSeen) < fiveMin;
+    }).length;
+    // Today: users with lastSeen today
+    const startOfDay = new Date(); startOfDay.setHours(0,0,0,0);
+    const todayCount = Object.values(adminUsersCache).filter(u => u.lastSeen && u.lastSeen >= startOfDay.getTime()).length;
+    // Total users
+    const totalCount = Object.keys(adminUsersCache).length;
+    // 24h actions
+    let total24h = 0;
+    Object.values(adminUsersCache).forEach(u => {
+      if (u.lastSeen && (now - u.lastSeen) < oneDay) total24h += (u.stats?.totalActions || 0);
+    });
+    // Flagged
+    const flaggedCount = Object.keys(adminFlagsCache).length;
+
+    setText('ovOnline', onlineCount);
+    setText('ovActive', activeCount);
+    setText('ovToday', todayCount);
+    setText('ovTotal', totalCount);
+    setText('ov24h', total24h);
+    setText('ovFlagged', flaggedCount);
+
+    // Online list
+    const list = document.getElementById('ovOnlineList');
+    if (list) {
+      if (onlineEntries.length === 0) {
+        list.innerHTML = '<div class="ki-empty">目前沒有人在線</div>';
+      } else {
+        let html = '';
+        onlineEntries.forEach(([uid, p]) => {
+          const idle = (now - p.lastActive) > 60000;
+          html += `
+            <div class="admin-online-row">
+              <span class="admin-online-dot ${idle ? 'idle' : ''}"></span>
+              <img class="admin-row-avatar" src="${p.avatar || ''}" alt="" onerror="this.style.display='none'">
+              <div class="admin-row-main">
+                <div class="admin-row-name">${escapeHtml(p.name || '')}</div>
+                <div class="admin-row-sub">最後活動：${formatRelativeTime(now - p.lastActive)}</div>
+              </div>
+            </div>`;
+        });
+        list.innerHTML = html;
+      }
+    }
+  }
+
+  function setText(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  }
+
+  function formatRelativeTime(ms) {
+    if (ms < 60000) return `${Math.floor(ms/1000)} 秒前`;
+    if (ms < 3600000) return `${Math.floor(ms/60000)} 分鐘前`;
+    if (ms < 86400000) return `${Math.floor(ms/3600000)} 小時前`;
+    return `${Math.floor(ms/86400000)} 天前`;
+  }
+
+  function renderUsersList() {
+    const list = document.getElementById('adminUsersList');
+    if (!list) return;
+    const search = (document.getElementById('userSearch')?.value || '').toLowerCase();
+    const entries = Object.entries(adminUsersCache).filter(([uid, u]) => {
+      if (!search) return true;
+      return (u.name || '').toLowerCase().includes(search) || uid.includes(search);
+    });
+    entries.sort((a, b) => (b[1].lastSeen || 0) - (a[1].lastSeen || 0));
+    if (entries.length === 0) {
+      list.innerHTML = '<div class="ki-empty">沒有符合的使用者</div>';
+      return;
+    }
+    let html = '';
+    entries.forEach(([uid, u]) => {
+      const flag = adminFlagsCache[uid];
+      const flagBadge = flag ? `<span class="admin-flag-status ${flag.status}">${flag.status === 'banned' ? '🚫 封鎖' : flag.status === 'warning' ? '⚠ 警告' : '⚠ 注意'}</span>` : '';
+      const lastSeen = u.lastSeen ? formatRelativeTime(Date.now() - u.lastSeen) : '—';
+      const actions = u.stats?.totalActions || 0;
+      html += `
+        <div class="admin-user-row" data-uid="${uid}">
+          <img class="admin-row-avatar" src="${u.avatar || ''}" alt="" onerror="this.style.display='none'">
+          <div class="admin-row-main">
+            <div class="admin-row-name">${escapeHtml(u.name || '')} ${flagBadge}</div>
+            <div class="admin-row-sub">登入 ${u.loginCount || 0} 次 · ${actions} 次操作 · 最後 ${lastSeen}</div>
+          </div>
+          <div class="admin-row-actions">
+            <button class="admin-action-btn" data-action="view-user" data-uid="${uid}">詳細 →</button>
+          </div>
+        </div>`;
+    });
+    list.innerHTML = html;
+    // Wire up clicks
+    list.querySelectorAll('[data-action="view-user"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const uid = btn.dataset.uid;
+        showUserDetail(uid);
+      });
+    });
+    list.querySelectorAll('.admin-user-row').forEach(row => {
+      row.addEventListener('click', () => {
+        const uid = row.dataset.uid;
+        showUserDetail(uid);
+      });
+    });
+  }
+
+  async function showUserDetail(uid) {
+    currentDetailUid = uid;
+    const user = adminUsersCache[uid];
+    if (!user) return;
+    const flag = adminFlagsCache[uid];
+    const header = document.getElementById('userDetailHeader');
+    const body = document.getElementById('userDetailBody');
+
+    header.innerHTML = `
+      <div class="ud-header">
+        <img class="ud-avatar" src="${user.avatar || ''}" alt="" onerror="this.style.display='none'">
+        <div>
+          <div class="ud-name">${escapeHtml(user.name || '')}</div>
+          <div class="ud-id">${uid}</div>
+          ${flag ? `<div style="margin-top: 6px;"><span class="admin-flag-status ${flag.status}">${flag.status === 'banned' ? '🚫 封鎖' : flag.status === 'warning' ? '⚠ 警告' : '⚠ 注意'}</span></div>` : ''}
+        </div>
+      </div>
+    `;
+
+    const stats = user.stats || {};
+    const firstSeen = user.firstSeen ? new Date(user.firstSeen).toLocaleString() : '—';
+    const lastSeen = user.lastSeen ? new Date(user.lastSeen).toLocaleString() : '—';
+
+    body.innerHTML = `
+      <div class="ud-section">
+        <div class="ud-section-title">統計</div>
+        <div class="ud-stats">
+          <div class="ud-stat"><div class="ud-stat-label">登入</div><div class="ud-stat-value">${user.loginCount || 0}</div></div>
+          <div class="ud-stat"><div class="ud-stat-label">出現回報</div><div class="ud-stat-value">${stats.reports || 0}</div></div>
+          <div class="ud-stat"><div class="ud-stat-label">擊殺</div><div class="ud-stat-value">${stats.kills || 0}</div></div>
+          <div class="ud-stat"><div class="ud-stat-label">取消</div><div class="ud-stat-value">${stats.cancels || 0}</div></div>
+          <div class="ud-stat"><div class="ud-stat-label">手動</div><div class="ud-stat-value">${stats.manualReports || 0}</div></div>
+          <div class="ud-stat"><div class="ud-stat-label">重置</div><div class="ud-stat-value">${stats.resets || 0}</div></div>
+          <div class="ud-stat"><div class="ud-stat-label">問題回報</div><div class="ud-stat-value">${stats.feedbackSubmits || 0}</div></div>
+          <div class="ud-stat"><div class="ud-stat-label">總操作</div><div class="ud-stat-value">${stats.totalActions || 0}</div></div>
+        </div>
+        <div style="font-size: 12px; color: var(--ink-faded); margin-top: 8px;">
+          首次登入：${firstSeen}<br>
+          最後活動：${lastSeen}
+        </div>
+      </div>
+
+      <div class="ud-section">
+        <div class="ud-section-title">標籤</div>
+        <div id="udTags"></div>
+      </div>
+
+      <div class="ud-section">
+        <div class="ud-section-title">備註</div>
+        <textarea class="ud-notes" id="udNotesInput" placeholder="輸入備註..."></textarea>
+        <button class="modal-btn" id="udSaveMetaBtn" style="margin-top: 8px;">儲存</button>
+      </div>
+
+      <div class="ud-section">
+        <div class="ud-section-title">操作紀錄 (最近 200 筆)</div>
+        <div class="ud-logs-list" id="udLogsList">載入中...</div>
+      </div>
+
+      <div class="ud-section">
+        <div class="ud-section-title">管理動作</div>
+        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+          <button class="admin-action-btn" data-action="mark-attention">標記為「注意」</button>
+          <button class="admin-action-btn" data-action="mark-warning">標記為「警告」</button>
+          <button class="admin-action-btn danger" data-action="mark-banned">封鎖此使用者</button>
+          <button class="admin-action-btn" data-action="clear-flag">解除所有標籤</button>
+        </div>
+      </div>
+    `;
+
+    // Load user meta (tags + notes)
+    const metaSnap = await userMetaRef.child(uid).once('value');
+    const meta = metaSnap.val() || {};
+    const tagsEl = document.getElementById('udTags');
+    const tagNames = ['主催', '回報者', '觸發者'];
+    const userTags = meta.tags || [];
+    tagsEl.innerHTML = tagNames.map(t => `
+      <span class="ud-tag ${userTags.includes(t) ? 'active' : ''}" data-tag="${t}">${t}</span>
+    `).join('');
+    tagsEl.querySelectorAll('.ud-tag').forEach(el => {
+      el.addEventListener('click', () => el.classList.toggle('active'));
+    });
+    document.getElementById('udNotesInput').value = meta.notes || '';
+
+    // Save meta button
+    document.getElementById('udSaveMetaBtn').addEventListener('click', async () => {
+      const activeTags = [...tagsEl.querySelectorAll('.ud-tag.active')].map(el => el.dataset.tag);
+      const notes = document.getElementById('udNotesInput').value.trim();
+      try {
+        await userMetaRef.child(uid).update({
+          tags: activeTags,
+          notes,
+          updatedAt: Date.now(),
+        });
+        alert('已儲存');
+      } catch (e) {
+        alert('儲存失敗：' + e.message);
+      }
+    });
+
+    // Admin action buttons
+    body.querySelectorAll('[data-action]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const action = btn.dataset.action;
+        if (action === 'mark-attention') await applyAbuseStatus(uid, 'attention', '管理員手動標記', 0);
+        else if (action === 'mark-warning') await applyAbuseStatus(uid, 'warning', '管理員手動標記', 0);
+        else if (action === 'mark-banned') {
+          if (confirm('確定要封鎖此使用者？')) await applyAbuseStatus(uid, 'banned', '管理員手動封鎖', 0);
+        }
+        else if (action === 'clear-flag') {
+          if (confirm('確定要解除所有標籤？')) await userFlagsRef.child(uid).remove();
+        }
+        // Refresh detail
+        setTimeout(() => showUserDetail(uid), 300);
+      });
+    });
+
+    // Load logs
+    const logsSnap = await userLogsRef.child(uid).limitToLast(200).once('value');
+    const logs = logsSnap.val() || {};
+    const logsList = document.getElementById('udLogsList');
+    const logEntries = Object.values(logs).sort((a, b) => b.timestamp - a.timestamp);
+    if (logEntries.length === 0) {
+      logsList.innerHTML = '<div style="color: var(--ink-faded); padding: 12px;">無紀錄</div>';
+    } else {
+      const typeLabels = {
+        login: '🔓 登入',
+        report: '⚔ 出現回報',
+        kill: '✓ 擊殺',
+        cancel: '✗ 取消',
+        manual_report: '✎ 手動補報',
+        reset: '⟁ 新島重置',
+        pull_adjust: '⏱ 調整開打',
+        feedback: '💬 問題回報',
+      };
+      logsList.innerHTML = logEntries.map(log => {
+        const time = new Date(log.timestamp).toLocaleString();
+        const label = typeLabels[log.type] || log.type;
+        const details = log.details ? JSON.stringify(log.details) : '';
+        return `<div class="ud-log-item"><span class="ud-log-time">${time}</span><span class="ud-log-type">${label}</span>${details && details !== '{}' ? `<span style="color: var(--ink-faded);">${escapeHtml(details)}</span>` : ''}</div>`;
+      }).join('');
+    }
+
+    // Open detail modal
+    document.getElementById('userDetailBackdrop').classList.add('active');
+  }
+
+  function renderReportsList() {
+    const list = document.getElementById('adminReportsList');
+    if (!list) return;
+    const filter = (document.getElementById('reportFilter')?.value || 'new');
+    let entries = Object.entries(adminReportsCache);
+    if (filter !== 'all') {
+      entries = entries.filter(([_, r]) => (r.status || 'new') === filter);
+    }
+    entries.sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
+    if (entries.length === 0) {
+      list.innerHTML = '<div class="ki-empty">沒有符合的回報</div>';
+      return;
+    }
+    const typeLabels = { bug: '🐛 Bug', suggestion: '💡 建議', other: '📝 其他' };
+    let html = '';
+    entries.forEach(([id, r]) => {
+      const status = r.status || 'new';
+      const preview = (r.content || '').substring(0, 60) + ((r.content || '').length > 60 ? '...' : '');
+      const reporterName = r.anonymous ? '匿名訪客' : (r.reportedBy?.name || '?');
+      const time = r.createdAt ? new Date(r.createdAt).toLocaleString() : '—';
+      html += `
+        <div class="admin-report-row ${status}" data-rid="${id}">
+          <div class="admin-row-main">
+            <div class="admin-row-name">${typeLabels[r.type] || r.type} · ${escapeHtml(reporterName)}</div>
+            <div class="admin-row-sub">${escapeHtml(preview)}</div>
+            <div class="admin-row-sub">${time} · 狀態：${status}</div>
+          </div>
+        </div>`;
+    });
+    list.innerHTML = html;
+    list.querySelectorAll('.admin-report-row').forEach(row => {
+      row.addEventListener('click', () => showReportDetail(row.dataset.rid));
+    });
+  }
+
+  function showReportDetail(rid) {
+    const r = adminReportsCache[rid];
+    if (!r) return;
+    const typeLabels = { bug: '🐛 Bug', suggestion: '💡 建議', other: '📝 其他' };
+    const reporterName = r.anonymous ? '匿名訪客' : (r.reportedBy?.name || '?');
+    const time = r.createdAt ? new Date(r.createdAt).toLocaleString() : '—';
+    const body = document.getElementById('reportDetailBody');
+    body.innerHTML = `
+      <h3>${typeLabels[r.type] || r.type}</h3>
+      <p style="color: var(--ink-faded); font-size: 12px; margin-bottom: 12px;">
+        ${escapeHtml(reporterName)} · ${time}
+      </p>
+      <div style="background: rgba(0,0,0,0.3); padding: 12px; font-family: var(--font-cjk); font-size: 13px; line-height: 1.7; color: var(--ink-bright); margin-bottom: 16px; white-space: pre-wrap;">${escapeHtml(r.content || '')}</div>
+      ${r.userAgent ? `<div style="font-size: 11px; color: var(--ink-faded); margin-bottom: 12px; font-family: var(--font-mono); word-break: break-all;">UA: ${escapeHtml(r.userAgent)}</div>` : ''}
+      <div style="margin-bottom: 12px;">
+        <label style="display: block; margin-bottom: 6px; font-family: var(--font-display); font-size: 11px; letter-spacing: 0.2em; color: var(--ink-faded); text-transform: uppercase;">狀態</label>
+        <select id="reportStatusSelect" style="width: 100%; background: var(--bg-deep); border: 1px solid var(--border-light); color: var(--ink-bright); padding: 8px 10px;">
+          <option value="new">未處理</option>
+          <option value="in_progress">處理中</option>
+          <option value="resolved">已解決</option>
+          <option value="ignored">已忽略</option>
+        </select>
+      </div>
+      <button class="modal-btn primary" id="reportSaveBtn">儲存狀態</button>
+      <button class="modal-btn" id="reportDeleteBtn" style="margin-left: 8px; color: #ff5555;">刪除</button>
+    `;
+    document.getElementById('reportStatusSelect').value = r.status || 'new';
+    document.getElementById('reportSaveBtn').addEventListener('click', async () => {
+      const newStatus = document.getElementById('reportStatusSelect').value;
+      try {
+        await reportsRef.child(rid).child('status').set(newStatus);
+        document.getElementById('reportDetailBackdrop').classList.remove('active');
+      } catch (e) { alert('儲存失敗：' + e.message); }
+    });
+    document.getElementById('reportDeleteBtn').addEventListener('click', async () => {
+      if (!confirm('確定要刪除此回報？')) return;
+      try {
+        await reportsRef.child(rid).remove();
+        document.getElementById('reportDetailBackdrop').classList.remove('active');
+      } catch (e) { alert('刪除失敗：' + e.message); }
+    });
+    document.getElementById('reportDetailBackdrop').classList.add('active');
+  }
+
+  function renderFlagsList() {
+    const list = document.getElementById('adminFlagsList');
+    if (!list) return;
+    const entries = Object.entries(adminFlagsCache);
+    if (entries.length === 0) {
+      list.innerHTML = '<div class="ki-empty">目前沒有被標記的使用者</div>';
+      return;
+    }
+    let html = '';
+    entries.sort((a, b) => (b[1].setAt || 0) - (a[1].setAt || 0));
+    entries.forEach(([uid, flag]) => {
+      const u = adminUsersCache[uid] || {};
+      const statusLabel = flag.status === 'banned' ? '🚫 封鎖' : flag.status === 'warning' ? '⚠ 警告' : '⚠ 注意';
+      const setTime = flag.setAt ? new Date(flag.setAt).toLocaleString() : '—';
+      html += `
+        <div class="admin-flag-row">
+          <img class="admin-row-avatar" src="${u.avatar || ''}" alt="" onerror="this.style.display='none'">
+          <div class="admin-row-main">
+            <div class="admin-row-name">${escapeHtml(u.name || uid)} <span class="admin-flag-status ${flag.status}">${statusLabel}</span></div>
+            <div class="admin-row-sub">標記時間：${setTime}</div>
+            <div class="admin-row-sub">原因：${escapeHtml(flag.reason || '—')}</div>
+          </div>
+          <div class="admin-row-actions">
+            <button class="admin-action-btn danger" data-action="clear-flag" data-uid="${uid}">解除</button>
+          </div>
+        </div>`;
+    });
+    list.innerHTML = html;
+    list.querySelectorAll('[data-action="clear-flag"]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('確定要解除此標籤？')) return;
+        try {
+          await userFlagsRef.child(btn.dataset.uid).remove();
+        } catch (e) { alert('失敗：' + e.message); }
+      });
+    });
+  }
+
+  function renderIssuesList() {
+    const list = document.getElementById('adminIssuesList');
+    if (!list) return;
+    const entries = Object.entries(knownIssuesCache);
+    if (entries.length === 0) {
+      list.innerHTML = '<div class="ki-empty">尚無已知問題</div>';
+      return;
+    }
+    entries.sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
+    const statusLabels = { pending: '🟡 待處理', in_progress: '🔵 修復中', fixed: '🟢 已修復' };
+    let html = '';
+    entries.forEach(([id, issue]) => {
+      html += `
+        <div class="admin-issue-row" data-iid="${id}">
+          <div class="admin-row-main">
+            <div class="admin-row-name">${escapeHtml(issue.title || '')}</div>
+            <div class="admin-row-sub">${statusLabels[issue.status] || issue.status}</div>
+          </div>
+          <div class="admin-row-actions">
+            <button class="admin-action-btn" data-iid="${id}">編輯</button>
+          </div>
+        </div>`;
+    });
+    list.innerHTML = html;
+    list.querySelectorAll('.admin-action-btn').forEach(btn => {
+      btn.addEventListener('click', () => openIssueEditor(btn.dataset.iid));
+    });
+  }
+
+  function openIssueEditor(id) {
+    const isNew = !id;
+    const issue = isNew ? { title: '', description: '', status: 'pending' } : (knownIssuesCache[id] || {});
+    document.getElementById('issueEditTitle').textContent = isNew ? '新增問題' : '編輯問題';
+    document.getElementById('issueEditId').value = id || '';
+    document.getElementById('issueEditTitleInput').value = issue.title || '';
+    document.getElementById('issueEditDesc').value = issue.description || '';
+    document.getElementById('issueEditStatus').value = issue.status || 'pending';
+    const deleteBtn = document.getElementById('issueEditDelete');
+    if (deleteBtn) deleteBtn.style.display = isNew ? 'none' : '';
+    document.getElementById('issueEditBackdrop').classList.add('active');
+  }
+
+  async function saveIssue() {
+    const id = document.getElementById('issueEditId').value;
+    const title = document.getElementById('issueEditTitleInput').value.trim();
+    const description = document.getElementById('issueEditDesc').value.trim();
+    const status = document.getElementById('issueEditStatus').value;
+    if (!title) { alert('請填寫標題'); return; }
+    const now = Date.now();
+    const payload = { title, description, status, updatedAt: now };
+    try {
+      if (id) {
+        await knownIssuesRef.child(id).update(payload);
+      } else {
+        payload.createdAt = now;
+        await knownIssuesRef.push(payload);
+      }
+      document.getElementById('issueEditBackdrop').classList.remove('active');
+    } catch (e) { alert('儲存失敗：' + e.message); }
+  }
+
+  async function deleteIssue() {
+    const id = document.getElementById('issueEditId').value;
+    if (!id || !confirm('確定要刪除此問題？')) return;
+    try {
+      await knownIssuesRef.child(id).remove();
+      document.getElementById('issueEditBackdrop').classList.remove('active');
+    } catch (e) { alert('刪除失敗：' + e.message); }
+  }
+
+  function renderMemoList() {
+    const list = document.getElementById('adminMemoList');
+    if (!list) return;
+    const entries = Object.entries(adminMemoCache);
+    if (entries.length === 0) {
+      list.innerHTML = '<div class="ki-empty">沒有待辦事項</div>';
+      return;
+    }
+    entries.sort((a, b) => {
+      // Pending first, then by createdAt desc
+      const aDone = a[1].done ? 1 : 0;
+      const bDone = b[1].done ? 1 : 0;
+      if (aDone !== bDone) return aDone - bDone;
+      return (b[1].createdAt || 0) - (a[1].createdAt || 0);
+    });
+    let html = '';
+    entries.forEach(([id, item]) => {
+      const time = item.updatedAt ? new Date(item.updatedAt).toLocaleString() : '—';
+      html += `
+        <div class="admin-memo-row ${item.done ? 'done' : ''}">
+          <input type="checkbox" class="admin-memo-check" data-mid="${id}" ${item.done ? 'checked' : ''}>
+          <div class="admin-memo-main" style="flex: 1;">
+            <div class="admin-memo-text">${escapeHtml(item.text || '')}</div>
+            <div class="admin-memo-time">${time}</div>
+          </div>
+          <div class="admin-row-actions">
+            <button class="admin-action-btn danger" data-mid="${id}" data-action="delete-memo">刪除</button>
+          </div>
+        </div>`;
+    });
+    list.innerHTML = html;
+    list.querySelectorAll('.admin-memo-check').forEach(cb => {
+      cb.addEventListener('change', async () => {
+        try {
+          await adminMemoRef.child(cb.dataset.mid).update({ done: cb.checked, updatedAt: Date.now() });
+        } catch (e) { alert('失敗：' + e.message); }
+      });
+    });
+    list.querySelectorAll('[data-action="delete-memo"]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('確定刪除此待辦？')) return;
+        try {
+          await adminMemoRef.child(btn.dataset.mid).remove();
+        } catch (e) { alert('失敗：' + e.message); }
+      });
+    });
+  }
+
+  async function addMemo() {
+    const input = document.getElementById('newMemoInput');
+    const text = input.value.trim();
+    if (!text) return;
+    try {
+      const now = Date.now();
+      await adminMemoRef.push({ text, done: false, createdAt: now, updatedAt: now });
+      input.value = '';
+    } catch (e) { alert('失敗：' + e.message); }
   }
 
   /* ----------- FEEDBACK MODULE ----------- */
@@ -2778,6 +4282,7 @@ async function checkAndRecordAction(actionType) {
     };
     try {
       await reportsRef.push(payload);
+      if (isLoggedIn()) logUserAction('feedback', { type });
       document.getElementById('feedbackBackdrop').classList.remove('active');
       alert('已送出，感謝您的回報！');
     } catch (err) {
@@ -3685,6 +5190,7 @@ async function checkAndRecordAction(actionType) {
           if (!allowed) return;
           const updates = buildManualSpawnUpdates(nmId, ts);
           applyUpdates(updates).then(() => {
+            logUserAction('manual_report', { nmId, timestamp: ts });
             updateCards();
             updateActivePanel();
           });
@@ -3775,6 +5281,7 @@ async function checkAndRecordAction(actionType) {
     }
 
     await applyUpdates(updates);
+    logUserAction('report', { nmId, zone });
     // local state will be updated by the snapshot listener; updateCards/updateActivePanel
     // will be called automatically. But trigger a render in case the update is slow.
     updateCards();
@@ -3791,6 +5298,7 @@ async function checkAndRecordAction(actionType) {
       if (ev.nmId === nmId) updates[`activeEvents/${id}`] = null;
     });
     await applyUpdates(updates);
+    logUserAction('cancel', { nmId });
     updateCards();
     updateActivePanel();
   }
@@ -3821,6 +5329,7 @@ async function checkAndRecordAction(actionType) {
     };
 
     await applyUpdates(updates);
+    logUserAction('reset', { zone });
     updateCards();
     updateActivePanel();
     updateHistoryModal();
@@ -3922,6 +5431,7 @@ async function checkAndRecordAction(actionType) {
     }
 
     await applyUpdates(updates);
+    logUserAction('kill', { nmId: ev.nmId, zone: ev.zone });
     updateCards();
     updateActivePanel();
     updateHistoryModal();
@@ -3937,6 +5447,7 @@ async function checkAndRecordAction(actionType) {
     updates[`activeEvents/${evtId}/pullSetBy`] = 'manual';
     updates[`activeEvents/${evtId}/pullSetByUser`] = getUserStub();
     await applyUpdates(updates);
+    logUserAction('pull_adjust', { evtId, secondsLeft: clamped });
     updateActivePanel();
   }
 
@@ -4435,6 +5946,7 @@ async function checkAndRecordAction(actionType) {
     // If we have a cached login, start watching our flag
     if (currentUser) {
       attachUserFlagListener();
+      initUserTracking();
     }
 
     // Wire up "login required" modal close button
@@ -4482,6 +5994,100 @@ async function checkAndRecordAction(actionType) {
       // NOTE: deliberately NOT adding click-outside-to-close for abuse modals
     });
 
+    // Wire up survey modal
+    const surBd = document.getElementById('surveyBackdrop');
+    const surAccept = document.getElementById('surveyAcceptBtn');
+    const surSnooze = document.getElementById('surveySnoozeBtn');
+    if (surAccept) surAccept.addEventListener('click', handleSurveyAccept);
+    if (surSnooze) surSnooze.addEventListener('click', handleSurveySnooze);
+    if (surBd) surBd.addEventListener('click', (e) => {
+      if (e.target === surBd) handleSurveySnooze();
+    });
+
+    // Wire up known issues button + modal
+    const kiBtn = document.getElementById('knownIssuesBtn');
+    const kiBd = document.getElementById('knownIssuesBackdrop');
+    const kiClose = document.getElementById('knownIssuesClose');
+    if (kiBtn) kiBtn.addEventListener('click', () => {
+      renderKnownIssues();
+      kiBd.classList.add('active');
+    });
+    if (kiClose) kiClose.addEventListener('click', () => kiBd.classList.remove('active'));
+    if (kiBd) kiBd.addEventListener('click', (e) => {
+      if (e.target === kiBd) kiBd.classList.remove('active');
+    });
+    attachKnownIssuesListener();
+
+    // Wire up admin panel
+    const adminBtn = document.getElementById('adminPanelBtn');
+    const adminBd = document.getElementById('adminPanelBackdrop');
+    const adminClose = document.getElementById('adminPanelClose');
+    if (adminBtn) adminBtn.addEventListener('click', showAdminPanel);
+    if (adminClose) adminClose.addEventListener('click', () => adminBd.classList.remove('active'));
+    if (adminBd) adminBd.addEventListener('click', (e) => {
+      if (e.target === adminBd) adminBd.classList.remove('active');
+    });
+
+    // Admin tabs
+    document.querySelectorAll('.admin-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const target = tab.dataset.tab;
+        document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        document.querySelector(`.admin-tab-content[data-content="${target}"]`)?.classList.add('active');
+        refreshAdminTab(target);
+      });
+    });
+
+    // User detail modal close
+    const udBd = document.getElementById('userDetailBackdrop');
+    const udClose = document.getElementById('userDetailClose');
+    if (udClose) udClose.addEventListener('click', () => udBd.classList.remove('active'));
+    if (udBd) udBd.addEventListener('click', (e) => {
+      if (e.target === udBd) udBd.classList.remove('active');
+    });
+
+    // Report detail modal close
+    const rdBd = document.getElementById('reportDetailBackdrop');
+    const rdClose = document.getElementById('reportDetailClose');
+    if (rdClose) rdClose.addEventListener('click', () => rdBd.classList.remove('active'));
+    if (rdBd) rdBd.addEventListener('click', (e) => {
+      if (e.target === rdBd) rdBd.classList.remove('active');
+    });
+
+    // User search
+    const userSearchEl = document.getElementById('userSearch');
+    if (userSearchEl) userSearchEl.addEventListener('input', () => renderUsersList());
+
+    // Report filter
+    const reportFilterEl = document.getElementById('reportFilter');
+    if (reportFilterEl) reportFilterEl.addEventListener('change', () => renderReportsList());
+
+    // Add known issue
+    const addIssueBtn = document.getElementById('addKnownIssueBtn');
+    if (addIssueBtn) addIssueBtn.addEventListener('click', () => openIssueEditor(null));
+
+    // Issue editor modal
+    const ieBd = document.getElementById('issueEditBackdrop');
+    const ieSave = document.getElementById('issueEditSave');
+    const ieCancel = document.getElementById('issueEditCancel');
+    const ieDelete = document.getElementById('issueEditDelete');
+    if (ieSave) ieSave.addEventListener('click', saveIssue);
+    if (ieDelete) ieDelete.addEventListener('click', deleteIssue);
+    if (ieCancel) ieCancel.addEventListener('click', () => ieBd.classList.remove('active'));
+    if (ieBd) ieBd.addEventListener('click', (e) => {
+      if (e.target === ieBd) ieBd.classList.remove('active');
+    });
+
+    // Memo add
+    const addMemoBtn = document.getElementById('addMemoBtn');
+    const newMemoInput = document.getElementById('newMemoInput');
+    if (addMemoBtn) addMemoBtn.addEventListener('click', addMemo);
+    if (newMemoInput) newMemoInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') addMemo();
+    });
+
     // Process OAuth callback BEFORE attaching realtime listener
     // (so the listener fires after we've logged in)
     await processAuthCallback();
@@ -4509,6 +6115,11 @@ async function checkAndRecordAction(actionType) {
       await pruneStaleHistory();
       updateHistoryModal();
     }, 30000);
+
+    // Check survey eligibility every 5 min (in case user idles past session threshold)
+    setInterval(() => {
+      if (isLoggedIn()) checkSurveyEligibility();
+    }, 5 * 60 * 1000);
   }
 
   boot();
