@@ -1374,7 +1374,6 @@
     font-family: var(--font-cjk);
     font-size: 13px;
     letter-spacing: 0.05em;
-    margin-top: 12px;
   }
 
   .auth-status-text {
@@ -2233,14 +2232,19 @@
     50% { opacity: 1; }
   }
 
-  /* ============ HEADER ACTIONS (top-right, sound + admin) ============ */
+  /* ============ HEADER ACTIONS (next to auth box) ============ */
+  .auth-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+
   .header-actions {
-    position: absolute;
-    top: 0;
-    right: 0;
     display: flex;
     gap: 8px;
-    z-index: 5;
+    align-items: center;
   }
 
   .header-action-btn {
@@ -2272,16 +2276,6 @@
   .header-action-btn.admin:hover {
     background: linear-gradient(180deg, rgba(212, 168, 75, 0.35), rgba(212, 168, 75, 0.15));
     color: #ffffff;
-  }
-
-  @media (max-width: 800px) {
-    .header-actions {
-      position: relative;
-      top: 0;
-      right: 0;
-      margin-top: 10px;
-      justify-content: flex-end;
-    }
   }
 
   /* Re-used .ae-* styles (for active-event-card inside the strip) */
@@ -2531,13 +2525,15 @@
   <header>
     <div class="title-block">
       <h1>Eureka NM Tracker</h1>
-      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.3.0</button></div>
-      <div class="auth-box" id="authBox">
-        <span class="auth-status-text" id="authStatusText">🔒 請登入</span>
-        <button class="auth-btn discord" id="loginBtn">Discord 登入</button>
+      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.3.1</button></div>
+      <div class="auth-row">
+        <div class="auth-box" id="authBox">
+          <span class="auth-status-text" id="authStatusText">🔒 請登入</span>
+          <button class="auth-btn discord" id="loginBtn">Discord 登入</button>
+        </div>
+        <!-- Action buttons (sound settings, admin) — populated by updateAuthUI -->
+        <div class="header-actions" id="headerActions"></div>
       </div>
-      <!-- Top-right action buttons (sound settings, admin) — populated by updateAuthUI -->
-      <div class="header-actions" id="headerActions"></div>
     </div>
     <div class="status-strip">
       <a class="status-card guild-card" href="https://discord.gg/sHUG6UFRCT" target="_blank" rel="noopener noreferrer" title="加入大型任務支援群">
@@ -2657,6 +2653,20 @@
   <div class="modal" style="max-width: 520px; max-height: 70vh; overflow-y: auto;">
     <h3>📜 更新日誌</h3>
 	<div class="changelog-entry">
+      <div class="changelog-version">v2.3.1 <span class="changelog-date">— 2026/05/15</span></div>
+      <ul class="changelog-list">
+        <li>✦ 修正了提示音按鈕，現在不需登入也能夠做設定</li>
+        <li>✦ 修正了提示音按鈕的位置</li>
+        <li>✦ 修改了提示音按鈕的音效，現在聽起來會更明顯</li>
+        <li>✦ 修正了提示音的音量計算邏輯，現在聲音會更有差異度</li>
+        <li>✦ 修正了提示音拉到0%會彈回50%的問題</li>
+        <li>✦ 修正了提示音0%會仍會有聲音的問題</li>
+		<li>✦ 將「紀錄」改為「歷史紀錄」，按鈕寬一點看起來應該會更明顯(吧</li>
+		<li>✦ 將「地圖」改為「島嶼地圖」，強迫症所以讓他們兩個長一樣</li>
+		<li>✦ 將「新島重置」的冷卻從30秒改為60秒</li>
+      </ul>
+    </div>
+	<div class="changelog-entry">
       <div class="changelog-version">v2.3.0 <span class="changelog-date">— 2026/05/15</span></div>
       <ul class="changelog-list">
         <li>✦ 新增「狀態列」：頂部一覽進行中事件與即將可觸發的 NM</li>
@@ -2711,9 +2721,9 @@
     <div class="changelog-entry">
       <div class="changelog-version">v2.0.0 <span class="changelog-date">— 2026/05/12</span></div>
       <ul class="changelog-list">
-        <li>✦ <strong>網站開放給所有繁中玩家使用</strong></li>
+        <li>✦ <strong>網站擴大開放給繁中玩家使用</strong></li>
         <li>✦ 新增 Discord 帳號登入系統</li>
-        <li>✦ 限繁中支援群成員才能登入並進行操作</li>
+        <li>✦ 限支援群成員才能登入並進行操作</li>
         <li>✦ 進行中事件與歷史紀錄會顯示回報者</li>
         <li>✦ 訪客可瀏覽但不可操作</li>
       </ul>
@@ -3273,7 +3283,7 @@
 
   /* ----------- CONSTANTS ----------- */
   const COOLDOWN_MS = 120 * 60 * 1000;          // 120 minutes
-  const NEW_INSTANCE_COOLDOWN_MS = 30 * 1000; // 30s cooldown between new-instance resets (cross-user)
+  const NEW_INSTANCE_COOLDOWN_MS = 60 * 1000; // 30s cooldown between new-instance resets (cross-user)
   const TICK_MS = 1000;
 
   /* ----------- FIREBASE INIT ----------- */
@@ -3302,7 +3312,7 @@
   const AUTH_STORAGE_KEY = 'eureka_user_info';
 	
 　// Current build version — must match Firebase eureka/meta/currentVersion
-  const APP_VERSION = 'v2.3.0';
+  const APP_VERSION = 'v2.3.1';
   const metaRef = db.ref('eureka/meta');
 
   // Watch for version updates: if Firebase has a newer version, prompt reload
@@ -3427,9 +3437,8 @@ async function processAuthCallback() {
     const actions = document.getElementById('headerActions');
     if (actions) {
       let html = '';
-      if (isLoggedIn()) {
-        html += `<button class="header-action-btn" id="soundSettingsBtn" title="提示音設定">⚙ 提示音</button>`;
-      }
+      // Sound settings: always visible (guests can also configure, saved to localStorage)
+      html += `<button class="header-action-btn" id="soundSettingsBtn" title="提示音設定">⚙ 提示音</button>`;
       if (isAdmin()) {
         html += `<button class="header-action-btn admin" id="adminPanelBtnTop" title="管理面板">🛠 管理面板</button>`;
       }
@@ -3829,21 +3838,29 @@ async function processAuthCallback() {
     const ctx = getAudioCtx();
     if (!ctx) return;
     if (ctx.state === 'suspended') return; // not unlocked yet
-    const volScale = Math.max(0, Math.min(1, (soundPrefs.volume || 50) / 100));
-    if (volScale <= 0) return;
+    const rawVol = (soundPrefs.volume == null) ? 50 : Number(soundPrefs.volume);
+    const volPct = Math.max(0, Math.min(100, rawVol));
+    if (volPct <= 0) return; // truly silent at 0%
+    // Perceptual loudness curve: humans hear logarithmically, so apply ~2.2 power.
+    // At 50% slider → ~0.22 peak gain; at 100% → ~1.0 peak gain. Much more linear-feeling.
+    const volScale = Math.pow(volPct / 100, 2.2);
+    const peak = 0.85 * volScale; // capped so 100% is loud but not clipping
 
     const now = ctx.currentTime;
-    // Two-tone bell: 880Hz then 660Hz
-    [
-      { freq: 880, start: now,        dur: 0.16 },
-      { freq: 660, start: now + 0.12, dur: 0.22 },
-    ].forEach(tone => {
+    // Three-tone notification: 784Hz · 988Hz · 1175Hz (ascending G5→B5→D6, "ding-ding-ding" rising)
+    // Triangle wave gives a sharper, more attention-grabbing timbre than pure sine.
+    const tones = [
+      { freq: 784,  start: now + 0.00, dur: 0.14 },
+      { freq: 988,  start: now + 0.16, dur: 0.14 },
+      { freq: 1175, start: now + 0.32, dur: 0.32 },
+    ];
+    tones.forEach(tone => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.type = 'sine';
+      osc.type = 'triangle';
       osc.frequency.value = tone.freq;
       gain.gain.setValueAtTime(0, tone.start);
-      gain.gain.linearRampToValueAtTime(0.35 * volScale, tone.start + 0.02);
+      gain.gain.linearRampToValueAtTime(peak, tone.start + 0.015);
       gain.gain.exponentialRampToValueAtTime(0.0001, tone.start + tone.dur);
       osc.connect(gain).connect(ctx.destination);
       osc.start(tone.start);
@@ -3890,7 +3907,11 @@ async function processAuthCallback() {
       }
     } else {
       try {
-        localStorage.setItem(LS_SOUND_PREFS_KEY, JSON.stringify({ enabled: soundPrefs.enabled, volume: soundPrefs.volume }));
+        localStorage.setItem(LS_SOUND_PREFS_KEY, JSON.stringify({
+          enabled: soundPrefs.enabled,
+          volume: soundPrefs.volume,
+          perNm: soundPrefs.perNm || {},
+        }));
       } catch (e) {}
     }
   }
@@ -3901,9 +3922,9 @@ async function processAuthCallback() {
       if (raw) {
         const parsed = JSON.parse(raw);
         soundPrefs = {
-          ...SOUND_DEFAULTS,
           enabled: parsed.enabled !== undefined ? !!parsed.enabled : true,
           volume: typeof parsed.volume === 'number' ? parsed.volume : 50,
+          perNm: parsed.perNm && typeof parsed.perNm === 'object' ? parsed.perNm : {},
         };
       }
     } catch (e) {}
@@ -3958,17 +3979,21 @@ async function processAuthCallback() {
     if (!masterToggle) return;
 
     masterToggle.checked = !!soundPrefs.enabled;
-    volumeSlider.value = soundPrefs.volume || 50;
-    volumeLabel.textContent = `${soundPrefs.volume || 50}%`;
+    const curVol = (soundPrefs.volume == null) ? 50 : soundPrefs.volume;
+    volumeSlider.value = curVol;
+    volumeLabel.textContent = `${curVol}%`;
 
-    if (isLoggedIn()) {
-      if (guestNotice) guestNotice.style.display = 'none';
-      if (perNmContainer) perNmContainer.style.display = '';
-      renderSoundNmList();
-    } else {
-      if (guestNotice) guestNotice.style.display = '';
-      if (perNmContainer) perNmContainer.style.display = 'none';
+    // All users (including guests) can configure everything; guests store in localStorage
+    if (guestNotice) {
+      if (isLoggedIn()) {
+        guestNotice.style.display = 'none';
+      } else {
+        guestNotice.style.display = '';
+        guestNotice.textContent = '訪客的設定僅保存在此瀏覽器；登入後可跨裝置同步。';
+      }
     }
+    if (perNmContainer) perNmContainer.style.display = '';
+    renderSoundNmList();
   }
 
   function renderSoundNmList() {
@@ -5491,9 +5516,10 @@ async function checkAndRecordAction(actionType) {
           return true;
         })();
 
-        // condition will start within 5m? (returns ms)
+        // condition will start in how many ms? (Infinity if not applicable, 0 if already satisfied)
         const conditionStartsInMs = (() => {
-          if (!hasCondition) return Infinity; // not applicable
+          if (!hasCondition) return 0;
+          if (conditionSatisfied) return 0;
           let earliestMs = Infinity;
           if (nm.weather && info.weatherInfo && !info.weatherInfo.isCurrent) {
             earliestMs = Math.min(earliestMs, info.weatherInfo.startsIn * 1000);
@@ -5501,47 +5527,48 @@ async function checkAndRecordAction(actionType) {
           if (nm.timeReq === '夜晚' && info.nightInfo && !info.nightInfo.isNight) {
             earliestMs = Math.min(earliestMs, info.nightInfo.secondsUntilTransition * 1000);
           }
-          // If multiple conditions exist (currently no such NM but for safety), need ALL satisfied
-          // For now this returns the soonest unmet condition; sufficient since at most one condition exists per NM.
           return earliestMs;
         })();
+
+        // CD remaining (0 if already expired)
+        const cdRemainingMs = info.cooldownMsRemaining;
 
         let triggerInMs = null;
         let reasonLabel = '';
 
         if (!hasCondition) {
-          // Rule 1: no condition — only "CD ends within 5m"
-          if (info.lastSpawn && info.cooldownMsRemaining > 0 && info.cooldownMsRemaining <= UPCOMING_THRESHOLD_MS) {
-            triggerInMs = info.cooldownMsRemaining;
+          // Rule 1: no condition — only show if CD ending within 5m
+          if (info.lastSpawn && cdRemainingMs > 0 && cdRemainingMs <= UPCOMING_THRESHOLD_MS) {
+            triggerInMs = cdRemainingMs;
             reasonLabel = '冷卻結束';
           }
-          // CD ended + no spawn after reset → exclude (per rule 3)
+          // No-condition NM that's "ready now" (CD expired or never spawned) → not in upcoming
         } else {
-          // Has condition
-          if (info.lastSpawn) {
-            // Has spawn record
-            if (info.cooldownMsRemaining <= 0) {
-              // CD already ended: waiting for condition
-              if (conditionSatisfied) {
-                // Already triggerable (no upcoming, real-time state) — not "upcoming"
-                triggerInMs = null;
-              } else if (conditionStartsInMs <= UPCOMING_THRESHOLD_MS) {
-                triggerInMs = conditionStartsInMs;
-                reasonLabel = nm.weather || '夜晚';
-              }
-            } else {
-              // CD still cooling
-              if (info.cooldownMsRemaining <= UPCOMING_THRESHOLD_MS && conditionSatisfied) {
-                triggerInMs = info.cooldownMsRemaining;
-                reasonLabel = '冷卻結束';
-              }
-            }
-          } else {
+          // Has condition (weather or night)
+          // Trigger fires when BOTH: CD has expired AND condition is satisfied
+          // So effective "ready time" = max(cdRemainingMs, conditionStartsInMs)
+          if (!info.lastSpawn) {
             // No spawn record (newly reset or fresh zone)
             // Rule 3: only show if current condition satisfied
             if (conditionSatisfied) {
               triggerInMs = 0;
-              reasonLabel = nm.weather || '夜晚';
+              reasonLabel = '可以觸發';
+            }
+            // condition not satisfied → don't show (per rule 3)
+          } else {
+            // Has spawn record: show if both CD and condition will be ready within 5m
+            const effectiveTriggerMs = Math.max(cdRemainingMs, conditionStartsInMs);
+            if (effectiveTriggerMs <= UPCOMING_THRESHOLD_MS) {
+              triggerInMs = effectiveTriggerMs;
+              if (effectiveTriggerMs <= 0) {
+                reasonLabel = '可以觸發';
+              } else if (cdRemainingMs >= conditionStartsInMs) {
+                // CD is the bottleneck → labeled as "cooldown ending"
+                reasonLabel = '冷卻結束';
+              } else {
+                // Condition is the bottleneck → labeled with the condition
+                reasonLabel = nm.weather || '夜晚';
+              }
             }
           }
         }
