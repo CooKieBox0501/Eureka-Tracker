@@ -140,6 +140,10 @@
     background: linear-gradient(90deg, var(--gold) 0%, transparent 100%);
   }
 
+  .title-block {
+    position: relative;
+  }
+
   .title-block h1 {
     font-family: var(--font-display);
     font-size: clamp(28px, 5vw, 44px);
@@ -745,6 +749,21 @@
 
   .report-btn:active { transform: translateY(1px); }
 
+  /* When NM has an active event, the report button is locked to prevent duplicate reports */
+  .nm-card[data-active="true"] .report-btn {
+    background: rgba(60, 60, 70, 0.2);
+    border-color: var(--border);
+    color: var(--ink-faded);
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+  .nm-card[data-active="true"] .report-btn:hover {
+    background: rgba(60, 60, 70, 0.2);
+    border-color: var(--border);
+    color: var(--ink-faded);
+  }
+  .nm-card[data-active="true"] .report-btn:active { transform: none; }
+
   .reset-btn {
     width: 100%;
     background: transparent;
@@ -995,7 +1014,7 @@
   .admin-tab {
     background: transparent;
     border: none;
-    color: var(--ink-faded);
+    color: var(--ink);
     padding: 8px 14px;
     font-family: var(--font-cjk);
     font-size: 13px;
@@ -1038,7 +1057,7 @@
     font-family: var(--font-display);
     font-size: 10px;
     letter-spacing: 0.2em;
-    color: var(--ink-faded);
+    color: var(--ink);
     text-transform: uppercase;
     margin-bottom: 6px;
   }
@@ -1075,6 +1094,7 @@
     border: 1px solid var(--border);
     font-family: var(--font-cjk);
     font-size: 13px;
+    color: var(--ink-bright);
   }
 
   .admin-user-row:hover,
@@ -1103,7 +1123,7 @@
   }
 
   .admin-row-sub {
-    color: var(--ink-faded);
+    color: var(--parchment-dim);
     font-size: 11px;
   }
 
@@ -1116,7 +1136,7 @@
   .admin-action-btn {
     background: transparent;
     border: 1px solid var(--border-light);
-    color: var(--ink-faded);
+    color: var(--ink);
     padding: 4px 10px;
     font-family: var(--font-cjk);
     font-size: 11px;
@@ -1197,7 +1217,7 @@
   .ud-id {
     font-family: var(--font-mono);
     font-size: 11px;
-    color: var(--ink-faded);
+    color: var(--parchment-dim);
   }
 
   .ud-stats {
@@ -1218,7 +1238,7 @@
     font-family: var(--font-display);
     font-size: 9px;
     letter-spacing: 0.15em;
-    color: var(--ink-faded);
+    color: var(--ink);
     text-transform: uppercase;
     margin-bottom: 4px;
   }
@@ -1237,7 +1257,7 @@
     font-family: var(--font-display);
     font-size: 11px;
     letter-spacing: 0.2em;
-    color: var(--ink-faded);
+    color: var(--ink);
     text-transform: uppercase;
     margin-bottom: 10px;
   }
@@ -1253,12 +1273,12 @@
 
   .ud-log-item {
     padding: 4px 0;
-    color: var(--ink);
+    color: var(--ink-bright);
     border-bottom: 1px dotted rgba(255, 255, 255, 0.05);
   }
 
   .ud-log-time {
-    color: var(--ink-faded);
+    color: var(--parchment-dim);
     margin-right: 8px;
   }
 
@@ -1328,7 +1348,7 @@
 
   .admin-memo-time {
     font-size: 11px;
-    color: var(--ink-faded);
+    color: var(--parchment-dim);
   }
 
   /* Make modal-btn primary easier to identify */
@@ -2051,69 +2071,96 @@
   /* ============ ACTIVE EVENTS PANEL ============ */
   /* On desktop: floats on the left as a sticky sidebar.
      On mobile: collapses into a top accordion. */
-  .active-panel {
-    position: fixed;
-    left: 16px;
-    top: 90px;
-    width: 260px;
-    max-height: calc(100vh - 110px);
-    overflow-y: auto;
+  /* ============ STATUS STRIP (top, replaces left-floating active-panel) ============ */
+  .status-strip-row {
+    display: flex;
     background: var(--bg-card);
     border: 1px solid var(--border);
-    z-index: 50;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    transition: transform 0.2s ease, opacity 0.2s ease;
+    margin-bottom: 16px;
+    overflow: hidden;
   }
 
-  .active-panel.empty {
-    opacity: 0.55;
+  .strip-section {
+    flex: 1 1 50%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
   }
 
-  .active-panel-header {
-    padding: 12px 14px;
+  .strip-divider {
+    width: 1px;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+
+  .strip-section-header {
+    padding: 8px 14px;
     border-bottom: 1px solid var(--border);
-    background: linear-gradient(180deg, rgba(168, 58, 58, 0.12), transparent);
-    font-family: var(--font-display);
-    font-size: 12px;
-    letter-spacing: 0.2em;
-    color: var(--gold-bright);
-    text-transform: uppercase;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    font-family: var(--font-display);
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
   }
 
-  .active-panel-header .count {
+  .strip-active .strip-section-header {
+    background: linear-gradient(180deg, rgba(168, 58, 58, 0.12), transparent);
+    color: #f0a8a8;
+  }
+
+  .strip-upcoming .strip-section-header {
+    background: linear-gradient(180deg, rgba(212, 168, 75, 0.12), transparent);
+    color: var(--gold-bright);
+  }
+
+  .strip-count {
     font-family: var(--font-mono);
-    font-size: 13px;
-    color: var(--ink);
-    background: rgba(168, 58, 58, 0.2);
+    font-size: 12px;
     padding: 2px 8px;
-    border: 1px solid rgba(168, 58, 58, 0.4);
+    border: 1px solid var(--border-light);
+    color: var(--ink-bright);
   }
 
-  .active-panel-body {
+  .strip-active .strip-count {
+    background: rgba(168, 58, 58, 0.2);
+    border-color: rgba(168, 58, 58, 0.5);
+  }
+
+  .strip-upcoming .strip-count {
+    background: rgba(212, 168, 75, 0.18);
+    border-color: rgba(212, 168, 75, 0.5);
+  }
+
+  .strip-section-body {
     padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 280px;
+    overflow-y: auto;
+    flex: 1;
   }
 
-  .active-panel-empty {
+  .strip-empty {
     text-align: center;
-    color: var(--ink-faded);
+    color: var(--parchment-dim);
     font-family: var(--font-cjk);
     font-size: 12px;
-    padding: 24px 12px;
-    font-style: normal;
+    padding: 20px 12px;
   }
 
-  .active-event-card {
+  /* Active event card (inside status strip) — preserves original .ae-* styles by reusing them */
+  .strip-section-body .active-event-card {
     background: var(--bg-deep);
     border: 1px solid rgba(168, 58, 58, 0.4);
-    padding: 12px;
-    margin-bottom: 8px;
+    padding: 10px 12px;
+    margin-bottom: 0;
     position: relative;
   }
 
-  .active-event-card::before {
+  .strip-section-body .active-event-card::before {
     content: '';
     position: absolute;
     left: 0;
@@ -2125,9 +2172,222 @@
     animation: panel-pulse 2s ease-in-out infinite;
   }
 
+  /* Upcoming trigger row */
+  .upcoming-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--bg-deep);
+    border: 1px solid rgba(212, 168, 75, 0.3);
+    font-family: var(--font-cjk);
+    font-size: 13px;
+    position: relative;
+  }
+
+  .upcoming-row::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--gold);
+    box-shadow: 0 0 6px rgba(212, 168, 75, 0.5);
+  }
+
+  .upcoming-row .up-name {
+    color: var(--ink-bright);
+    font-weight: 600;
+  }
+
+  .upcoming-row .up-cond {
+    color: var(--parchment-dim);
+    font-size: 11px;
+    margin-left: 6px;
+  }
+
+  .upcoming-row .up-time {
+    font-family: var(--font-mono);
+    color: var(--gold-bright);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Responsive: stack vertically on narrow screens */
+  @media (max-width: 800px) {
+    .status-strip-row {
+      flex-direction: column;
+    }
+    .strip-divider {
+      width: 100%;
+      height: 1px;
+    }
+    .strip-section-body {
+      max-height: 200px;
+    }
+  }
+
   @keyframes panel-pulse {
     0%, 100% { opacity: 0.6; }
     50% { opacity: 1; }
+  }
+
+  /* ============ HEADER ACTIONS (top-right, sound + admin) ============ */
+  .header-actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    gap: 8px;
+    z-index: 5;
+  }
+
+  .header-action-btn {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--ink);
+    padding: 6px 10px;
+    font-family: var(--font-cjk);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    letter-spacing: 0.05em;
+  }
+
+  .header-action-btn:hover {
+    color: var(--gold-bright);
+    border-color: var(--gold-deep);
+  }
+
+  .header-action-btn.admin {
+    background: linear-gradient(180deg, rgba(212, 168, 75, 0.18), rgba(212, 168, 75, 0.05));
+    border-color: var(--gold-deep);
+    color: var(--gold-bright);
+  }
+
+  .header-action-btn.admin:hover {
+    background: linear-gradient(180deg, rgba(212, 168, 75, 0.35), rgba(212, 168, 75, 0.15));
+    color: #ffffff;
+  }
+
+  @media (max-width: 800px) {
+    .header-actions {
+      position: relative;
+      top: 0;
+      right: 0;
+      margin-top: 10px;
+      justify-content: flex-end;
+    }
+  }
+
+  /* Re-used .ae-* styles (for active-event-card inside the strip) */
+
+  /* ============ SOUND SETTINGS ============ */
+  .sound-settings-section .sound-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 4px;
+    border-bottom: 1px dotted var(--border);
+    font-family: var(--font-cjk);
+    color: var(--ink-bright);
+    font-size: 14px;
+  }
+  .sound-settings-section .sound-row:last-child {
+    border-bottom: none;
+  }
+
+  .sound-label {
+    color: var(--ink-bright);
+  }
+
+  /* iOS-style switch */
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 42px;
+    height: 22px;
+  }
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #444;
+    transition: 0.2s;
+    border-radius: 22px;
+  }
+  .slider::before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    top: 3px;
+    background-color: #fff;
+    transition: 0.2s;
+    border-radius: 50%;
+  }
+  .switch input:checked + .slider {
+    background-color: var(--gold-deep);
+  }
+  .switch input:checked + .slider::before {
+    transform: translateX(20px);
+  }
+
+  .sound-perNm-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sound-nm-tab {
+    background: transparent;
+    border: none;
+    color: var(--ink);
+    padding: 8px 12px;
+    font-family: var(--font-cjk);
+    font-size: 13px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s ease;
+  }
+  .sound-nm-tab:hover {
+    color: var(--ink-bright);
+  }
+  .sound-nm-tab.active {
+    color: var(--gold-bright);
+    border-bottom-color: var(--gold-deep);
+  }
+
+  .sound-nm-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 4px;
+    border-bottom: 1px dotted var(--border);
+    font-family: var(--font-cjk);
+    font-size: 13px;
+    color: var(--ink-bright);
+  }
+  .sound-nm-row:last-child {
+    border-bottom: none;
+  }
+
+  .active-event-card {
+    background: var(--bg-deep);
+    border: 1px solid rgba(168, 58, 58, 0.4);
+    padding: 12px;
+    margin-bottom: 8px;
+    position: relative;
   }
 
   .active-event-card:last-child {
@@ -2254,38 +2514,7 @@
     color: #ffffff;
   }
 
-  /* On smaller screens: panel becomes a top collapsible bar */
-  @media (max-width: 1199px) {
-    .active-panel {
-      position: relative;
-      left: 0;
-      top: 0;
-      width: 100%;
-      max-height: none;
-      margin-bottom: 16px;
-      box-shadow: none;
-    }
-  }
-
-  @media (max-width: 1199px) {
-    .active-panel.collapsed .active-panel-body {
-      display: none;
-    }
-    .active-panel-header {
-      cursor: pointer;
-      user-select: none;
-    }
-    .active-panel-header::after {
-      content: '▾';
-      font-family: var(--font-mono);
-      font-size: 14px;
-      transition: transform 0.2s;
-    }
-    .active-panel.collapsed .active-panel-header::after {
-      transform: rotate(-90deg);
-    }
-  }
-
+  /* On smaller screens: keep map toolbar compact */
   @media (max-width: 600px) {
     .map-toolbar { padding: 10px 12px; }
     .map-zone-tab { padding: 6px 10px; font-size: 12px; }
@@ -2302,11 +2531,13 @@
   <header>
     <div class="title-block">
       <h1>Eureka NM Tracker</h1>
-      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.2.2</button></div>
+      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.3.0</button></div>
       <div class="auth-box" id="authBox">
         <span class="auth-status-text" id="authStatusText">🔒 請登入</span>
         <button class="auth-btn discord" id="loginBtn">Discord 登入</button>
       </div>
+      <!-- Top-right action buttons (sound settings, admin) — populated by updateAuthUI -->
+      <div class="header-actions" id="headerActions"></div>
     </div>
     <div class="status-strip">
       <a class="status-card guild-card" href="https://discord.gg/sHUG6UFRCT" target="_blank" rel="noopener noreferrer" title="加入大型任務支援群">
@@ -2342,16 +2573,28 @@
     <button class="zone-tab" data-zone="hydatos"><span class="zh">豐水之地</span>Hydatos</button>
   </nav>
 
-  <!-- ACTIVE EVENTS PANEL -->
-  <aside class="active-panel" id="activePanel">
-    <div class="active-panel-header" id="activePanelHeader">
-      <span>⚔ 進行中</span>
-      <span class="count" id="activePanelCount">0</span>
+  <!-- STATUS STRIP: active events + upcoming triggers -->
+  <section class="status-strip-row" id="statusStripRow">
+    <div class="strip-section strip-active">
+      <div class="strip-section-header">
+        <span class="strip-title">⚔ 進行中</span>
+        <span class="strip-count" id="stripActiveCount">0</span>
+      </div>
+      <div class="strip-section-body" id="stripActiveBody">
+        <div class="strip-empty">目前無進行中事件</div>
+      </div>
     </div>
-    <div class="active-panel-body" id="activePanelBody">
-      <div class="active-panel-empty">目前無進行中事件</div>
+    <div class="strip-divider"></div>
+    <div class="strip-section strip-upcoming">
+      <div class="strip-section-header">
+        <span class="strip-title">⏰ 即將可觸發</span>
+        <span class="strip-count" id="stripUpcomingCount">0</span>
+      </div>
+      <div class="strip-section-body" id="stripUpcomingBody">
+        <div class="strip-empty">無即將可觸發 NM</div>
+      </div>
     </div>
-  </aside>
+  </section>
 
   <!-- ZONE CONTENT -->
   <main id="zoneContainer">
@@ -2370,10 +2613,7 @@
 
 </div>
 
-<!-- Admin panel button (only visible to admins) -->
-<button class="admin-btn" id="adminPanelBtn" title="管理面板" style="display: none;">
-  <span>⚙ 管理面板</span>
-</button>
+<!-- Admin panel button is now in the header (top-right), wired up in updateAuthUI -->
 
 <!-- Known issues button -->
 <button class="known-issues-btn" id="knownIssuesBtn" title="查看已知問題">
@@ -2416,6 +2656,16 @@
 <div class="modal-backdrop" id="changelogBackdrop">
   <div class="modal" style="max-width: 520px; max-height: 70vh; overflow-y: auto;">
     <h3>📜 更新日誌</h3>
+	<div class="changelog-entry">
+      <div class="changelog-version">v2.3.0 <span class="changelog-date">— 2026/05/15</span></div>
+      <ul class="changelog-list">
+        <li>✦ 新增「狀態列」：頂部一覽進行中事件與即將可觸發的 NM</li>
+        <li>✦ 新增提示音系統：NM 出現時自動提示音（可逐 NM 客製化，頭像旁齒輪設定）</li>
+        <li>✦ 進行中的 NM 出現回報按鈕自動鎖定，避免重複回報</li>
+        <li>✦ 連續同天氣窗口的倒數已合併顯示</li>
+        <li>✦ 介面細節調整與 bug 修正</li>
+      </ul>
+    </div>
 	<div class="changelog-entry">
       <div class="changelog-version">v2.2.2 <span class="changelog-date">— 2026/05/13</span></div>
       <ul class="changelog-list">
@@ -2552,6 +2802,48 @@
     </div>
     <div class="modal-actions" style="margin-top: 20px;">
       <button class="modal-btn" id="changelogClose">關閉</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sound settings modal -->
+<div class="modal-backdrop" id="soundSettingsBackdrop">
+  <div class="modal" style="max-width: 540px; max-height: 80vh; overflow-y: auto;">
+    <h3>🔔 提示音設定</h3>
+    <div id="soundGuestNotice" style="display:none; padding: 10px 12px; background: rgba(212,168,75,0.1); border: 1px solid rgba(212,168,75,0.4); margin-bottom: 14px; font-size: 13px; color: var(--ink-bright);">
+      訪客僅能調整主開關 / 主音量，登入後可個別設定每隻 NM 是否提示。
+    </div>
+    <div class="sound-settings-section">
+      <label class="sound-row">
+        <span class="sound-label">主開關</span>
+        <label class="switch">
+          <input type="checkbox" id="soundMasterToggle">
+          <span class="slider"></span>
+        </label>
+      </label>
+      <label class="sound-row">
+        <span class="sound-label">主音量</span>
+        <div style="display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end;">
+          <input type="range" id="soundMasterVolume" min="0" max="100" value="50" style="width:160px;">
+          <span id="soundVolumeLabel" style="font-family:var(--font-mono);font-size:12px;color:var(--gold-bright);min-width:36px;text-align:right;">50%</span>
+        </div>
+      </label>
+      <div style="text-align:center; margin: 12px 0;">
+        <button class="modal-btn" id="soundTestBtn">🔔 測試播放</button>
+      </div>
+    </div>
+    <hr style="border:none;border-top:1px dashed var(--border);margin:14px 0;">
+    <div id="soundPerNmContainer">
+      <div class="sound-perNm-tabs" id="soundNmTabs">
+        <button class="sound-nm-tab active" data-zone="anemos">常風</button>
+        <button class="sound-nm-tab" data-zone="pagos">恆冰</button>
+        <button class="sound-nm-tab" data-zone="pyros">湧火</button>
+        <button class="sound-nm-tab" data-zone="hydatos">豐水</button>
+      </div>
+      <div id="soundNmList"></div>
+    </div>
+    <div class="modal-actions" style="margin-top: 18px;">
+      <button class="modal-btn primary" id="soundSettingsClose">完成</button>
     </div>
   </div>
 </div>
@@ -2981,6 +3273,7 @@
 
   /* ----------- CONSTANTS ----------- */
   const COOLDOWN_MS = 120 * 60 * 1000;          // 120 minutes
+  const NEW_INSTANCE_COOLDOWN_MS = 30 * 1000; // 30s cooldown between new-instance resets (cross-user)
   const TICK_MS = 1000;
 
   /* ----------- FIREBASE INIT ----------- */
@@ -3009,7 +3302,7 @@
   const AUTH_STORAGE_KEY = 'eureka_user_info';
 	
 　// Current build version — must match Firebase eureka/meta/currentVersion
-  const APP_VERSION = 'v2.2.2';
+  const APP_VERSION = 'v2.3.0';
   const metaRef = db.ref('eureka/meta');
 
   // Watch for version updates: if Firebase has a newer version, prompt reload
@@ -3066,6 +3359,7 @@ async function processAuthCallback() {
       updateAuthUI();
       attachUserFlagListener();
       await initUserTracking();
+      attachSoundPrefsListener();
       console.log('[auth] signed in as', name);
     } catch (err) {
       console.error('[auth] sign-in failed:', err);
@@ -3115,7 +3409,7 @@ async function processAuthCallback() {
     if (!box) return;
     if (currentUser) {
       box.innerHTML = `
-        <img class="auth-avatar" src="${currentUser.avatar}" alt="" />
+        <img class="auth-avatar" src="${getAvatarUrl(currentUser.avatar)}" alt="" />
         <span class="auth-name">${currentUser.name}</span>
         <button class="auth-btn" id="logoutBtn">登出</button>
       `;
@@ -3129,10 +3423,21 @@ async function processAuthCallback() {
       const loginBtn = document.getElementById('loginBtn');
       if (loginBtn) loginBtn.addEventListener('click', startLogin);
     }
-    // Show/hide admin panel button
-    const adminBtn = document.getElementById('adminPanelBtn');
-    if (adminBtn) {
-      adminBtn.style.display = isAdmin() ? '' : 'none';
+    // Header actions (sound settings, admin) — top-right buttons
+    const actions = document.getElementById('headerActions');
+    if (actions) {
+      let html = '';
+      if (isLoggedIn()) {
+        html += `<button class="header-action-btn" id="soundSettingsBtn" title="提示音設定">⚙ 提示音</button>`;
+      }
+      if (isAdmin()) {
+        html += `<button class="header-action-btn admin" id="adminPanelBtnTop" title="管理面板">🛠 管理面板</button>`;
+      }
+      actions.innerHTML = html;
+      const sBtn = document.getElementById('soundSettingsBtn');
+      if (sBtn) sBtn.addEventListener('click', openSoundSettings);
+      const aBtn = document.getElementById('adminPanelBtnTop');
+      if (aBtn) aBtn.addEventListener('click', showAdminPanel);
     }
   }
 
@@ -3150,6 +3455,9 @@ async function processAuthCallback() {
       userFlagListener.off();
       userFlagListener = null;
     }
+    detachSoundPrefsListener();
+    soundPrefs = { ...SOUND_DEFAULTS };
+    loadGuestSoundPrefs();
     myUserFlag = null;
     currentUser = null;
     localStorage.removeItem(AUTH_STORAGE_KEY);
@@ -3435,6 +3743,13 @@ async function processAuthCallback() {
     return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
+  // Discord default avatar fallback for users without custom avatar
+  const DISCORD_DEFAULT_AVATAR = 'https://cdn.discordapp.com/embed/avatars/0.png';
+  function getAvatarUrl(src) {
+    if (!src || typeof src !== 'string' || src.trim() === '') return DISCORD_DEFAULT_AVATAR;
+    return src;
+  }
+
   // Very simple Markdown renderer (bold, italic, links, line breaks)
   function renderMarkdown(text) {
     let html = escapeHtml(text);
@@ -3447,6 +3762,294 @@ async function processAuthCallback() {
     // line breaks
     html = html.replace(/\n/g, '<br>');
     return html;
+  }
+
+  /* ----------- SOUND ALERT SYSTEM ----------- */
+  // Plays a short alert sound when an NM is reported (i.e. a new spawn appears).
+  //
+  // Storage:
+  //   - Logged-in users: eureka/userMeta/<uid>/soundPrefs
+  //   - Guests: localStorage (master switch + volume only, no per-NM)
+  //
+  // Tech notes:
+  //   - Uses Web Audio API to synthesize a 2-tone "ding-dong" — no external file
+  //   - AudioContext must be unlocked by user gesture (first click anywhere unlocks)
+  //   - First snapshot from Firebase is NOT played (avoids replaying old reports on page load)
+  //
+  // Trigger:
+  //   - Snapshot listener diffs old vs new state.spawns; any NEW timestamp within last 30s plays
+  //   - Per-NM toggle (if any) overrides master
+
+  const LS_SOUND_PREFS_KEY = 'eureka_sound_prefs_guest';
+  const SOUND_SNAPSHOT_AGE_LIMIT_MS = 30000; // only play for spawns within last 30s
+  const SOUND_DEFAULTS = { enabled: true, volume: 50, perNm: {} };
+
+  let soundPrefs = { ...SOUND_DEFAULTS };
+  let soundPrevSpawns = null; // tracks last seen state.spawns for diffing
+  let soundContextUnlocked = false;
+  let audioCtx = null;
+  let soundSettingsTab = 'anemos';
+  let soundPrefsListener = null;
+
+  function getAudioCtx() {
+    if (!audioCtx) {
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      } catch (e) {
+        console.warn('[sound] AudioContext unavailable', e);
+        return null;
+      }
+    }
+    return audioCtx;
+  }
+
+  // Unlock audio on first user gesture
+  function tryUnlockAudio() {
+    if (soundContextUnlocked) return;
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(() => {
+        soundContextUnlocked = true;
+      }).catch(() => {});
+    } else {
+      soundContextUnlocked = true;
+    }
+  }
+
+  function attachAudioUnlock() {
+    const handler = () => { tryUnlockAudio(); };
+    ['click', 'keydown', 'touchstart'].forEach(evt => {
+      document.addEventListener(evt, handler, { once: false, capture: true });
+    });
+  }
+
+  // Synthesize a brief "ding-dong" alert
+  function playAlertSound() {
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') return; // not unlocked yet
+    const volScale = Math.max(0, Math.min(1, (soundPrefs.volume || 50) / 100));
+    if (volScale <= 0) return;
+
+    const now = ctx.currentTime;
+    // Two-tone bell: 880Hz then 660Hz
+    [
+      { freq: 880, start: now,        dur: 0.16 },
+      { freq: 660, start: now + 0.12, dur: 0.22 },
+    ].forEach(tone => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = tone.freq;
+      gain.gain.setValueAtTime(0, tone.start);
+      gain.gain.linearRampToValueAtTime(0.35 * volScale, tone.start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, tone.start + tone.dur);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(tone.start);
+      osc.stop(tone.start + tone.dur + 0.05);
+    });
+  }
+
+  function isSoundEnabledForNm(nmId) {
+    if (!soundPrefs.enabled) return false;
+    const per = soundPrefs.perNm || {};
+    // default: enabled unless explicitly set to false
+    if (per[nmId] === false) return false;
+    return true;
+  }
+
+  // Called whenever a new snapshot arrives — diffs against last spawns to detect new reports
+  function handleSpawnsDiffForSound(newSpawns) {
+    const now = Date.now();
+    if (soundPrevSpawns === null) {
+      // first snapshot — establish baseline, don't play
+      soundPrevSpawns = { ...newSpawns };
+      return;
+    }
+    Object.entries(newSpawns).forEach(([nmId, ts]) => {
+      if (!ts) return;
+      const prevTs = soundPrevSpawns[nmId];
+      // new spawn detected: ts is newer than what we had AND happened within last 30s
+      if (prevTs !== ts && (now - ts) <= SOUND_SNAPSHOT_AGE_LIMIT_MS) {
+        if (isSoundEnabledForNm(nmId)) {
+          playAlertSound();
+        }
+      }
+    });
+    soundPrevSpawns = { ...newSpawns };
+  }
+
+  // Persistence
+  async function saveSoundPrefs() {
+    if (isLoggedIn() && currentUser) {
+      try {
+        await userMetaRef.child(currentUser.id).child('soundPrefs').set(soundPrefs);
+      } catch (e) {
+        console.warn('[sound] save prefs failed', e);
+      }
+    } else {
+      try {
+        localStorage.setItem(LS_SOUND_PREFS_KEY, JSON.stringify({ enabled: soundPrefs.enabled, volume: soundPrefs.volume }));
+      } catch (e) {}
+    }
+  }
+
+  function loadGuestSoundPrefs() {
+    try {
+      const raw = localStorage.getItem(LS_SOUND_PREFS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        soundPrefs = {
+          ...SOUND_DEFAULTS,
+          enabled: parsed.enabled !== undefined ? !!parsed.enabled : true,
+          volume: typeof parsed.volume === 'number' ? parsed.volume : 50,
+        };
+      }
+    } catch (e) {}
+  }
+
+  function attachSoundPrefsListener() {
+    if (!isLoggedIn() || !currentUser) return;
+    detachSoundPrefsListener();
+    const ref = userMetaRef.child(currentUser.id).child('soundPrefs');
+    soundPrefsListener = ref;
+    ref.on('value', (snap) => {
+      const v = snap.val();
+      if (v && typeof v === 'object') {
+        soundPrefs = {
+          enabled: v.enabled !== undefined ? !!v.enabled : true,
+          volume: typeof v.volume === 'number' ? v.volume : 50,
+          perNm: v.perNm && typeof v.perNm === 'object' ? v.perNm : {},
+        };
+      } else {
+        soundPrefs = { ...SOUND_DEFAULTS };
+      }
+      // refresh modal if open
+      if (document.getElementById('soundSettingsBackdrop')?.classList.contains('active')) {
+        renderSoundSettingsModal();
+      }
+    });
+  }
+
+  function detachSoundPrefsListener() {
+    if (soundPrefsListener) {
+      try { soundPrefsListener.off(); } catch (e) {}
+      soundPrefsListener = null;
+    }
+  }
+
+  function openSoundSettings() {
+    if (!isLoggedIn()) {
+      // Guests can adjust master switch / volume only
+      loadGuestSoundPrefs();
+    }
+    renderSoundSettingsModal();
+    const bd = document.getElementById('soundSettingsBackdrop');
+    if (bd) bd.classList.add('active');
+  }
+
+  function renderSoundSettingsModal() {
+    const masterToggle = document.getElementById('soundMasterToggle');
+    const volumeSlider = document.getElementById('soundMasterVolume');
+    const volumeLabel = document.getElementById('soundVolumeLabel');
+    const guestNotice = document.getElementById('soundGuestNotice');
+    const perNmContainer = document.getElementById('soundPerNmContainer');
+    if (!masterToggle) return;
+
+    masterToggle.checked = !!soundPrefs.enabled;
+    volumeSlider.value = soundPrefs.volume || 50;
+    volumeLabel.textContent = `${soundPrefs.volume || 50}%`;
+
+    if (isLoggedIn()) {
+      if (guestNotice) guestNotice.style.display = 'none';
+      if (perNmContainer) perNmContainer.style.display = '';
+      renderSoundNmList();
+    } else {
+      if (guestNotice) guestNotice.style.display = '';
+      if (perNmContainer) perNmContainer.style.display = 'none';
+    }
+  }
+
+  function renderSoundNmList() {
+    const list = document.getElementById('soundNmList');
+    if (!list) return;
+    const zoneData = NM_DATA[soundSettingsTab];
+    if (!zoneData) return;
+    let html = '';
+    zoneData.nms.forEach(nm => {
+      const isOn = soundPrefs.perNm?.[nm.id] !== false;
+      html += `
+        <div class="sound-nm-row" data-nm="${nm.id}">
+          <span>${nm.name} <span style="color:var(--parchment-dim);font-size:11px;">· ${nm.nickname}</span></span>
+          <label class="switch">
+            <input type="checkbox" data-nm-toggle="${nm.id}" ${isOn ? 'checked' : ''}>
+            <span class="slider"></span>
+          </label>
+        </div>
+      `;
+    });
+    list.innerHTML = html;
+  }
+
+  function wireSoundSettings() {
+    const bd = document.getElementById('soundSettingsBackdrop');
+    const closeBtn = document.getElementById('soundSettingsClose');
+    const masterToggle = document.getElementById('soundMasterToggle');
+    const volumeSlider = document.getElementById('soundMasterVolume');
+    const volumeLabel = document.getElementById('soundVolumeLabel');
+    const testBtn = document.getElementById('soundTestBtn');
+    const tabs = document.querySelectorAll('.sound-nm-tab');
+    const list = document.getElementById('soundNmList');
+
+    if (closeBtn) closeBtn.addEventListener('click', () => bd?.classList.remove('active'));
+    if (bd) bd.addEventListener('click', (e) => {
+      if (e.target === bd) bd.classList.remove('active');
+    });
+
+    if (masterToggle) masterToggle.addEventListener('change', () => {
+      soundPrefs.enabled = masterToggle.checked;
+      saveSoundPrefs();
+    });
+
+    if (volumeSlider) {
+      volumeSlider.addEventListener('input', () => {
+        soundPrefs.volume = parseInt(volumeSlider.value, 10);
+        if (volumeLabel) volumeLabel.textContent = `${soundPrefs.volume}%`;
+      });
+      volumeSlider.addEventListener('change', () => {
+        saveSoundPrefs();
+      });
+    }
+
+    if (testBtn) testBtn.addEventListener('click', () => {
+      tryUnlockAudio();
+      // Play once regardless of master toggle for testing — but respect volume
+      const oldEnabled = soundPrefs.enabled;
+      soundPrefs.enabled = true;
+      playAlertSound();
+      soundPrefs.enabled = oldEnabled;
+    });
+
+    tabs.forEach(t => {
+      t.addEventListener('click', () => {
+        tabs.forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        soundSettingsTab = t.dataset.zone;
+        renderSoundNmList();
+      });
+    });
+
+    if (list) {
+      list.addEventListener('change', (e) => {
+        const cb = e.target.closest('input[data-nm-toggle]');
+        if (!cb) return;
+        const nmId = cb.dataset.nmToggle;
+        if (!soundPrefs.perNm) soundPrefs.perNm = {};
+        soundPrefs.perNm[nmId] = cb.checked;
+        saveSoundPrefs();
+      });
+    }
   }
 
   /* ----------- ABUSE DETECTION MODULE ----------- */
@@ -3769,7 +4372,7 @@ async function checkAndRecordAction(actionType) {
           html += `
             <div class="admin-online-row">
               <span class="admin-online-dot ${idle ? 'idle' : ''}"></span>
-              <img class="admin-row-avatar" src="${p.avatar || ''}" alt="" onerror="this.style.display='none'">
+              <img class="admin-row-avatar" src="${getAvatarUrl(p.avatar)}" alt="">
               <div class="admin-row-main">
                 <div class="admin-row-name">${escapeHtml(p.name || '')}</div>
                 <div class="admin-row-sub">最後活動：${formatRelativeTime(now - p.lastActive)}</div>
@@ -3814,7 +4417,7 @@ async function checkAndRecordAction(actionType) {
       const actions = u.stats?.totalActions || 0;
       html += `
         <div class="admin-user-row" data-uid="${uid}">
-          <img class="admin-row-avatar" src="${u.avatar || ''}" alt="" onerror="this.style.display='none'">
+          <img class="admin-row-avatar" src="${getAvatarUrl(u.avatar)}" alt="">
           <div class="admin-row-main">
             <div class="admin-row-name">${escapeHtml(u.name || '')} ${flagBadge}</div>
             <div class="admin-row-sub">登入 ${u.loginCount || 0} 次 · ${actions} 次操作 · 最後 ${lastSeen}</div>
@@ -3851,7 +4454,7 @@ async function checkAndRecordAction(actionType) {
 
     header.innerHTML = `
       <div class="ud-header">
-        <img class="ud-avatar" src="${user.avatar || ''}" alt="" onerror="this.style.display='none'">
+        <img class="ud-avatar" src="${getAvatarUrl(user.avatar)}" alt="">
         <div>
           <div class="ud-name">${escapeHtml(user.name || '')}</div>
           <div class="ud-id">${uid}</div>
@@ -4082,7 +4685,7 @@ async function checkAndRecordAction(actionType) {
       const setTime = flag.setAt ? new Date(flag.setAt).toLocaleString() : '—';
       html += `
         <div class="admin-flag-row">
-          <img class="admin-row-avatar" src="${u.avatar || ''}" alt="" onerror="this.style.display='none'">
+          <img class="admin-row-avatar" src="${getAvatarUrl(u.avatar)}" alt="">
           <div class="admin-row-main">
             <div class="admin-row-name">${escapeHtml(u.name || uid)} <span class="admin-flag-status ${flag.status}">${statusLabel}</span></div>
             <div class="admin-row-sub">標記時間：${setTime}</div>
@@ -4372,14 +4975,25 @@ async function checkAndRecordAction(actionType) {
 
   // Find the next time `targetWeather` will START in the given zone.
   // Returns { startsIn: secondsUntilStart, isCurrent: bool, endsIn: secondsUntilCurrentWindowEnd }
+  // If current weather IS the target, endsIn merges consecutive same-weather windows
+  // (e.g. current 薄霧 with 2m left + next window is also 薄霧 → endsIn = 22m, not 2m).
   function findNextWeather(zone, targetWeather) {
     const forecast = getWeatherForecast(zone, 50);
     const nowSec = Math.floor(Date.now() / 1000);
     const cur = forecast[0];
     if (cur.weather === targetWeather) {
+      // Merge consecutive same-weather windows
+      let endsAt = cur.end;
+      for (let i = 1; i < forecast.length; i++) {
+        if (forecast[i].weather === targetWeather) {
+          endsAt = forecast[i].end;
+        } else {
+          break;
+        }
+      }
       return {
         isCurrent: true,
-        endsIn: cur.end - nowSec,
+        endsIn: endsAt - nowSec,
         startsIn: 0,
       };
     }
@@ -4460,9 +5074,12 @@ async function checkAndRecordAction(actionType) {
     // 'value' fires once on connect with current data, then again every time data changes.
     stateRef.on('value', (snapshot) => {
       const data = snapshot.val();
+      const newSpawns = data?.spawns || {};
+      // Sound alert diffing — must run BEFORE state is replaced
+      try { handleSpawnsDiffForSound(newSpawns); } catch (e) { console.warn('[sound] diff failed', e); }
       if (data) {
         state = {
-          spawns: data.spawns || {},
+          spawns: newSpawns,
           instanceResets: data.instanceResets || {},
           activeEvents: data.activeEvents || {},
           history: data.history || {},
@@ -4476,6 +5093,7 @@ async function checkAndRecordAction(actionType) {
       pruneStaleActiveEvents();
       updateCards();
       updateActivePanel();
+      updateUpcomingPanel();
       updateHistoryModal();
     }, (err) => {
       console.error('[firebase] listener error:', err);
@@ -4754,16 +5372,14 @@ async function checkAndRecordAction(actionType) {
   function updateActivePanel() {
     const events = state.activeEvents || {};
     const ids = Object.keys(events);
-    const panel = document.getElementById('activePanel');
-    const body = document.getElementById('activePanelBody');
-    const countEl = document.getElementById('activePanelCount');
-    if (!panel || !body || !countEl) return;
+    const body = document.getElementById('stripActiveBody');
+    const countEl = document.getElementById('stripActiveCount');
+    if (!body || !countEl) return;
 
     countEl.textContent = String(ids.length);
-    panel.classList.toggle('empty', ids.length === 0);
 
     if (ids.length === 0) {
-      body.innerHTML = '<div class="active-panel-empty">目前無進行中事件</div>';
+      body.innerHTML = '<div class="strip-empty">目前無進行中事件</div>';
       return;
     }
 
@@ -4801,7 +5417,7 @@ async function checkAndRecordAction(actionType) {
           </div>
           ${ev.reportedBy ? `
             <div class="reporter-line">
-              <img class="reporter-avatar" src="${ev.reportedBy.avatar}" alt="" onerror="this.style.display='none'" />
+              <img class="reporter-avatar" src="${getAvatarUrl(ev.reportedBy.avatar)}" alt="" />
               <span>由 <span class="reporter-name">${ev.reportedBy.name}</span> 回報</span>
             </div>` : ''}
           <div class="ae-row" style="margin-top:6px;">
@@ -4842,6 +5458,170 @@ async function checkAndRecordAction(actionType) {
         cd.textContent = passed
           ? `已開打 ${fmtMmSs(-timeUntilPull)}`
           : `距開打 ${fmtMmSs(timeUntilPull)}`;
+      }
+    });
+  }
+
+  /* ----------- UPCOMING TRIGGERS ----------- */
+  // Scans all NMs across all zones; returns NMs that will become triggerable within the next 5 min.
+  //
+  // Rules (per spec):
+  // 1. No-condition NM: lastSpawn exists AND CD ends within 5m → include
+  //    (newly reset zones with no spawn record → exclude)
+  // 2. Weather/night NM:
+  //    (a) lastSpawn exists, CD already ended, condition starts within 5m → include
+  //    (b) lastSpawn exists, CD ends within 5m, condition currently satisfied → include
+  //    (c) Newly reset zone, no spawn record, condition currently satisfied → include
+  const UPCOMING_THRESHOLD_MS = 5 * 60 * 1000;
+
+  function getUpcomingTriggers() {
+    const now = Date.now();
+    const out = [];
+
+    Object.entries(NM_DATA).forEach(([zoneId, zoneData]) => {
+      zoneData.nms.forEach(nm => {
+        const info = getNmStatus(zoneId, nm);
+        const hasCondition = !!(nm.weather || nm.timeReq);
+
+        // condition currently satisfied?
+        const conditionSatisfied = (() => {
+          if (!hasCondition) return true;
+          if (nm.weather && !(info.weatherInfo && info.weatherInfo.isCurrent)) return false;
+          if (nm.timeReq === '夜晚' && !(info.nightInfo && info.nightInfo.isNight)) return false;
+          return true;
+        })();
+
+        // condition will start within 5m? (returns ms)
+        const conditionStartsInMs = (() => {
+          if (!hasCondition) return Infinity; // not applicable
+          let earliestMs = Infinity;
+          if (nm.weather && info.weatherInfo && !info.weatherInfo.isCurrent) {
+            earliestMs = Math.min(earliestMs, info.weatherInfo.startsIn * 1000);
+          }
+          if (nm.timeReq === '夜晚' && info.nightInfo && !info.nightInfo.isNight) {
+            earliestMs = Math.min(earliestMs, info.nightInfo.secondsUntilTransition * 1000);
+          }
+          // If multiple conditions exist (currently no such NM but for safety), need ALL satisfied
+          // For now this returns the soonest unmet condition; sufficient since at most one condition exists per NM.
+          return earliestMs;
+        })();
+
+        let triggerInMs = null;
+        let reasonLabel = '';
+
+        if (!hasCondition) {
+          // Rule 1: no condition — only "CD ends within 5m"
+          if (info.lastSpawn && info.cooldownMsRemaining > 0 && info.cooldownMsRemaining <= UPCOMING_THRESHOLD_MS) {
+            triggerInMs = info.cooldownMsRemaining;
+            reasonLabel = '冷卻結束';
+          }
+          // CD ended + no spawn after reset → exclude (per rule 3)
+        } else {
+          // Has condition
+          if (info.lastSpawn) {
+            // Has spawn record
+            if (info.cooldownMsRemaining <= 0) {
+              // CD already ended: waiting for condition
+              if (conditionSatisfied) {
+                // Already triggerable (no upcoming, real-time state) — not "upcoming"
+                triggerInMs = null;
+              } else if (conditionStartsInMs <= UPCOMING_THRESHOLD_MS) {
+                triggerInMs = conditionStartsInMs;
+                reasonLabel = nm.weather || '夜晚';
+              }
+            } else {
+              // CD still cooling
+              if (info.cooldownMsRemaining <= UPCOMING_THRESHOLD_MS && conditionSatisfied) {
+                triggerInMs = info.cooldownMsRemaining;
+                reasonLabel = '冷卻結束';
+              }
+            }
+          } else {
+            // No spawn record (newly reset or fresh zone)
+            // Rule 3: only show if current condition satisfied
+            if (conditionSatisfied) {
+              triggerInMs = 0;
+              reasonLabel = nm.weather || '夜晚';
+            }
+          }
+        }
+
+        if (triggerInMs !== null && triggerInMs >= 0) {
+          out.push({
+            nmId: nm.id,
+            nm,
+            zoneId,
+            zoneLabel: zoneData.label,
+            triggerInMs,
+            reasonLabel,
+          });
+        }
+      });
+    });
+
+    out.sort((a, b) => a.triggerInMs - b.triggerInMs);
+    return out;
+  }
+
+  function updateUpcomingPanel() {
+    const body = document.getElementById('stripUpcomingBody');
+    const countEl = document.getElementById('stripUpcomingCount');
+    if (!body || !countEl) return;
+    const list = getUpcomingTriggers();
+    countEl.textContent = String(list.length);
+    if (list.length === 0) {
+      body.innerHTML = '<div class="strip-empty">無即將可觸發 NM</div>';
+      return;
+    }
+    let html = '';
+    list.forEach(item => {
+      const timeText = item.triggerInMs <= 0 ? '現在' : formatUpcomingTime(item.triggerInMs);
+      html += `
+        <div class="upcoming-row" data-nm="${item.nmId}">
+          <div>
+            <span class="up-name">${item.nm.name}</span>
+            <span class="up-cond">（${item.reasonLabel}）</span>
+          </div>
+          <span class="up-time">${timeText}</span>
+        </div>`;
+    });
+    body.innerHTML = html;
+  }
+
+  function formatUpcomingTime(ms) {
+    if (ms <= 0) return '現在';
+    const sec = Math.ceil(ms / 1000);
+    if (sec < 60) return `${sec}s`;
+    const min = Math.floor(sec / 60);
+    const remSec = sec % 60;
+    if (min < 5) return `${min}m ${String(remSec).padStart(2, '0')}s`;
+    return `${min}m`;
+  }
+
+  // Ticks every second to refresh upcoming times without rebuilding
+  function tickUpcomingPanel() {
+    // Simple full refresh — small list, no input focus to preserve
+    updateUpcomingPanel();
+  }
+  
+  // Refresh new-instance buttons to show cooldown countdown
+  function tickNewInstanceCooldown() {
+    const now = Date.now();
+    document.querySelectorAll('.new-instance-btn').forEach(btn => {
+      const zone = btn.dataset.zone;
+      const lastReset = (state.instanceResets || {})[zone] || 0;
+      const remaining = lastReset + NEW_INSTANCE_COOLDOWN_MS - now;
+      if (remaining > 0) {
+        const sec = Math.ceil(remaining / 1000);
+        btn.disabled = true;
+        btn.textContent = `⟁ 重置冷卻中 ${sec}s`;
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'not-allowed';
+      } else if (btn.disabled) {
+        btn.disabled = false;
+        btn.textContent = '⟁ 新島重置';
+        btn.style.opacity = '';
+        btn.style.cursor = '';
       }
     });
   }
@@ -5237,6 +6017,9 @@ async function checkAndRecordAction(actionType) {
   async function handleReport(nmId) {
     if (!requireLogin()) return;
     if (isBanned()) { showBannedModal(); return; }
+    // Guard: if this NM already has an active event, silently ignore (button is also visually locked)
+    const hasActive = Object.values(state.activeEvents || {}).some(ev => ev.nmId === nmId);
+    if (hasActive) return;
     if (!await checkAndRecordAction('report')) return;
     const reporter = getUserStub();
     const now = Date.now();
@@ -5306,6 +6089,9 @@ async function checkAndRecordAction(actionType) {
   async function handleNewInstance(zone) {
     if (!requireLogin()) return;
     if (isBanned()) { showBannedModal(); return; }
+    // Cross-user 30s cooldown: if anyone has reset this zone within 30s, block
+    const lastReset = state.instanceResets[zone] || 0;
+    if (Date.now() - lastReset < NEW_INSTANCE_COOLDOWN_MS) return;
     if (!await checkAndRecordAction('reset')) return;
     const reporter = getUserStub();
     const now = Date.now();
@@ -5835,20 +6621,8 @@ async function checkAndRecordAction(actionType) {
       });
     });
 
-    // active panel: collapse toggle on mobile
-    const apHeader = document.getElementById('activePanelHeader');
-    const apPanel = document.getElementById('activePanel');
-    if (apHeader && apPanel) {
-      apHeader.addEventListener('click', () => {
-        // Only collapse on narrow screens
-        if (window.matchMedia('(max-width: 1199px)').matches) {
-          apPanel.classList.toggle('collapsed');
-        }
-      });
-    }
-
-    // active panel: kill button & pull input
-    const apBody = document.getElementById('activePanelBody');
+    // status strip (left section): kill button & pull input — events delegated from stripActiveBody
+    const apBody = document.getElementById('stripActiveBody');
     if (apBody) {
       apBody.addEventListener('click', (e) => {
         const btn = e.target.closest('button[data-action="kill-event"]');
@@ -5898,7 +6672,9 @@ async function checkAndRecordAction(actionType) {
     document.getElementById('zoneContainer').addEventListener('click', (e) => {
       const btn = e.target.closest('button');
       if (!btn) return;
-      if (btn.classList.contains('new-instance-btn')) {
+	  if (btn.classList.contains('new-instance-btn')) {
+        // Skip if button is in cooldown state (visually locked)
+        if (btn.disabled) return;
         const zone = btn.dataset.zone;
         showModal(
           '確認新島重置',
@@ -5943,10 +6719,16 @@ async function checkAndRecordAction(actionType) {
     // Initialize auth UI (shows correct state based on localStorage cache)
     updateAuthUI();
 
-    // If we have a cached login, start watching our flag
+    // Sound system: load guest prefs from localStorage; wire settings modal; attach unlock
+    loadGuestSoundPrefs();
+    wireSoundSettings();
+    attachAudioUnlock();
+
+    // If we have a cached login, start watching our flag and sound prefs
     if (currentUser) {
       attachUserFlagListener();
       initUserTracking();
+      attachSoundPrefsListener();
     }
 
     // Wire up "login required" modal close button
@@ -6018,11 +6800,9 @@ async function checkAndRecordAction(actionType) {
     });
     attachKnownIssuesListener();
 
-    // Wire up admin panel
-    const adminBtn = document.getElementById('adminPanelBtn');
+    // Wire up admin panel (button now lives in header — wired up by updateAuthUI)
     const adminBd = document.getElementById('adminPanelBackdrop');
     const adminClose = document.getElementById('adminPanelClose');
-    if (adminBtn) adminBtn.addEventListener('click', showAdminPanel);
     if (adminClose) adminClose.addEventListener('click', () => adminBd.classList.remove('active'));
     if (adminBd) adminBd.addEventListener('click', (e) => {
       if (e.target === adminBd) adminBd.classList.remove('active');
@@ -6103,6 +6883,10 @@ async function checkAndRecordAction(actionType) {
       updateCards();
       // update countdowns inside the panel WITHOUT rebuilding (preserves input focus)
       tickActivePanel();
+      // refresh upcoming triggers list (small list, no focus to preserve)
+      tickUpcomingPanel();
+	  // refresh new-instance button cooldown state
+      tickNewInstanceCooldown();
     }, TICK_MS);
 
     // every 30 seconds, prune stale events + old history
