@@ -2525,7 +2525,7 @@
   <header>
     <div class="title-block">
       <h1>Eureka NM Tracker</h1>
-      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.3.1</button></div>
+      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.3.2</button></div>
       <div class="auth-row">
         <div class="auth-box" id="authBox">
           <span class="auth-status-text" id="authStatusText">🔒 請登入</span>
@@ -2561,14 +2561,6 @@
     </div>
   </header>
 
-  <!-- ZONE TABS -->
-  <nav class="zone-tabs" id="zoneTabs">
-    <button class="zone-tab active" data-zone="anemos"><span class="zh">常風之地</span>Anemos</button>
-    <button class="zone-tab" data-zone="pagos"><span class="zh">恆冰之地</span>Pagos</button>
-    <button class="zone-tab" data-zone="pyros"><span class="zh">湧火之地</span>Pyros</button>
-    <button class="zone-tab" data-zone="hydatos"><span class="zh">豐水之地</span>Hydatos</button>
-  </nav>
-
   <!-- STATUS STRIP: active events + upcoming triggers -->
   <section class="status-strip-row" id="statusStripRow">
     <div class="strip-section strip-active">
@@ -2591,7 +2583,15 @@
       </div>
     </div>
   </section>
-
+	
+<!-- ZONE TABS -->
+  <nav class="zone-tabs" id="zoneTabs">
+    <button class="zone-tab active" data-zone="anemos"><span class="zh">常風之地</span>Anemos</button>
+    <button class="zone-tab" data-zone="pagos"><span class="zh">恆冰之地</span>Pagos</button>
+    <button class="zone-tab" data-zone="pyros"><span class="zh">湧火之地</span>Pyros</button>
+    <button class="zone-tab" data-zone="hydatos"><span class="zh">豐水之地</span>Hydatos</button>
+  </nav>
+	
   <!-- ZONE CONTENT -->
   <main id="zoneContainer">
     <!-- generated dynamically -->
@@ -2652,6 +2652,12 @@
 <div class="modal-backdrop" id="changelogBackdrop">
   <div class="modal" style="max-width: 520px; max-height: 70vh; overflow-y: auto;">
     <h3>📜 更新日誌</h3>
+	<div class="changelog-entry">
+      <div class="changelog-version">v2.3.2 <span class="changelog-date">— 2026/05/15</span></div>
+      <ul class="changelog-list">
+        <li>✦ 調換了四島切換按鈕與「進行中」欄位的位置</li>
+      </ul>
+    </div>
 	<div class="changelog-entry">
       <div class="changelog-version">v2.3.1 <span class="changelog-date">— 2026/05/15</span></div>
       <ul class="changelog-list">
@@ -3312,7 +3318,7 @@
   const AUTH_STORAGE_KEY = 'eureka_user_info';
 	
 　// Current build version — must match Firebase eureka/meta/currentVersion
-  const APP_VERSION = 'v2.3.1';
+  const APP_VERSION = 'v2.3.2';
   const metaRef = db.ref('eureka/meta');
 
   // Watch for version updates: if Firebase has a newer version, prompt reload
