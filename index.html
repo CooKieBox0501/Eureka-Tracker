@@ -404,6 +404,27 @@
     transform: translateY(1px);
   }
 
+  /* Cancel new-instance reset (visible only within 5 minutes after a reset) */
+  .cancel-reset-btn {
+    background: transparent;
+    border: 1px solid rgba(168, 58, 58, 0.6);
+    color: #f0a8a8;
+    padding: 12px 18px;
+    font-family: var(--font-display);
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+    font-weight: 600;
+  }
+  .cancel-reset-btn:hover {
+    background: rgba(168, 58, 58, 0.15);
+    border-color: rgba(168, 58, 58, 0.9);
+    color: #ffdada;
+  }
+  .cancel-reset-btn:active { transform: translateY(1px); }
+
   .zone-toolbar-buttons {
     display: flex;
     gap: 10px;
@@ -1647,6 +1668,67 @@
 
   .modal-btn:hover { background: var(--bg-mid); }
 
+  /* NM confirmation card (inside two-step confirm modals) */
+  .nm-confirm-card {
+    display: flex;
+    gap: 14px;
+    padding: 14px;
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    margin: 0 0 20px;
+    align-items: center;
+  }
+  .nm-confirm-img-slot {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+    background: rgba(212, 168, 75, 0.05);
+    border: 1px dashed rgba(212, 168, 75, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    color: rgba(212, 168, 75, 0.4);
+  }
+  .nm-confirm-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .nm-confirm-name {
+    font-family: var(--font-cjk);
+    font-size: 16px;
+    color: var(--ink-bright);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .nm-confirm-nick {
+    font-size: 12px;
+    color: var(--parchment-dim);
+    font-weight: 400;
+  }
+  .nm-confirm-zone {
+    font-family: var(--font-cjk);
+    font-size: 12px;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .nm-confirm-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .nm-confirm-tag {
+    font-family: var(--font-cjk);
+    font-size: 11px;
+    padding: 3px 10px;
+    border: 1px solid var(--border-light);
+    color: var(--ink-bright);
+    letter-spacing: 0.05em;
+  }
+  .nm-confirm-tag.weather { color: #b4d5e8; border-color: rgba(180, 213, 232, 0.4); }
+  .nm-confirm-tag.night   { color: #c8b6e8; border-color: rgba(200, 182, 232, 0.4); }
+  .nm-confirm-tag.none    { color: var(--parchment-dim); }
+
   .modal-btn.primary {
     background: linear-gradient(180deg, rgba(168, 58, 58, 0.3), rgba(168, 58, 58, 0.1));
     border-color: var(--crimson);
@@ -1666,6 +1748,51 @@
 
   .changelog-entry:last-of-type {
     border-bottom: none;
+  }
+
+  /* Highlighted feature entry (e.g. current version main release) */
+  .changelog-entry.changelog-feature {
+    padding: 18px 18px 14px;
+    background: linear-gradient(135deg, rgba(212, 168, 75, 0.12), rgba(212, 168, 75, 0.03));
+    border: 1px solid rgba(212, 168, 75, 0.45);
+    border-bottom: 1px solid rgba(212, 168, 75, 0.45);
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .changelog-entry.changelog-feature::before {
+    content: '★ NEW';
+    position: absolute;
+    top: -10px;
+    right: 14px;
+    background: var(--gold-deep);
+    color: #1a1410;
+    padding: 2px 10px;
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+  }
+
+  .changelog-entry.changelog-feature .changelog-version {
+    font-size: 22px;
+    color: var(--gold-bright);
+    margin-bottom: 4px;
+    text-shadow: 0 0 12px rgba(212, 168, 75, 0.3);
+  }
+
+  .changelog-tagline {
+    font-family: var(--font-cjk);
+    font-size: 14px;
+    color: var(--ink-bright);
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed rgba(212, 168, 75, 0.3);
+  }
+
+  .changelog-entry.changelog-feature .changelog-list li strong {
+    color: var(--gold-bright);
+    font-weight: 600;
   }
 
   .changelog-version {
@@ -2175,8 +2302,8 @@
   .upcoming-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 8px 12px;
+    gap: 10px;
+    padding: 8px 12px 8px 18px;
     background: var(--bg-deep);
     border: 1px solid rgba(212, 168, 75, 0.3);
     font-family: var(--font-cjk);
@@ -2190,9 +2317,38 @@
     left: 0;
     top: 0;
     bottom: 0;
-    width: 3px;
+    width: 4px;
+  }
+
+  /* Border color: triggering > ready > soon */
+  .upcoming-row.soon::before {
     background: var(--gold);
     box-shadow: 0 0 6px rgba(212, 168, 75, 0.5);
+  }
+  .upcoming-row.ready::before {
+    background: #67c98f;
+    box-shadow: 0 0 8px rgba(103, 201, 143, 0.6);
+  }
+  .upcoming-row.triggering::before {
+    background: #5fa8ff;
+    box-shadow: 0 0 10px rgba(95, 168, 255, 0.7);
+    animation: triggering-pulse 2.4s ease-in-out infinite;
+  }
+  .upcoming-row.triggering {
+    border-color: rgba(95, 168, 255, 0.4);
+  }
+  .upcoming-row.ready {
+    border-color: rgba(103, 201, 143, 0.4);
+  }
+
+  @keyframes triggering-pulse {
+    0%, 100% { opacity: 0.65; }
+    50% { opacity: 1; }
+  }
+
+  .upcoming-row .up-main {
+    flex: 1;
+    min-width: 0;
   }
 
   .upcoming-row .up-name {
@@ -2206,11 +2362,62 @@
     margin-left: 6px;
   }
 
+  .upcoming-row .up-trigger-count {
+    font-family: var(--font-cjk);
+    font-size: 12px;
+    color: var(--parchment-dim);
+    white-space: nowrap;
+  }
+  .upcoming-row.triggering .up-trigger-count {
+    color: #a3ccff;
+  }
+
+  .upcoming-row .up-trigger-btn {
+    background: var(--bg-card);
+    border: 1px solid var(--gold-deep);
+    color: var(--gold-bright);
+    padding: 4px 12px;
+    font-family: var(--font-cjk);
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+  .upcoming-row .up-trigger-btn:hover {
+    background: rgba(212, 168, 75, 0.15);
+    color: #ffffff;
+  }
+  .upcoming-row .up-trigger-btn.chosen {
+    background: rgba(95, 168, 255, 0.18);
+    border-color: rgba(95, 168, 255, 0.6);
+    color: #cce0ff;
+  }
+  .upcoming-row .up-trigger-btn.chosen:hover {
+    background: rgba(95, 168, 255, 0.28);
+    color: #ffffff;
+  }
+
   .upcoming-row .up-time {
     font-family: var(--font-mono);
     color: var(--gold-bright);
     font-size: 13px;
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    min-width: 56px;
+    text-align: right;
+  }
+  .upcoming-row.ready .up-time { color: #b2e3c2; }
+  .upcoming-row.triggering .up-time { color: #a3ccff; }
+
+  @media (max-width: 700px) {
+    .upcoming-row {
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .upcoming-row .up-main { flex: 1 1 100%; }
+    .upcoming-row .up-trigger-count { flex: 1; }
   }
 
   /* Responsive: stack vertically on narrow screens */
@@ -2525,7 +2732,7 @@
   <header>
     <div class="title-block">
       <h1>Eureka NM Tracker</h1>
-      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.3.2</button></div>
+      <div class="subtitle">優雷卡惡名菁英追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.4.0</button></div>
       <div class="auth-row">
         <div class="auth-box" id="authBox">
           <span class="auth-status-text" id="authStatusText">🔒 請登入</span>
@@ -2652,6 +2859,20 @@
 <div class="modal-backdrop" id="changelogBackdrop">
   <div class="modal" style="max-width: 520px; max-height: 70vh; overflow-y: auto;">
     <h3>📜 更新日誌</h3>
+	<div class="changelog-entry changelog-feature">
+      <div class="changelog-version">v2.4.0 <span class="changelog-date">— 2026/05/16</span></div>
+      <div class="changelog-tagline">「即將可觸發」大改造</div>
+      <ul class="changelog-list">
+        <li>✦ <strong>新增「觸發中」按鈕</strong>：登入後可標記正在觸發哪隻 NM，讓大家了解玩家流向</li>
+        <li>✦ <strong>「即將可觸發」清單擴展</strong>：10 分鐘內可觸發的 NM、已可觸發的全部都會出現</li>
+        <li>✦ <strong>邊條顏色三段制</strong>：藍 = 有人觸發中 / 綠 = 可觸發 / 黃 = 倒數中</li>
+        <li>✦ <strong>帕祖祖（PZZ）條件補正</strong>：強風 + 夜晚雙條件</li>
+        <li>✦ <strong>新增「取消新島重置」</strong>：5 分鐘內可反悔</li>
+        <li>✦ <strong>重要操作二段確認</strong>：出現回報、已死亡會跳確認視窗，防止誤觸</li>
+		<li> </li>
+		<li>✦ <strong>對不起我說謊，我說要休息但還是更新了</strong></li>
+      </ul>
+    </div>
 	<div class="changelog-entry">
       <div class="changelog-version">v2.3.2 <span class="changelog-date">— 2026/05/15</span></div>
       <ul class="changelog-list">
@@ -3253,7 +3474,7 @@
       label: '常風之地 Anemos',
       summary: '風蝕奇巖林立，疾風終年長嘯。',
       nms: [
-        { id: 'pazuzu', name: '帕祖祖', nickname: '島主(PZZ)', en: 'Pazuzu', fate: 'I Amm Bemhart', level: 20, weather: '強風', timeReq: null, drop: '帕祖祖的羽毛' },
+        { id: 'pazuzu', name: '帕祖祖', nickname: '島主(PZZ)', en: 'Pazuzu', fate: 'I Amm Bemhart', level: 20, weather: '強風', timeReq: '夜晚', drop: '帕祖祖的羽毛' },
       ],
     },
     pagos: {
@@ -3318,7 +3539,7 @@
   const AUTH_STORAGE_KEY = 'eureka_user_info';
 	
 　// Current build version — must match Firebase eureka/meta/currentVersion
-  const APP_VERSION = 'v2.3.2';
+  const APP_VERSION = 'v2.4.0';
   const metaRef = db.ref('eureka/meta');
 
   // Watch for version updates: if Firebase has a newer version, prompt reload
@@ -3376,6 +3597,9 @@ async function processAuthCallback() {
       attachUserFlagListener();
       await initUserTracking();
       attachSoundPrefsListener();
+      // Detect existing triggering choice (e.g. another tab) from current data
+      triggeringMyChoice = findMyTriggeringChoice();
+      updateUpcomingPanel();
       console.log('[auth] signed in as', name);
     } catch (err) {
       console.error('[auth] sign-in failed:', err);
@@ -3474,9 +3698,16 @@ async function processAuthCallback() {
     soundPrefs = { ...SOUND_DEFAULTS };
     loadGuestSoundPrefs();
     myUserFlag = null;
+    // Clear my triggering choice (best-effort, before clearing currentUser)
+    await clearMyTriggering().catch(() => {});
+    if (triggeringDisconnectHandler) {
+      try { triggeringDisconnectHandler.cancel(); } catch (e) {}
+      triggeringDisconnectHandler = null;
+    }
     currentUser = null;
     localStorage.removeItem(AUTH_STORAGE_KEY);
     updateAuthUI();
+    updateUpcomingPanel();
   }
 
   // Show "login required" modal when guest tries to write
@@ -3777,6 +4008,135 @@ async function processAuthCallback() {
     // line breaks
     html = html.replace(/\n/g, '<br>');
     return html;
+  }
+
+  /* ----------- TRIGGERING SYSTEM (誰正在觸發哪隻 NM) ----------- */
+  // Firebase schema: eureka/triggering/<nmId>/<discordId> = <timestamp>
+  // - Each Discord user can mark themselves as "triggering" exactly ONE NM at a time.
+  // - Switching to another NM auto-removes self from the previous one (mutex).
+  // - onDisconnect cleans up if the user closes tab / disconnects.
+  // - When an NM is reported as spawned, its entire triggering bucket is cleared.
+
+  const triggeringRef = db.ref('eureka/triggering');
+  let triggeringData = {};        // mirror of /triggering for fast lookups
+  let triggeringMyChoice = null;  // nmId I currently marked, or null
+  let triggeringListener = null;
+  let triggeringDisconnectHandler = null;
+
+  function countTriggering(nmId) {
+    const bucket = triggeringData[nmId];
+    if (!bucket) return 0;
+    return Object.keys(bucket).length;
+  }
+
+  function findMyTriggeringChoice() {
+    if (!currentUser) return null;
+    for (const [nmId, bucket] of Object.entries(triggeringData)) {
+      if (bucket && bucket[currentUser.id]) return nmId;
+    }
+    return null;
+  }
+
+  function attachTriggeringListener() {
+    if (triggeringListener) return;
+    triggeringListener = triggeringRef;
+    triggeringRef.on('value', (snap) => {
+      triggeringData = snap.val() || {};
+      // Reconcile local "my choice" with server state
+      const serverChoice = findMyTriggeringChoice();
+      // Only override if server differs (avoid clobbering optimistic update mid-flight)
+      if (serverChoice !== triggeringMyChoice) {
+        triggeringMyChoice = serverChoice;
+      }
+      updateUpcomingPanel();
+    });
+  }
+
+  function detachTriggeringListener() {
+    if (triggeringListener) {
+      try { triggeringListener.off(); } catch (e) {}
+      triggeringListener = null;
+    }
+    triggeringData = {};
+    triggeringMyChoice = null;
+    if (triggeringDisconnectHandler) {
+      try { triggeringDisconnectHandler.cancel(); } catch (e) {}
+      triggeringDisconnectHandler = null;
+    }
+  }
+
+  // Toggle: if already on this NM → remove; otherwise switch to this NM (and remove from previous)
+  async function toggleTriggering(nmId) {
+    if (!currentUser) { showLoginRequired(); return; }
+    if (isBanned()) { showBannedModal(); return; }
+
+    const uid = currentUser.id;
+    const prevChoice = triggeringMyChoice;
+
+    // Optimistic UI update
+    if (prevChoice === nmId) {
+      triggeringMyChoice = null;
+      // also optimistically remove from local mirror
+      if (triggeringData[nmId]) delete triggeringData[nmId][uid];
+    } else {
+      triggeringMyChoice = nmId;
+      // remove from previous bucket locally
+      if (prevChoice && triggeringData[prevChoice]) delete triggeringData[prevChoice][uid];
+      // add to new bucket locally
+      if (!triggeringData[nmId]) triggeringData[nmId] = {};
+      triggeringData[nmId][uid] = Date.now();
+    }
+    updateUpcomingPanel();
+
+    // Cancel old onDisconnect (we'll register a new one if we have a choice)
+    if (triggeringDisconnectHandler) {
+      try { triggeringDisconnectHandler.cancel(); } catch (e) {}
+      triggeringDisconnectHandler = null;
+    }
+
+    // Build atomic update: remove self from ALL nmIds, then set self on chosen one (if any)
+    const updates = {};
+    Object.keys(triggeringData).forEach(otherNm => {
+      // Remove self from all buckets
+      updates[`${otherNm}/${uid}`] = null;
+    });
+    if (triggeringMyChoice) {
+      updates[`${triggeringMyChoice}/${uid}`] = Date.now();
+    }
+
+    try {
+      await triggeringRef.update(updates);
+      // Re-register onDisconnect for the new choice
+      if (triggeringMyChoice) {
+        triggeringDisconnectHandler = triggeringRef.child(triggeringMyChoice).child(uid).onDisconnect();
+        triggeringDisconnectHandler.remove();
+      }
+    } catch (e) {
+      console.warn('[triggering] update failed', e);
+      // Rollback optimistic UI
+      triggeringMyChoice = prevChoice;
+      updateUpcomingPanel();
+    }
+  }
+
+  // Clear self from triggering on logout
+  async function clearMyTriggering() {
+    if (!currentUser) return;
+    const uid = currentUser.id;
+    const updates = {};
+    Object.keys(triggeringData).forEach(otherNm => {
+      updates[`${otherNm}/${uid}`] = null;
+    });
+    try {
+      await triggeringRef.update(updates);
+    } catch (e) {}
+    triggeringMyChoice = null;
+  }
+
+  // Clear ALL triggers for a specific NM (called when that NM is reported as spawned)
+  // Returns Firebase update fragment to merge into the report's updates batch.
+  function buildClearTriggeringForNm(nmId) {
+    return { [`triggering/${nmId}`]: null };
   }
 
   /* ----------- SOUND ALERT SYSTEM ----------- */
@@ -5285,6 +5645,7 @@ async function checkAndRecordAction(actionType) {
           <button class="map-btn" data-zone="${zoneId}">🗺 島嶼地圖</button>
           <button class="history-btn-toolbar">📜 歷史紀錄</button>
           <button class="new-instance-btn" data-zone="${zoneId}">⟁ 新島重置</button>
+          <button class="cancel-reset-btn" data-zone="${zoneId}" style="display:none;">↺ 取消重置</button>
         </div>
       `;
       section.appendChild(toolbar);
@@ -5494,19 +5855,18 @@ async function checkAndRecordAction(actionType) {
   }
 
   /* ----------- UPCOMING TRIGGERS ----------- */
-  // Scans all NMs across all zones; returns NMs that will become triggerable within the next 5 min.
+  // Scans all NMs across all zones; returns NMs that are currently triggerable OR
+  // will become triggerable within the next 10 minutes.
   //
-  // Rules (per spec):
-  // 1. No-condition NM: lastSpawn exists AND CD ends within 5m → include
-  //    (newly reset zones with no spawn record → exclude)
-  // 2. Weather/night NM:
-  //    (a) lastSpawn exists, CD already ended, condition starts within 5m → include
-  //    (b) lastSpawn exists, CD ends within 5m, condition currently satisfied → include
-  //    (c) Newly reset zone, no spawn record, condition currently satisfied → include
-  const UPCOMING_THRESHOLD_MS = 5 * 60 * 1000;
+  // Inclusion rules:
+  // 1. No-condition NM: included if currently ready (no CD or CD expired & spawn exists)
+  //    OR CD ends within 10m. Newly reset zones with no spawn → excluded.
+  // 2. With-condition NM: included if (CD expired or expires in 10m) AND
+  //    (condition currently satisfied OR will be within 10m).
+  //    For fresh zones (no spawn): only show if condition currently satisfied.
+  const UPCOMING_THRESHOLD_MS = 10 * 60 * 1000;
 
   function getUpcomingTriggers() {
-    const now = Date.now();
     const out = [];
 
     Object.entries(NM_DATA).forEach(([zoneId, zoneData]) => {
@@ -5514,7 +5874,6 @@ async function checkAndRecordAction(actionType) {
         const info = getNmStatus(zoneId, nm);
         const hasCondition = !!(nm.weather || nm.timeReq);
 
-        // condition currently satisfied?
         const conditionSatisfied = (() => {
           if (!hasCondition) return true;
           if (nm.weather && !(info.weatherInfo && info.weatherInfo.isCurrent)) return false;
@@ -5522,7 +5881,6 @@ async function checkAndRecordAction(actionType) {
           return true;
         })();
 
-        // condition will start in how many ms? (Infinity if not applicable, 0 if already satisfied)
         const conditionStartsInMs = (() => {
           if (!hasCondition) return 0;
           if (conditionSatisfied) return 0;
@@ -5536,44 +5894,44 @@ async function checkAndRecordAction(actionType) {
           return earliestMs;
         })();
 
-        // CD remaining (0 if already expired)
         const cdRemainingMs = info.cooldownMsRemaining;
 
         let triggerInMs = null;
         let reasonLabel = '';
 
         if (!hasCondition) {
-          // Rule 1: no condition — only show if CD ending within 5m
-          if (info.lastSpawn && cdRemainingMs > 0 && cdRemainingMs <= UPCOMING_THRESHOLD_MS) {
-            triggerInMs = cdRemainingMs;
-            reasonLabel = '冷卻結束';
+          if (info.lastSpawn) {
+            // Has spawn record: include if CD already over OR ending within 10m
+            if (cdRemainingMs <= 0) {
+              triggerInMs = 0;
+              reasonLabel = '可以觸發';
+            } else if (cdRemainingMs <= UPCOMING_THRESHOLD_MS) {
+              triggerInMs = cdRemainingMs;
+              reasonLabel = '冷卻結束';
+            }
           }
-          // No-condition NM that's "ready now" (CD expired or never spawned) → not in upcoming
+          // Fresh zone no-condition NMs → don't include (per spec)
         } else {
-          // Has condition (weather or night)
-          // Trigger fires when BOTH: CD has expired AND condition is satisfied
-          // So effective "ready time" = max(cdRemainingMs, conditionStartsInMs)
           if (!info.lastSpawn) {
-            // No spawn record (newly reset or fresh zone)
-            // Rule 3: only show if current condition satisfied
+            // Fresh zone: only show if condition currently satisfied
             if (conditionSatisfied) {
               triggerInMs = 0;
               reasonLabel = '可以觸發';
             }
-            // condition not satisfied → don't show (per rule 3)
           } else {
-            // Has spawn record: show if both CD and condition will be ready within 5m
             const effectiveTriggerMs = Math.max(cdRemainingMs, conditionStartsInMs);
             if (effectiveTriggerMs <= UPCOMING_THRESHOLD_MS) {
               triggerInMs = effectiveTriggerMs;
               if (effectiveTriggerMs <= 0) {
                 reasonLabel = '可以觸發';
               } else if (cdRemainingMs >= conditionStartsInMs) {
-                // CD is the bottleneck → labeled as "cooldown ending"
                 reasonLabel = '冷卻結束';
               } else {
-                // Condition is the bottleneck → labeled with the condition
-                reasonLabel = nm.weather || '夜晚';
+                // Condition is the bottleneck → label with which condition
+                const labels = [];
+                if (nm.weather && !(info.weatherInfo && info.weatherInfo.isCurrent)) labels.push(nm.weather);
+                if (nm.timeReq === '夜晚' && !(info.nightInfo && info.nightInfo.isNight)) labels.push('夜晚');
+                reasonLabel = labels.join(' + ') || nm.weather || '夜晚';
               }
             }
           }
@@ -5587,6 +5945,7 @@ async function checkAndRecordAction(actionType) {
             zoneLabel: zoneData.label,
             triggerInMs,
             reasonLabel,
+            isReadyNow: triggerInMs <= 0,
           });
         }
       });
@@ -5606,15 +5965,29 @@ async function checkAndRecordAction(actionType) {
       body.innerHTML = '<div class="strip-empty">無即將可觸發 NM</div>';
       return;
     }
+    const myTriggering = triggeringMyChoice; // nmId or null
     let html = '';
     list.forEach(item => {
-      const timeText = item.triggerInMs <= 0 ? '現在' : formatUpcomingTime(item.triggerInMs);
+      const timeText = item.isReadyNow ? '現在' : formatUpcomingTime(item.triggerInMs);
+      const triggerCount = countTriggering(item.nmId);
+      const meChosen = myTriggering === item.nmId;
+      // Border color priority: triggering > ready > upcoming
+      let rowClass = 'upcoming-row';
+      if (triggerCount > 0) rowClass += ' triggering';
+      else if (item.isReadyNow) rowClass += ' ready';
+      else rowClass += ' soon';
+
+      const btnLabel = meChosen ? '取消觸發' : '觸發++';
+      const btnClass = meChosen ? 'up-trigger-btn chosen' : 'up-trigger-btn';
+
       html += `
-        <div class="upcoming-row" data-nm="${item.nmId}">
-          <div>
+        <div class="${rowClass}" data-nm="${item.nmId}">
+          <div class="up-main">
             <span class="up-name">${item.nm.name}</span>
             <span class="up-cond">（${item.reasonLabel}）</span>
           </div>
+          <div class="up-trigger-count">觸發中 ${triggerCount} 人</div>
+          <button class="${btnClass}" data-action="toggle-trigger" data-nm="${item.nmId}">${btnLabel}</button>
           <span class="up-time">${timeText}</span>
         </div>`;
     });
@@ -5627,7 +6000,7 @@ async function checkAndRecordAction(actionType) {
     if (sec < 60) return `${sec}s`;
     const min = Math.floor(sec / 60);
     const remSec = sec % 60;
-    if (min < 5) return `${min}m ${String(remSec).padStart(2, '0')}s`;
+    if (min < 10) return `${min}m ${String(remSec).padStart(2, '0')}s`;
     return `${min}m`;
   }
 
@@ -5637,7 +6010,7 @@ async function checkAndRecordAction(actionType) {
     updateUpcomingPanel();
   }
   
-  // Refresh new-instance buttons to show cooldown countdown
+  // Refresh new-instance buttons to show cooldown countdown + cancel-reset button visibility
   function tickNewInstanceCooldown() {
     const now = Date.now();
     document.querySelectorAll('.new-instance-btn').forEach(btn => {
@@ -5655,6 +6028,18 @@ async function checkAndRecordAction(actionType) {
         btn.textContent = '⟁ 新島重置';
         btn.style.opacity = '';
         btn.style.cursor = '';
+      }
+    });
+    // Cancel-reset button visibility: show only if zone has an undoable reset within last 5min
+    document.querySelectorAll('.cancel-reset-btn').forEach(btn => {
+      const zone = btn.dataset.zone;
+      const target = findUndoableReset(zone);
+      if (target) {
+        const remainingSec = Math.ceil((CANCEL_RESET_WINDOW_MS - (now - target.h.occurredAt)) / 1000);
+        btn.style.display = '';
+        btn.textContent = `↺ 取消重置 (${remainingSec}s)`;
+      } else {
+        btn.style.display = 'none';
       }
     });
   }
@@ -5887,6 +6272,35 @@ async function checkAndRecordAction(actionType) {
     if (opts.afterShow) setTimeout(opts.afterShow, 0);
   }
 
+  // Two-step confirmation for NM actions (report/kill). Shows NM name, zone,
+  // condition tags, and a reserved image slot for future #3 implementation.
+  function showNmConfirmModal(nm, zoneLabel, actionLabel, onConfirm) {
+    const condTags = [];
+    if (nm.weather) condTags.push(`<span class="nm-confirm-tag weather">⛅ ${nm.weather}</span>`);
+    if (nm.timeReq) condTags.push(`<span class="nm-confirm-tag night">☾ ${nm.timeReq}</span>`);
+    if (!nm.weather && !nm.timeReq) condTags.push(`<span class="nm-confirm-tag none">無條件</span>`);
+
+    const extraHtml = `
+      <div class="nm-confirm-card">
+        <div class="nm-confirm-img-slot" title="後續版本將添加 NM 圖片">
+          <span>🎴</span>
+        </div>
+        <div class="nm-confirm-info">
+          <div class="nm-confirm-name">${escapeHtml(nm.name)} <span class="nm-confirm-nick">· ${escapeHtml(nm.nickname || '')}</span></div>
+          <div class="nm-confirm-zone">${escapeHtml(zoneLabel)} · Lv ${nm.level}</div>
+          <div class="nm-confirm-tags">${condTags.join('')}</div>
+        </div>
+      </div>
+    `;
+
+    showModal(
+      actionLabel,
+      '',
+      onConfirm,
+      { extraHtml, confirmText: '確認', cancelText: '取消' }
+    );
+  }
+
   /* --- manual time input --- */
   // Format a Date as HH:MM (local 24h)
   function fmtHM(date) {
@@ -6002,7 +6416,9 @@ async function checkAndRecordAction(actionType) {
         checkAndRecordAction('manual_report').then((allowed) => {
           if (!allowed) return;
           const updates = buildManualSpawnUpdates(nmId, ts);
-          applyUpdates(updates).then(() => {
+          applyUpdates(updates).then(async () => {
+            // Clear triggering bucket for this NM
+            try { await triggeringRef.child(nmId).remove(); } catch (e) {}
             logUserAction('manual_report', { nmId, timestamp: ts });
             updateCards();
             updateActivePanel();
@@ -6097,6 +6513,8 @@ async function checkAndRecordAction(actionType) {
     }
 
     await applyUpdates(updates);
+    // Clear triggering bucket for this NM (independent path, outside stateRef)
+    try { await triggeringRef.child(nmId).remove(); } catch (e) { /* non-fatal */ }
     logUserAction('report', { nmId, zone });
     // local state will be updated by the snapshot listener; updateCards/updateActivePanel
     // will be called automatically. But trigger a render in case the update is slow.
@@ -6119,6 +6537,8 @@ async function checkAndRecordAction(actionType) {
     updateActivePanel();
   }
 
+  const CANCEL_RESET_WINDOW_MS = 5 * 60 * 1000; // 5 minutes — within this window, the reset can be undone
+
   async function handleNewInstance(zone) {
     if (!requireLogin()) return;
     if (isBanned()) { showBannedModal(); return; }
@@ -6130,13 +6550,24 @@ async function checkAndRecordAction(actionType) {
     const now = Date.now();
     const updates = {};
 
+    // Capture pre-reset state for potential undo (only NMs in this zone)
+    const snapshotSpawns = {};
+    NM_DATA[zone].nms.forEach(nm => {
+      if (state.spawns[nm.id]) snapshotSpawns[nm.id] = state.spawns[nm.id];
+    });
+    const snapshotActiveEvents = {};
+    Object.entries(state.activeEvents).forEach(([id, ev]) => {
+      if (ev.zone === zone) snapshotActiveEvents[id] = ev;
+    });
+    const snapshotPrevReset = state.instanceResets[zone] || null;
+
     updates[`instanceResets/${zone}`] = now;
     NM_DATA[zone].nms.forEach(nm => { updates[`spawns/${nm.id}`] = null; });
     Object.entries(state.activeEvents).forEach(([id, ev]) => {
       if (ev.zone === zone) updates[`activeEvents/${id}`] = null;
     });
 
-    // record reset in history (compute the path locally)
+    // record reset in history (compute the path locally) — store snapshot for undo
     const resetId = `h_reset_${zone}_${now}`;
     updates[`history/${resetId}`] = {
       type: 'reset',
@@ -6145,10 +6576,58 @@ async function checkAndRecordAction(actionType) {
       reportedBy: reporter,
       createdAt: now,
       updatedAt: now,
+      // Snapshot data (used to undo within 5 minutes)
+      _snapshot: {
+        spawns: snapshotSpawns,
+        activeEvents: snapshotActiveEvents,
+        prevReset: snapshotPrevReset,
+      },
     };
 
     await applyUpdates(updates);
     logUserAction('reset', { zone });
+    updateCards();
+    updateActivePanel();
+    updateHistoryModal();
+  }
+
+  // Find the most recent undoable reset for a given zone (within 5min)
+  function findUndoableReset(zone) {
+    const now = Date.now();
+    let latest = null;
+    Object.entries(state.history || {}).forEach(([id, h]) => {
+      if (h.type !== 'reset' || h.zone !== zone) return;
+      if (!h._snapshot) return; // legacy resets without snapshot can't be undone
+      if (now - h.occurredAt > CANCEL_RESET_WINDOW_MS) return;
+      if (!latest || h.occurredAt > latest.h.occurredAt) {
+        latest = { id, h };
+      }
+    });
+    return latest;
+  }
+
+  async function handleCancelInstanceReset(zone) {
+    if (!requireLogin()) return;
+    if (isBanned()) { showBannedModal(); return; }
+    const target = findUndoableReset(zone);
+    if (!target) return;
+
+    const updates = {};
+    // Restore previous instanceReset timestamp (or null)
+    updates[`instanceResets/${zone}`] = target.h._snapshot.prevReset || null;
+    // Restore spawns
+    Object.entries(target.h._snapshot.spawns || {}).forEach(([nmId, ts]) => {
+      updates[`spawns/${nmId}`] = ts;
+    });
+    // Restore active events
+    Object.entries(target.h._snapshot.activeEvents || {}).forEach(([evtId, ev]) => {
+      updates[`activeEvents/${evtId}`] = ev;
+    });
+    // Delete the reset history entry
+    updates[`history/${target.id}`] = null;
+
+    await applyUpdates(updates);
+    logUserAction('cancel_reset', { zone });
     updateCards();
     updateActivePanel();
     updateHistoryModal();
@@ -6660,7 +7139,15 @@ async function checkAndRecordAction(actionType) {
       apBody.addEventListener('click', (e) => {
         const btn = e.target.closest('button[data-action="kill-event"]');
         if (btn) {
-          handleKillEvent(btn.dataset.evt);
+          // Two-step confirmation
+          const evtId = btn.dataset.evt;
+          const ev = (state.activeEvents || {})[evtId];
+          if (!ev) return;
+          const nm = findNm(ev.nmId);
+          const zoneLabel = NM_DATA[ev.zone] ? NM_DATA[ev.zone].label : '';
+          if (nm) {
+            showNmConfirmModal(nm, zoneLabel, `確認「${nm.name}」已被擊殺？`, () => handleKillEvent(evtId));
+          }
         }
       });
       // commit pull-time on Enter or blur
@@ -6681,6 +7168,17 @@ async function checkAndRecordAction(actionType) {
           updateActivePanel();
         }
       }, true);
+    }
+
+    // Status strip (right section): triggering toggle button
+    const upBody = document.getElementById('stripUpcomingBody');
+    if (upBody) {
+      upBody.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-action="toggle-trigger"]');
+        if (btn) {
+          toggleTriggering(btn.dataset.nm);
+        }
+      });
     }
 
     // version button -> changelog modal
@@ -6714,14 +7212,27 @@ async function checkAndRecordAction(actionType) {
           `將清除 ${NM_DATA[zone].label} 全部 NM 的冷卻紀錄。`,
           () => handleNewInstance(zone)
         );
+      } else if (btn.classList.contains('cancel-reset-btn')) {
+        const zone = btn.dataset.zone;
+        showModal(
+          '取消新島重置',
+          `將還原 ${NM_DATA[zone].label} 重置前的所有 NM 計時數據。`,
+          () => handleCancelInstanceReset(zone)
+        );
       } else if (btn.classList.contains('map-btn')) {
         openMapViewer(btn.dataset.zone || activeZone);
       } else if (btn.classList.contains('history-btn-toolbar')) {
         updateHistoryModal();
         document.getElementById('historyBackdrop').classList.add('active');
       } else if (btn.dataset.action === 'report') {
-        // direct-fire: no confirmation
-        handleReport(btn.dataset.nm);
+        // Two-step confirmation (helps avoid accidental clicks)
+        const nmId = btn.dataset.nm;
+        const nm = findNm(nmId);
+        const zoneId = findZoneOfNm(nmId);
+        const zoneLabel = zoneId ? NM_DATA[zoneId].label : '';
+        if (nm) {
+          showNmConfirmModal(nm, zoneLabel, `確認回報「${nm.name}」已出現？`, () => handleReport(nmId));
+        }
       } else if (btn.dataset.action === 'manual-time') {
         openManualTimeModal(btn.dataset.nm);
       } else if (btn.dataset.action === 'reset-single') {
@@ -6757,11 +7268,15 @@ async function checkAndRecordAction(actionType) {
     wireSoundSettings();
     attachAudioUnlock();
 
+    // Triggering system: everyone (incl. guests) reads to display counts
+    attachTriggeringListener();
+
     // If we have a cached login, start watching our flag and sound prefs
     if (currentUser) {
       attachUserFlagListener();
       initUserTracking();
       attachSoundPrefsListener();
+      triggeringMyChoice = findMyTriggeringChoice();
     }
 
     // Wire up "login required" modal close button
@@ -6937,6 +7452,23 @@ async function checkAndRecordAction(actionType) {
     setInterval(() => {
       if (isLoggedIn()) checkSurveyEligibility();
     }, 5 * 60 * 1000);
+
+    // First-time-on-this-version: auto-show changelog modal
+    maybeShowFirstTimeChangelog();
+  }
+
+  // Show changelog automatically the first time a user lands on a new version
+  function maybeShowFirstTimeChangelog() {
+    const key = `seen_version_${APP_VERSION}`;
+    try {
+      if (localStorage.getItem(key)) return; // already seen this version
+      localStorage.setItem(key, '1');
+    } catch (e) { return; }
+    // Wait a moment so it doesn't interrupt initial page load animations
+    setTimeout(() => {
+      const bd = document.getElementById('changelogBackdrop');
+      if (bd) bd.classList.add('active');
+    }, 800);
   }
 
   boot();
