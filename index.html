@@ -2356,6 +2356,13 @@
     font-weight: 600;
   }
 
+  .upcoming-row .up-zone {
+    color: var(--gold-bright);
+    font-size: 11px;
+    margin-left: 6px;
+    opacity: 0.75;
+  }
+
   .upcoming-row .up-cond {
     color: var(--parchment-dim);
     font-size: 11px;
@@ -2732,7 +2739,7 @@
   <header>
     <div class="title-block">
       <h1>Eureka NM Tracker</h1>
-      <div class="subtitle">優雷卡惡名菁英追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.4.0</button></div>
+      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.4.1</button></div>
       <div class="auth-row">
         <div class="auth-box" id="authBox">
           <span class="auth-status-text" id="authStatusText">🔒 請登入</span>
@@ -2859,18 +2866,27 @@
 <div class="modal-backdrop" id="changelogBackdrop">
   <div class="modal" style="max-width: 520px; max-height: 70vh; overflow-y: auto;">
     <h3>📜 更新日誌</h3>
-	<div class="changelog-entry changelog-feature">
-      <div class="changelog-version">v2.4.0 <span class="changelog-date">— 2026/05/16</span></div>
-      <div class="changelog-tagline">「即將可觸發」大改造</div>
+
+    <div class="changelog-entry changelog-feature">
+      <div class="changelog-version">v2.4.1 <span class="changelog-date">— 2026/05/18</span></div>
+      <div class="changelog-tagline">🛠 Bug Fix</div>
       <ul class="changelog-list">
-        <li>✦ <strong>新增「觸發中」按鈕</strong>：登入後可標記正在觸發哪隻 NM，讓大家了解玩家流向</li>
-        <li>✦ <strong>「即將可觸發」清單擴展</strong>：10 分鐘內可觸發的 NM、已可觸發的全部都會出現</li>
-        <li>✦ <strong>邊條顏色三段制</strong>：藍 = 有人觸發中 / 綠 = 可觸發 / 黃 = 倒數中</li>
-        <li>✦ <strong>帕祖祖（PZZ）條件補正</strong>：強風 + 夜晚雙條件</li>
-        <li>✦ <strong>新增「取消新島重置」</strong>：5 分鐘內可反悔</li>
-        <li>✦ <strong>重要操作二段確認</strong>：出現回報、已死亡會跳確認視窗，防止誤觸</li>
-		<li> </li>
-		<li>對不起我說謊，我說要休息但還是更新了</li>
+        <li>✦ <strong>修復了可觸發 NM 未正確顯示的問題</strong></li>
+        <li>✦ <strong>修復了帕祖祖在可觸發區域條件時間顯示錯誤的問題</strong></li>
+        <li>✦ <strong>修復了 NM 未取消觸發，下次 NM 出現時自動選取觸發的問題</strong></li>
+        <li>✦ <strong>為可觸發區域的 NM 新增了島嶼資訊</strong></li>
+      </ul>
+    </div>
+
+    <div class="changelog-entry">
+      <div class="changelog-version">v2.4.0 <span class="changelog-date">— 2026/05/16</span></div>
+      <ul class="changelog-list">
+        <li>✦ 新增「觸發中」按鈕：登入後可標記正在觸發哪隻 NM，讓大家了解玩家流向</li>
+        <li>✦ 「即將可觸發」清單擴展：10 分鐘內可觸發的 NM、已可觸發的全部都會出現</li>
+        <li>✦ 邊條顏色三段制：藍 = 有人觸發中 / 綠 = 可觸發 / 黃 = 倒數中</li>
+        <li>✦ 帕祖祖（PZZ）條件補正：強風 + 夜晚雙條件</li>
+        <li>✦ 新增「取消新島重置」：5 分鐘內可反悔</li>
+        <li>✦ 重要操作二段確認：出現回報、已死亡會跳確認視窗，防止誤觸</li>
       </ul>
     </div>
 	<div class="changelog-entry">
@@ -3539,7 +3555,7 @@
   const AUTH_STORAGE_KEY = 'eureka_user_info';
 	
 　// Current build version — must match Firebase eureka/meta/currentVersion
-  const APP_VERSION = 'v2.4.0';
+  const APP_VERSION = 'v2.4.1';
   const metaRef = db.ref('eureka/meta');
 
   // Watch for version updates: if Firebase has a newer version, prompt reload
@@ -4041,12 +4057,25 @@ async function processAuthCallback() {
     if (triggeringListener) return;
     triggeringListener = triggeringRef;
     triggeringRef.on('value', (snap) => {
-      triggeringData = snap.val() || {};
-      // Reconcile local "my choice" with server state
-      const serverChoice = findMyTriggeringChoice();
-      // Only override if server differs (avoid clobbering optimistic update mid-flight)
-      if (serverChoice !== triggeringMyChoice) {
-        triggeringMyChoice = serverChoice;
+      const newData = snap.val() || {};
+      // Safety check: if my previously chosen NM no longer has me listed (e.g. cleared
+      // by spawn report or by onDisconnect), clear my local choice immediately.
+      if (currentUser && triggeringMyChoice) {
+        const stillThere = newData[triggeringMyChoice] && newData[triggeringMyChoice][currentUser.id];
+        if (!stillThere) {
+          triggeringMyChoice = null;
+          // Also cancel any dangling onDisconnect handler
+          if (triggeringDisconnectHandler) {
+            try { triggeringDisconnectHandler.cancel(); } catch (e) {}
+            triggeringDisconnectHandler = null;
+          }
+        }
+      }
+      triggeringData = newData;
+      // If we still don't have a choice but server says we do (e.g. another tab), pick it up
+      if (currentUser && !triggeringMyChoice) {
+        const serverChoice = findMyTriggeringChoice();
+        if (serverChoice) triggeringMyChoice = serverChoice;
       }
       updateUpcomingPanel();
     });
@@ -5881,17 +5910,20 @@ async function checkAndRecordAction(actionType) {
           return true;
         })();
 
+        // Time until ALL unmet conditions are satisfied.
+        // For multi-condition NMs (e.g. PZZ = 強風 + 夜晚), we need BOTH satisfied,
+        // so take the LATEST (Math.max) — not earliest.
         const conditionStartsInMs = (() => {
           if (!hasCondition) return 0;
           if (conditionSatisfied) return 0;
-          let earliestMs = Infinity;
+          let latestMs = 0;
           if (nm.weather && info.weatherInfo && !info.weatherInfo.isCurrent) {
-            earliestMs = Math.min(earliestMs, info.weatherInfo.startsIn * 1000);
+            latestMs = Math.max(latestMs, info.weatherInfo.startsIn * 1000);
           }
           if (nm.timeReq === '夜晚' && info.nightInfo && !info.nightInfo.isNight) {
-            earliestMs = Math.min(earliestMs, info.nightInfo.secondsUntilTransition * 1000);
+            latestMs = Math.max(latestMs, info.nightInfo.secondsUntilTransition * 1000);
           }
-          return earliestMs;
+          return latestMs || Infinity;
         })();
 
         const cdRemainingMs = info.cooldownMsRemaining;
@@ -5900,25 +5932,36 @@ async function checkAndRecordAction(actionType) {
         let reasonLabel = '';
 
         if (!hasCondition) {
-          if (info.lastSpawn) {
-            // Has spawn record: include if CD already over OR ending within 10m
-            if (cdRemainingMs <= 0) {
-              triggerInMs = 0;
-              reasonLabel = '可以觸發';
-            } else if (cdRemainingMs <= UPCOMING_THRESHOLD_MS) {
-              triggerInMs = cdRemainingMs;
-              reasonLabel = '冷卻結束';
-            }
-          }
-          // Fresh zone no-condition NMs → don't include (per spec)
-        } else {
+          // No-condition NM
           if (!info.lastSpawn) {
-            // Fresh zone: only show if condition currently satisfied
+            // Fresh zone, no spawn record → currently triggerable
+            triggerInMs = 0;
+            reasonLabel = '可以觸發';
+          } else if (cdRemainingMs <= 0) {
+            // CD expired
+            triggerInMs = 0;
+            reasonLabel = '可以觸發';
+          } else if (cdRemainingMs <= UPCOMING_THRESHOLD_MS) {
+            // CD ending within 10m
+            triggerInMs = cdRemainingMs;
+            reasonLabel = '冷卻結束';
+          }
+        } else {
+          // With condition (weather/night)
+          if (!info.lastSpawn) {
+            // Fresh zone, no spawn record — show if condition is or will-soon-be satisfied
             if (conditionSatisfied) {
               triggerInMs = 0;
               reasonLabel = '可以觸發';
+            } else if (conditionStartsInMs <= UPCOMING_THRESHOLD_MS) {
+              triggerInMs = conditionStartsInMs;
+              const labels = [];
+              if (nm.weather && !(info.weatherInfo && info.weatherInfo.isCurrent)) labels.push(nm.weather);
+              if (nm.timeReq === '夜晚' && !(info.nightInfo && info.nightInfo.isNight)) labels.push('夜晚');
+              reasonLabel = labels.join(' + ') || nm.weather || '夜晚';
             }
           } else {
+            // Has spawn record — need BOTH cd cleared AND condition satisfied
             const effectiveTriggerMs = Math.max(cdRemainingMs, conditionStartsInMs);
             if (effectiveTriggerMs <= UPCOMING_THRESHOLD_MS) {
               triggerInMs = effectiveTriggerMs;
@@ -5927,7 +5970,6 @@ async function checkAndRecordAction(actionType) {
               } else if (cdRemainingMs >= conditionStartsInMs) {
                 reasonLabel = '冷卻結束';
               } else {
-                // Condition is the bottleneck → label with which condition
                 const labels = [];
                 if (nm.weather && !(info.weatherInfo && info.weatherInfo.isCurrent)) labels.push(nm.weather);
                 if (nm.timeReq === '夜晚' && !(info.nightInfo && info.nightInfo.isNight)) labels.push('夜晚');
@@ -5984,6 +6026,7 @@ async function checkAndRecordAction(actionType) {
         <div class="${rowClass}" data-nm="${item.nmId}">
           <div class="up-main">
             <span class="up-name">${item.nm.name}</span>
+            <span class="up-zone">[${item.zoneLabel}]</span>
             <span class="up-cond">（${item.reasonLabel}）</span>
           </div>
           <div class="up-trigger-count">觸發中 ${triggerCount} 人</div>
