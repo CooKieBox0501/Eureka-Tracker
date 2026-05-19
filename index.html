@@ -16,6 +16,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-storage-compat.js"></script>
 <style>
   /*
     =================================
@@ -324,6 +325,99 @@
 
   .zone-tab.active {
     color: var(--ink-bright);
+  }
+
+  /* New island badge — small dot on the top-right corner of the zone tab */
+  .zone-tab[data-new="true"]::before {
+    content: 'NEW';
+    position: absolute;
+    top: 6px;
+    right: 4px;
+    background: linear-gradient(135deg, #d4a84b, #f0c768);
+    color: #1a1410;
+    font-family: var(--font-display);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 1px 5px;
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(212, 168, 75, 0.6);
+    animation: new-badge-pulse 1.8s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes new-badge-pulse {
+    0%, 100% { opacity: 0.85; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.06); }
+  }
+
+  /* Zone sub-tabs (current / old island) — appears only when old island data exists */
+  .zone-subtabs {
+    display: flex;
+    gap: 6px;
+    padding: 8px 14px 0;
+    margin-top: -8px;
+    margin-bottom: 14px;
+    border-top: 1px dotted rgba(255, 255, 255, 0.08);
+    padding-top: 10px;
+  }
+  .zone-subtab {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--ink-faded);
+    padding: 5px 14px;
+    font-family: var(--font-cjk);
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .zone-subtab:hover {
+    color: var(--ink-bright);
+    border-color: var(--border-light);
+  }
+  .zone-subtab.active {
+    color: var(--gold-bright);
+    border-color: var(--gold-deep);
+    background: rgba(212, 168, 75, 0.08);
+  }
+  .zone-subtab[data-sub="old"] {
+    color: #c8b6e8;
+    border-color: rgba(200, 182, 232, 0.3);
+  }
+  .zone-subtab[data-sub="old"].active {
+    color: #e0d5f5;
+    background: rgba(200, 182, 232, 0.12);
+    border-color: rgba(200, 182, 232, 0.6);
+  }
+
+  /* Old island content area: frozen mode visual */
+  #zoneContainer.viewing-old {
+    position: relative;
+  }
+  #zoneContainer.viewing-old::before {
+    content: '🔒 舊島檢視模式（凍結，僅可結算）';
+    display: block;
+    padding: 8px 14px;
+    background: rgba(200, 182, 232, 0.1);
+    border: 1px solid rgba(200, 182, 232, 0.3);
+    color: #c8b6e8;
+    font-family: var(--font-cjk);
+    font-size: 12px;
+    margin-bottom: 12px;
+    text-align: center;
+    letter-spacing: 0.1em;
+  }
+  #zoneContainer.viewing-old .nm-card .report-btn,
+  #zoneContainer.viewing-old .nm-card .manual-time-btn,
+  #zoneContainer.viewing-old .nm-card .reset-btn {
+    pointer-events: none;
+    opacity: 0.3;
+    cursor: not-allowed;
+    filter: grayscale(1);
+  }
+  #zoneContainer.viewing-old .zone-toolbar-buttons {
+    display: none !important;
   }
 
   .zone-tab.active::after {
@@ -2406,6 +2500,18 @@
     color: #ffffff;
   }
 
+  .upcoming-row .up-cond-rem {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--parchment-dim);
+    white-space: nowrap;
+    opacity: 0.8;
+  }
+  .upcoming-row.ready .up-cond-rem,
+  .upcoming-row.triggering .up-cond-rem {
+    color: rgba(178, 227, 194, 0.7);
+  }
+
   .upcoming-row .up-time {
     font-family: var(--font-mono);
     color: var(--gold-bright);
@@ -2551,6 +2657,42 @@
     transform: translateX(20px);
   }
 
+  /* Sound effect select dropdown */
+  .sound-select {
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    color: var(--ink-bright);
+    padding: 5px 10px;
+    font-family: var(--font-cjk);
+    font-size: 12px;
+    cursor: pointer;
+    min-width: 130px;
+  }
+  .sound-select:focus {
+    outline: none;
+    border-color: var(--gold-deep);
+  }
+
+  /* Small variant of modal button */
+  .modal-btn.small {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+
+  /* Inline-link style button */
+  .link-btn {
+    background: transparent;
+    border: none;
+    color: #f0a8a8;
+    cursor: pointer;
+    font-size: 11px;
+    text-decoration: underline;
+    padding: 0;
+  }
+  .link-btn:hover {
+    color: #ffdada;
+  }
+
   .sound-perNm-tabs {
     display: flex;
     gap: 4px;
@@ -2576,6 +2718,85 @@
     border-bottom-color: var(--gold-deep);
   }
 
+  /* ============ 24HR WEATHER FORECAST MODAL ============ */
+  .weather-forecast-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+  .wf-zone {
+    border: 1px solid var(--border);
+    background: var(--bg-deep);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .wf-zone-header {
+    padding: 10px 12px;
+    background: linear-gradient(180deg, rgba(212, 168, 75, 0.12), transparent);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-display);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--gold-bright);
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .wf-zone-rows {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 4px 0;
+  }
+  .wf-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    padding: 6px 12px;
+    border-bottom: 1px dotted rgba(255, 255, 255, 0.06);
+    font-family: var(--font-cjk);
+    font-size: 12px;
+    color: var(--ink-bright);
+    gap: 8px;
+  }
+  .wf-row:last-child { border-bottom: none; }
+  .wf-row.current {
+    background: rgba(212, 168, 75, 0.08);
+    border-left: 3px solid var(--gold);
+    padding-left: 9px;
+  }
+  .wf-time {
+    font-family: var(--font-mono);
+    color: var(--parchment-dim);
+    font-size: 11px;
+    white-space: nowrap;
+    text-align: right;
+  }
+  .wf-row.current .wf-time { color: var(--gold-bright); }
+  .wf-weather {
+    color: var(--ink-bright);
+    font-weight: 500;
+  }
+
+  @media (max-width: 800px) {
+    .weather-forecast-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 500px) {
+    .weather-forecast-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Clickable weather card hint */
+  #weatherCard {
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  #weatherCard:hover {
+    background: rgba(212, 168, 75, 0.06);
+  }
+
   .sound-nm-row {
     display: flex;
     justify-content: space-between;
@@ -2596,6 +2817,30 @@
     padding: 12px;
     margin-bottom: 8px;
     position: relative;
+  }
+
+  /* Old-island active event card — purple tint, indicates frozen state */
+  .active-event-card.old-island {
+    border-color: rgba(200, 182, 232, 0.4);
+    background: linear-gradient(180deg, rgba(200, 182, 232, 0.05), var(--bg-deep));
+    opacity: 0.92;
+  }
+  .active-event-card.old-island .ae-pull-input {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .old-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    background: rgba(200, 182, 232, 0.18);
+    border: 1px solid rgba(200, 182, 232, 0.5);
+    color: #d4c4f0;
+    font-family: var(--font-display);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    vertical-align: middle;
   }
 
   .active-event-card:last-child {
@@ -2739,7 +2984,7 @@
   <header>
     <div class="title-block">
       <h1>Eureka NM Tracker</h1>
-      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.4.1</button></div>
+      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.5.0</button></div>
       <div class="auth-row">
         <div class="auth-box" id="authBox">
           <span class="auth-status-text" id="authStatusText">🔒 請登入</span>
@@ -2805,6 +3050,12 @@
     <button class="zone-tab" data-zone="pyros"><span class="zh">湧火之地</span>Pyros</button>
     <button class="zone-tab" data-zone="hydatos"><span class="zh">豐水之地</span>Hydatos</button>
   </nav>
+
+  <!-- Sub-tabs: current island / old island (only visible if old-island data exists for active zone) -->
+  <nav class="zone-subtabs" id="zoneSubtabs" style="display:none;">
+    <button class="zone-subtab active" data-sub="current">當前</button>
+    <button class="zone-subtab" data-sub="old" id="zoneSubtabOld">舊島</button>
+  </nav>
 	
   <!-- ZONE CONTENT -->
   <main id="zoneContainer">
@@ -2868,8 +3119,21 @@
     <h3>📜 更新日誌</h3>
 
     <div class="changelog-entry changelog-feature">
+      <div class="changelog-version">v2.5.0 <span class="changelog-date">— 2026/05/19</span></div>
+      <div class="changelog-tagline">🎯 實用體驗強化</div>
+      <ul class="changelog-list">
+        <li>✦ <strong>24 小時天氣預報</strong>：點頂部天氣卡片即可查看四島接下來 24 小時的天氣變化</li>
+        <li>✦ <strong>新島提示徽章</strong>：有人回報新島時，對應島嶼 tab 右上角會出現提示，10 分鐘自動消失</li>
+        <li>✦ <strong>新舊島並存</strong>：新島重置後，舊島資料保留 5 分鐘供繼續打的人查看</li>
+        <li>✦ <strong>自選提示音</strong>：可從「嘟嘟嘟」/「呱呱」中選擇，或上傳自己的 mp3</li>
+        <li>✦ <strong>顯示伺服器內暱稱</strong>：回報名稱改用 FF14 大型任務支援群內的暱稱</li>
+        <li>✦ <strong>即將可觸發加條件剩餘</strong>：可觸發 NM 顯示天氣/夜晚還能維持多久</li>
+        <li>✦ 「提示音」改名為「使用者設定」，之後所有設定都會放這裡</li>
+      </ul>
+    </div>
+
+    <div class="changelog-entry">
       <div class="changelog-version">v2.4.1 <span class="changelog-date">— 2026/05/18</span></div>
-      <div class="changelog-tagline">🛠 Bug Fix</div>
       <ul class="changelog-list">
         <li>✦ <strong>修復了可觸發 NM 未正確顯示的問題</strong></li>
         <li>✦ <strong>修復了帕祖祖在可觸發區域條件時間顯示錯誤的問題</strong></li>
@@ -3062,7 +3326,7 @@
 <!-- Sound settings modal -->
 <div class="modal-backdrop" id="soundSettingsBackdrop">
   <div class="modal" style="max-width: 540px; max-height: 80vh; overflow-y: auto;">
-    <h3>🔔 提示音設定</h3>
+    <h3>⚙ 使用者設定</h3>
     <div id="soundGuestNotice" style="display:none; padding: 10px 12px; background: rgba(212,168,75,0.1); border: 1px solid rgba(212,168,75,0.4); margin-bottom: 14px; font-size: 13px; color: var(--ink-bright);">
       訪客僅能調整主開關 / 主音量，登入後可個別設定每隻 NM 是否提示。
     </div>
@@ -3074,6 +3338,22 @@
           <span class="slider"></span>
         </label>
       </label>
+      <label class="sound-row">
+        <span class="sound-label">音效選擇</span>
+        <div style="display:flex; gap:6px; flex:1; justify-content:flex-end; align-items:center;">
+          <select id="soundEffectSelect" class="sound-select">
+            <option value="duduDu">嘟嘟嘟（預設）</option>
+            <option value="quack">呱呱</option>
+          </select>
+          <button class="modal-btn small" id="soundUploadBtn" title="上傳自訂音效 (mp3/ogg/wav, ≤50KB, ≤2 秒)">📤 上傳</button>
+          <input type="file" id="soundUploadInput" accept=".mp3,.ogg,.wav,audio/mpeg,audio/ogg,audio/wav,audio/x-wav" style="display:none;">
+        </div>
+      </label>
+      <div id="soundCustomInfo" style="display:none; padding: 8px 12px; background: rgba(212,168,75,0.06); border: 1px dashed rgba(212,168,75,0.3); font-size: 12px; color: var(--ink); margin-bottom: 8px;">
+        <span id="soundCustomName">自訂音效</span>
+        <button class="link-btn" id="soundDeleteCustomBtn" style="float:right;">移除</button>
+      </div>
+      <div id="soundUploadStatus" style="display:none; padding: 8px 12px; font-size: 12px; margin-bottom: 8px;"></div>
       <label class="sound-row">
         <span class="sound-label">主音量</span>
         <div style="display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end;">
@@ -3097,6 +3377,22 @@
     </div>
     <div class="modal-actions" style="margin-top: 18px;">
       <button class="modal-btn primary" id="soundSettingsClose">完成</button>
+    </div>
+  </div>
+</div>
+
+<!-- 24hr Weather Forecast modal (#1) -->
+<div class="modal-backdrop" id="weatherForecastBackdrop">
+  <div class="modal" style="max-width: 1100px; max-height: 85vh; overflow-y: auto;">
+    <h3>☁ 24 小時天氣預報</h3>
+    <div style="font-size: 12px; color: var(--parchment-dim); margin-bottom: 14px;">
+      未來 24 小時各島嶼的天氣變化（連續相同天氣已合併）
+    </div>
+    <div class="weather-forecast-grid" id="weatherForecastGrid">
+      <!-- populated by JS -->
+    </div>
+    <div class="modal-actions" style="margin-top: 14px;">
+      <button class="modal-btn primary" id="weatherForecastClose">關閉</button>
     </div>
   </div>
 </div>
@@ -3544,6 +3840,7 @@
   const db = firebase.database();
   const stateRef = db.ref('eureka/state');
   const auth = firebase.auth();
+  const storage = firebase.storage();
 
   /* ----------- AUTH MODULE ----------- */
   // OAuth 流程：
@@ -3555,7 +3852,7 @@
   const AUTH_STORAGE_KEY = 'eureka_user_info';
 	
 　// Current build version — must match Firebase eureka/meta/currentVersion
-  const APP_VERSION = 'v2.4.1';
+  const APP_VERSION = 'v2.5.0';
   const metaRef = db.ref('eureka/meta');
 
   // Watch for version updates: if Firebase has a newer version, prompt reload
@@ -3684,7 +3981,7 @@ async function processAuthCallback() {
     if (actions) {
       let html = '';
       // Sound settings: always visible (guests can also configure, saved to localStorage)
-      html += `<button class="header-action-btn" id="soundSettingsBtn" title="提示音設定">⚙ 提示音</button>`;
+      html += `<button class="header-action-btn" id="soundSettingsBtn" title="使用者設定">⚙ 使用者設定</button>`;
       if (isAdmin()) {
         html += `<button class="header-action-btn admin" id="adminPanelBtnTop" title="管理面板">🛠 管理面板</button>`;
       }
@@ -4186,7 +4483,19 @@ async function processAuthCallback() {
 
   const LS_SOUND_PREFS_KEY = 'eureka_sound_prefs_guest';
   const SOUND_SNAPSHOT_AGE_LIMIT_MS = 30000; // only play for spawns within last 30s
-  const SOUND_DEFAULTS = { enabled: true, volume: 50, perNm: {} };
+  // Sound effects: synthesized ("duduDu") + built-in mp3s ("quack") + custom upload ("custom")
+  const SOUND_DEFAULTS = {
+    enabled: true,
+    volume: 50,
+    perNm: {},
+    effect: 'duduDu',   // 'duduDu' | 'quack' | 'custom'
+    customUrl: null,    // URL to user's uploaded sound (Firebase Storage)
+    customName: null,   // Original file name
+  };
+  // Constants for upload validation
+  const SOUND_UPLOAD_MAX_BYTES = 50 * 1024; // 50KB
+  const SOUND_UPLOAD_MAX_SEC = 2;
+  const SOUND_UPLOAD_ACCEPT_TYPES = ['audio/mpeg', 'audio/mp3', 'audio/ogg', 'audio/wav', 'audio/x-wav', 'audio/wave'];
 
   let soundPrefs = { ...SOUND_DEFAULTS };
   let soundPrevSpawns = null; // tracks last seen state.spawns for diffing
@@ -4194,6 +4503,8 @@ async function processAuthCallback() {
   let audioCtx = null;
   let soundSettingsTab = 'anemos';
   let soundPrefsListener = null;
+  // Cached AudioBuffers for built-in & custom mp3s (lazy-loaded on first play)
+  const soundBuffers = {};
 
   function getAudioCtx() {
     if (!audioCtx) {
@@ -4228,22 +4539,35 @@ async function processAuthCallback() {
     });
   }
 
-  // Synthesize a brief "ding-dong" alert
-  function playAlertSound() {
+  // Built-in sound URLs (relative to site root — make sure to deploy these alongside index.html)
+  const BUILT_IN_SOUNDS = {
+    quack: 'sounds/quack.mp3',
+  };
+
+  // Fetch + decode mp3 → AudioBuffer (cached)
+  async function getSoundBuffer(key, url) {
+    if (soundBuffers[key]) return soundBuffers[key];
+    const ctx = getAudioCtx();
+    if (!ctx) return null;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('fetch failed');
+      const arr = await res.arrayBuffer();
+      const buf = await ctx.decodeAudioData(arr);
+      soundBuffers[key] = buf;
+      return buf;
+    } catch (e) {
+      console.warn('[sound] failed to load buffer:', key, e);
+      return null;
+    }
+  }
+
+  // Synthesized "嘟嘟嘟": three rising tones
+  function playSynthDuduDu(volScale) {
     const ctx = getAudioCtx();
     if (!ctx) return;
-    if (ctx.state === 'suspended') return; // not unlocked yet
-    const rawVol = (soundPrefs.volume == null) ? 50 : Number(soundPrefs.volume);
-    const volPct = Math.max(0, Math.min(100, rawVol));
-    if (volPct <= 0) return; // truly silent at 0%
-    // Perceptual loudness curve: humans hear logarithmically, so apply ~2.2 power.
-    // At 50% slider → ~0.22 peak gain; at 100% → ~1.0 peak gain. Much more linear-feeling.
-    const volScale = Math.pow(volPct / 100, 2.2);
-    const peak = 0.85 * volScale; // capped so 100% is loud but not clipping
-
+    const peak = 0.85 * volScale;
     const now = ctx.currentTime;
-    // Three-tone notification: 784Hz · 988Hz · 1175Hz (ascending G5→B5→D6, "ding-ding-ding" rising)
-    // Triangle wave gives a sharper, more attention-grabbing timbre than pure sine.
     const tones = [
       { freq: 784,  start: now + 0.00, dur: 0.14 },
       { freq: 988,  start: now + 0.16, dur: 0.14 },
@@ -4261,6 +4585,44 @@ async function processAuthCallback() {
       osc.start(tone.start);
       osc.stop(tone.start + tone.dur + 0.05);
     });
+  }
+
+  // Play a pre-decoded AudioBuffer
+  function playBuffer(buffer, volScale) {
+    const ctx = getAudioCtx();
+    if (!ctx || !buffer) return;
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    const gain = ctx.createGain();
+    gain.gain.value = volScale;
+    src.connect(gain).connect(ctx.destination);
+    src.start();
+  }
+
+  // Main play function — dispatches to the right sound based on effect setting
+  async function playAlertSound() {
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') return;
+    const rawVol = (soundPrefs.volume == null) ? 50 : Number(soundPrefs.volume);
+    const volPct = Math.max(0, Math.min(100, rawVol));
+    if (volPct <= 0) return;
+    const volScale = Math.pow(volPct / 100, 2.2);
+
+    const effect = soundPrefs.effect || 'duduDu';
+    if (effect === 'duduDu') {
+      playSynthDuduDu(volScale);
+    } else if (effect === 'quack') {
+      const buf = await getSoundBuffer('quack', BUILT_IN_SOUNDS.quack);
+      if (buf) playBuffer(buf, volScale);
+      else playSynthDuduDu(volScale); // fallback
+    } else if (effect === 'custom' && soundPrefs.customUrl) {
+      const buf = await getSoundBuffer('custom_' + soundPrefs.customUrl, soundPrefs.customUrl);
+      if (buf) playBuffer(buf, volScale);
+      else playSynthDuduDu(volScale);
+    } else {
+      playSynthDuduDu(volScale);
+    }
   }
 
   function isSoundEnabledForNm(nmId) {
@@ -4296,7 +4658,16 @@ async function processAuthCallback() {
   async function saveSoundPrefs() {
     if (isLoggedIn() && currentUser) {
       try {
-        await userMetaRef.child(currentUser.id).child('soundPrefs').set(soundPrefs);
+        // Sanitize for Firebase: replace undefined with null (Firebase doesn't allow undefined)
+        const sanitized = {
+          enabled: !!soundPrefs.enabled,
+          volume: soundPrefs.volume ?? 50,
+          perNm: soundPrefs.perNm || {},
+          effect: soundPrefs.effect || 'duduDu',
+          customUrl: soundPrefs.customUrl || null,
+          customName: soundPrefs.customName || null,
+        };
+        await userMetaRef.child(currentUser.id).child('soundPrefs').set(sanitized);
       } catch (e) {
         console.warn('[sound] save prefs failed', e);
       }
@@ -4306,6 +4677,9 @@ async function processAuthCallback() {
           enabled: soundPrefs.enabled,
           volume: soundPrefs.volume,
           perNm: soundPrefs.perNm || {},
+          effect: soundPrefs.effect || 'duduDu',
+          customUrl: soundPrefs.customUrl || null,
+          customName: soundPrefs.customName || null,
         }));
       } catch (e) {}
     }
@@ -4320,6 +4694,9 @@ async function processAuthCallback() {
           enabled: parsed.enabled !== undefined ? !!parsed.enabled : true,
           volume: typeof parsed.volume === 'number' ? parsed.volume : 50,
           perNm: parsed.perNm && typeof parsed.perNm === 'object' ? parsed.perNm : {},
+          effect: typeof parsed.effect === 'string' ? parsed.effect : 'duduDu',
+          customUrl: typeof parsed.customUrl === 'string' ? parsed.customUrl : null,
+          customName: typeof parsed.customName === 'string' ? parsed.customName : null,
         };
       }
     } catch (e) {}
@@ -4337,6 +4714,9 @@ async function processAuthCallback() {
           enabled: v.enabled !== undefined ? !!v.enabled : true,
           volume: typeof v.volume === 'number' ? v.volume : 50,
           perNm: v.perNm && typeof v.perNm === 'object' ? v.perNm : {},
+          effect: typeof v.effect === 'string' ? v.effect : 'duduDu',
+          customUrl: typeof v.customUrl === 'string' ? v.customUrl : null,
+          customName: typeof v.customName === 'string' ? v.customName : null,
         };
       } else {
         soundPrefs = { ...SOUND_DEFAULTS };
@@ -4371,6 +4751,10 @@ async function processAuthCallback() {
     const volumeLabel = document.getElementById('soundVolumeLabel');
     const guestNotice = document.getElementById('soundGuestNotice');
     const perNmContainer = document.getElementById('soundPerNmContainer');
+    const effectSelect = document.getElementById('soundEffectSelect');
+    const customInfo = document.getElementById('soundCustomInfo');
+    const customName = document.getElementById('soundCustomName');
+    const uploadBtn = document.getElementById('soundUploadBtn');
     if (!masterToggle) return;
 
     masterToggle.checked = !!soundPrefs.enabled;
@@ -4378,13 +4762,45 @@ async function processAuthCallback() {
     volumeSlider.value = curVol;
     volumeLabel.textContent = `${curVol}%`;
 
-    // All users (including guests) can configure everything; guests store in localStorage
+    // Effect select — rebuild options so custom can be inserted/removed dynamically
+    if (effectSelect) {
+      const hasCustom = !!soundPrefs.customUrl;
+      let opts = `
+        <option value="duduDu">嘟嘟嘟（預設）</option>
+        <option value="quack">呱呱</option>
+      `;
+      if (hasCustom) {
+        const label = (soundPrefs.customName || '自訂音效').replace(/</g, '&lt;');
+        opts += `<option value="custom">自訂：${label}</option>`;
+      }
+      effectSelect.innerHTML = opts;
+      effectSelect.value = soundPrefs.effect || 'duduDu';
+    }
+
+    // Custom info card — shows uploaded sound name + remove link
+    if (customInfo && customName) {
+      if (soundPrefs.customUrl) {
+        customInfo.style.display = '';
+        customName.textContent = `已上傳：${soundPrefs.customName || '自訂音效'}`;
+      } else {
+        customInfo.style.display = 'none';
+      }
+    }
+
+    // Upload button: only available to logged-in users (storage rules require auth)
+    if (uploadBtn) {
+      uploadBtn.disabled = !isLoggedIn();
+      uploadBtn.title = isLoggedIn()
+        ? '上傳自訂音效 (mp3/ogg/wav, ≤50KB, ≤2 秒)'
+        : '上傳功能需要登入後使用';
+    }
+
     if (guestNotice) {
       if (isLoggedIn()) {
         guestNotice.style.display = 'none';
       } else {
         guestNotice.style.display = '';
-        guestNotice.textContent = '訪客的設定僅保存在此瀏覽器；登入後可跨裝置同步。';
+        guestNotice.textContent = '訪客的設定僅保存在此瀏覽器；登入後可跨裝置同步並上傳自訂音效。';
       }
     }
     if (perNmContainer) perNmContainer.style.display = '';
@@ -4470,6 +4886,237 @@ async function processAuthCallback() {
         saveSoundPrefs();
       });
     }
+
+    // Effect selection — switches sound type
+    const effectSelect = document.getElementById('soundEffectSelect');
+    if (effectSelect) {
+      effectSelect.addEventListener('change', () => {
+        soundPrefs.effect = effectSelect.value;
+        saveSoundPrefs();
+      });
+    }
+
+    // Upload button → trigger hidden file input
+    const uploadBtn = document.getElementById('soundUploadBtn');
+    const uploadInput = document.getElementById('soundUploadInput');
+    if (uploadBtn && uploadInput) {
+      uploadBtn.addEventListener('click', () => {
+        if (!isLoggedIn()) {
+          showSoundUploadStatus('warn', '請先登入後再上傳自訂音效');
+          return;
+        }
+        uploadInput.click();
+      });
+      uploadInput.addEventListener('change', async () => {
+        const file = uploadInput.files && uploadInput.files[0];
+        if (file) {
+          await handleSoundUpload(file);
+          uploadInput.value = ''; // reset for next time
+        }
+      });
+    }
+
+    // Delete custom sound
+    const deleteBtn = document.getElementById('soundDeleteCustomBtn');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', handleDeleteCustomSound);
+    }
+  }
+
+  // Show inline status under the upload row
+  function showSoundUploadStatus(kind, message) {
+    const el = document.getElementById('soundUploadStatus');
+    if (!el) return;
+    const colors = {
+      info: 'rgba(95, 168, 255, 0.12); border:1px solid rgba(95, 168, 255, 0.4); color:#a3ccff',
+      ok:   'rgba(103, 201, 143, 0.12); border:1px solid rgba(103, 201, 143, 0.4); color:#b2e3c2',
+      warn: 'rgba(212, 168, 75, 0.12); border:1px solid rgba(212, 168, 75, 0.4); color:#f0c768',
+      err:  'rgba(168, 58, 58, 0.15); border:1px solid rgba(168, 58, 58, 0.5); color:#f0a8a8',
+    };
+    el.style.display = '';
+    el.style.cssText = `display:block; padding:8px 12px; font-size:12px; margin-bottom:8px; background:${colors[kind] || colors.info};`;
+    el.textContent = message;
+  }
+  function hideSoundUploadStatus() {
+    const el = document.getElementById('soundUploadStatus');
+    if (el) el.style.display = 'none';
+  }
+
+  // Validate the file's duration by decoding it with Web Audio API
+  async function validateAudioDuration(file) {
+    const ctx = getAudioCtx();
+    if (!ctx) throw new Error('AudioContext unavailable');
+    const arr = await file.arrayBuffer();
+    try {
+      const buf = await ctx.decodeAudioData(arr.slice(0)); // slice for safety
+      return buf.duration;
+    } catch (e) {
+      throw new Error('decode failed');
+    }
+  }
+
+  // Main upload handler — validates + uploads to Firebase Storage
+  async function handleSoundUpload(file) {
+    if (!isLoggedIn() || !currentUser) {
+      showSoundUploadStatus('err', '請先登入後再上傳');
+      return;
+    }
+
+    // ① Validate type
+    if (file.size > SOUND_UPLOAD_MAX_BYTES) {
+      showSoundUploadStatus('err', `檔案大小 ${(file.size / 1024).toFixed(1)} KB 超過 50 KB 限制`);
+      return;
+    }
+    const okType = SOUND_UPLOAD_ACCEPT_TYPES.some(t => file.type === t)
+                || /\.(mp3|ogg|wav)$/i.test(file.name);
+    if (!okType) {
+      showSoundUploadStatus('err', '格式不支援，僅接受 mp3 / ogg / wav');
+      return;
+    }
+
+    // ② Validate duration via decode
+    showSoundUploadStatus('info', '檢查檔案中…');
+    let duration;
+    try {
+      duration = await validateAudioDuration(file);
+    } catch (e) {
+      showSoundUploadStatus('err', '檔案損毀或無法解碼');
+      return;
+    }
+    if (duration > SOUND_UPLOAD_MAX_SEC) {
+      showSoundUploadStatus('err', `長度 ${duration.toFixed(1)}s 超過 2 秒限制`);
+      return;
+    }
+
+    // ③ Upload to Firebase Storage at sounds/<uid>/custom.<ext>
+    const ext = (file.name.match(/\.(mp3|ogg|wav)$/i) || ['', 'mp3'])[1].toLowerCase();
+    const path = `sounds/${currentUser.id}/custom.${ext}`;
+    const ref = storage.ref(path);
+    showSoundUploadStatus('info', '上傳中…');
+    try {
+      // Delete any previous upload (other extensions) first
+      try {
+        const dirRef = storage.ref(`sounds/${currentUser.id}`);
+        const list = await dirRef.listAll();
+        for (const item of list.items) {
+          if (item.fullPath !== path) {
+            try { await item.delete(); } catch (e) {}
+          }
+        }
+      } catch (e) { /* listing might fail; non-fatal */ }
+
+      const snap = await ref.put(file, { contentType: file.type || `audio/${ext}` });
+      const url = await snap.ref.getDownloadURL();
+
+      // ④ Update prefs: set custom URL + auto-switch to it
+      soundPrefs.customUrl = url;
+      soundPrefs.customName = file.name;
+      soundPrefs.effect = 'custom';
+      // Clear cached buffer of any previous custom upload
+      Object.keys(soundBuffers).forEach(k => {
+        if (k.startsWith('custom_')) delete soundBuffers[k];
+      });
+      await saveSoundPrefs();
+      renderSoundSettingsModal();
+      showSoundUploadStatus('ok', `已上傳「${file.name}」並切換為自訂音效`);
+    } catch (e) {
+      console.warn('[sound] upload failed', e);
+      showSoundUploadStatus('err', '上傳失敗：' + (e.message || '未知錯誤'));
+    }
+  }
+
+  // Remove the user's custom sound (file + prefs)
+  async function handleDeleteCustomSound() {
+    if (!isLoggedIn() || !currentUser) return;
+    showSoundUploadStatus('info', '移除中…');
+    try {
+      // Delete every file under sounds/<uid>/ (covers any extension)
+      const dirRef = storage.ref(`sounds/${currentUser.id}`);
+      try {
+        const list = await dirRef.listAll();
+        for (const item of list.items) {
+          try { await item.delete(); } catch (e) {}
+        }
+      } catch (e) { /* non-fatal */ }
+      // Reset prefs
+      soundPrefs.customUrl = null;
+      soundPrefs.customName = null;
+      if (soundPrefs.effect === 'custom') soundPrefs.effect = 'duduDu';
+      Object.keys(soundBuffers).forEach(k => {
+        if (k.startsWith('custom_')) delete soundBuffers[k];
+      });
+      await saveSoundPrefs();
+      renderSoundSettingsModal();
+      showSoundUploadStatus('ok', '已移除自訂音效');
+    } catch (e) {
+      showSoundUploadStatus('err', '移除失敗：' + (e.message || '未知錯誤'));
+    }
+  }
+
+  /* ----------- 24HR WEATHER FORECAST ----------- */
+  // Builds & shows a modal listing weather for the next 24 real hours for all 4 zones.
+  // Consecutive same-weather windows are merged.
+  const FORECAST_HOURS = 24;
+  const WEATHER_WINDOW_SEC = 1400; // 8 ED hours = 1400 real sec
+
+  function buildWeatherForecast24h() {
+    const grid = document.getElementById('weatherForecastGrid');
+    if (!grid) return;
+    const totalWindows = Math.ceil((FORECAST_HOURS * 3600) / WEATHER_WINDOW_SEC);
+    const nowMs = Date.now();
+    let html = '';
+    Object.entries(NM_DATA).forEach(([zoneId, zoneData]) => {
+      const forecast = getWeatherForecast(zoneId, totalWindows);
+      // Merge consecutive same-weather windows
+      const merged = [];
+      forecast.forEach(w => {
+        const last = merged[merged.length - 1];
+        if (last && last.weather === w.weather) {
+          last.end = w.end;
+        } else {
+          merged.push({ ...w });
+        }
+      });
+      let rowsHtml = '';
+      merged.forEach(m => {
+        const startMs = m.start * 1000;
+        const endMs = m.end * 1000;
+        const isCurrent = nowMs >= startMs && nowMs < endMs;
+        const startDate = new Date(startMs);
+        const endDate = new Date(endMs);
+        const startHM = fmtHM(startDate);
+        const endHM = fmtHM(endDate);
+        rowsHtml += `
+          <div class="wf-row${isCurrent ? ' current' : ''}">
+            <span class="wf-weather">${escapeHtml(m.weather)}</span>
+            <span class="wf-time">${startHM} – ${endHM}</span>
+          </div>`;
+      });
+      html += `
+        <div class="wf-zone">
+          <div class="wf-zone-header">${escapeHtml(zoneData.label)}</div>
+          <div class="wf-zone-rows">${rowsHtml}</div>
+        </div>`;
+    });
+    grid.innerHTML = html;
+  }
+
+  function openWeatherForecast() {
+    buildWeatherForecast24h();
+    document.getElementById('weatherForecastBackdrop')?.classList.add('active');
+  }
+
+  function wireWeatherForecast() {
+    const wc = document.getElementById('weatherCard');
+    if (wc) {
+      wc.addEventListener('click', openWeatherForecast);
+    }
+    const bd = document.getElementById('weatherForecastBackdrop');
+    const close = document.getElementById('weatherForecastClose');
+    if (close) close.addEventListener('click', () => bd?.classList.remove('active'));
+    if (bd) bd.addEventListener('click', (e) => {
+      if (e.target === bd) bd.classList.remove('active');
+    });
   }
 
   /* ----------- ABUSE DETECTION MODULE ----------- */
@@ -5477,7 +6124,7 @@ async function checkAndRecordAction(actionType) {
   // State shape: { spawns, instanceResets, activeEvents }
   // 'spawns' records the moment an NM appeared; cooldown = 120 min from spawn time.
   // 'activeEvents' records ongoing battles (each has spawnedAt, pullSecondsLeft, pullSetBy).
-  let state = { spawns: {}, instanceResets: {}, activeEvents: {}, history: {} };
+  let state = { spawns: {}, instanceResets: {}, activeEvents: {}, history: {}, oldIsland: {}, newIslandMark: {} };
   let firstSnapshotReceived = false;
 
   // NM lifetime constant (FF14 NMs live 30 min from spawn)
@@ -5503,17 +6150,22 @@ async function checkAndRecordAction(actionType) {
           instanceResets: data.instanceResets || {},
           activeEvents: data.activeEvents || {},
           history: data.history || {},
+          oldIsland: data.oldIsland || {},
+          newIslandMark: data.newIslandMark || {},
         };
       } else {
-        // empty database — first ever use, that's fine
-        state = { spawns: {}, instanceResets: {}, activeEvents: {}, history: {} };
+        state = { spawns: {}, instanceResets: {}, activeEvents: {}, history: {}, oldIsland: {}, newIslandMark: {} };
       }
       firstSnapshotReceived = true;
       setSyncStatus('ok', '已同步');
       pruneStaleActiveEvents();
+      pruneExpiredOldIsland();        // client-side cleanup of expired old-island data
+      pruneExpiredNewIslandMark();    // client-side cleanup of expired New badges
       updateCards();
       updateActivePanel();
       updateUpcomingPanel();
+      updateZoneTabsNewBadge();
+      updateOldIslandSubtabs();
       updateHistoryModal();
     }, (err) => {
       console.error('[firebase] listener error:', err);
@@ -5656,6 +6308,7 @@ async function checkAndRecordAction(actionType) {
 
   /* ----------- RENDER ----------- */
   let activeZone = 'anemos';
+  let activeSubTab = 'current'; // 'current' or 'old' — which sub-tab the user is viewing
 
   function buildZoneContent() {
     const container = document.getElementById('zoneContainer');
@@ -5792,32 +6445,40 @@ async function checkAndRecordAction(actionType) {
 
   function updateActivePanel() {
     const events = state.activeEvents || {};
-    const ids = Object.keys(events);
     const body = document.getElementById('stripActiveBody');
     const countEl = document.getElementById('stripActiveCount');
     if (!body || !countEl) return;
 
-    countEl.textContent = String(ids.length);
+    // Build event list: current events + any active events archived in oldIsland
+    const items = [];
+    Object.entries(events).forEach(([id, ev]) => items.push({ id, ev, isOld: false }));
+    Object.entries(state.oldIsland || {}).forEach(([zone, data]) => {
+      if (!data || !data.activeEvents) return;
+      Object.entries(data.activeEvents).forEach(([id, ev]) => {
+        items.push({ id, ev, isOld: true, oldResetAt: data.resetAt });
+      });
+    });
 
-    if (ids.length === 0) {
+    countEl.textContent = String(items.length);
+
+    if (items.length === 0) {
       body.innerHTML = '<div class="strip-empty">目前無進行中事件</div>';
       return;
     }
 
-    // sort by spawn time (oldest first)
-    const sorted = ids.map(id => ({ id, ev: events[id] }))
-      .sort((a, b) => a.ev.spawnedAt - b.ev.spawnedAt);
+    // sort: current events first, then old; within each, oldest spawn first
+    items.sort((a, b) => {
+      if (a.isOld !== b.isOld) return a.isOld ? 1 : -1;
+      return a.ev.spawnedAt - b.ev.spawnedAt;
+    });
 
     const now = Date.now();
     let html = '';
-    sorted.forEach(({ id, ev }) => {
+    items.forEach(({ id, ev, isOld }) => {
       const data = findNmData(ev.nmId);
       if (!data) return;
       const { nm, zoneLabel } = data;
 
-      // Compute "time until pull": NM lifetime - elapsed since spawn = current secondsLeft on enmity timer
-      // Pull happens when secondsLeft = ev.pullSecondsLeft
-      // So "time until pull" = currentSecondsLeft - pullSecondsLeft
       const elapsedSec = (now - ev.spawnedAt) / 1000;
       const currentSecondsLeft = NM_LIFETIME_SEC - elapsedSec;
       const timeUntilPull = currentSecondsLeft - ev.pullSecondsLeft;
@@ -5827,9 +6488,14 @@ async function checkAndRecordAction(actionType) {
       const tag = ev.pullSetBy === 'manual' ? '已調整' : '預設';
       const tagClass = ev.pullSetBy === 'manual' ? 'manual' : '';
 
+      const cardClass = isOld ? 'active-event-card old-island' : 'active-event-card';
+      const oldBadge = isOld ? '<span class="old-badge">舊島</span>' : '';
+      const killAction = isOld ? 'kill-old-event' : 'kill-event';
+      const inputDisabled = isOld ? 'disabled' : '';
+
       html += `
-        <div class="active-event-card" data-evt="${id}">
-          <div class="ae-name">${nm.name}${nm.nickname ? ` <span style="font-size:11px;color:var(--ink-faded);">· ${nm.nickname}</span>` : ''}</div>
+        <div class="${cardClass}" data-evt="${id}" data-old="${isOld ? '1' : '0'}">
+          <div class="ae-name">${nm.name}${oldBadge}${nm.nickname ? ` <span style="font-size:11px;color:var(--ink-faded);">· ${nm.nickname}</span>` : ''}</div>
           <div class="ae-zone">${zoneLabel} · Lv ${nm.level}</div>
           <hr class="ae-divider">
           <div class="ae-row">
@@ -5844,7 +6510,7 @@ async function checkAndRecordAction(actionType) {
           <div class="ae-row" style="margin-top:6px;">
             <span class="label">開打時間</span>
             <div class="ae-pull-row">
-              <input class="ae-pull-input" type="text" inputmode="numeric"
+              <input class="ae-pull-input" type="text" inputmode="numeric" ${inputDisabled}
                      value="${secsToMMSS(ev.pullSecondsLeft)}" data-evt="${id}" data-action="pull-input"
                      title="NM 剩餘時間 (MMSS 格式，例 2700 = 27分00秒)" />
               <span class="ae-pull-tag ${tagClass}">${tag}</span>
@@ -5853,7 +6519,7 @@ async function checkAndRecordAction(actionType) {
           <div class="ae-countdown ${passed ? 'passed' : ''}">
             ${passed ? `已開打 ${fmtMmSs(-timeUntilPull)}` : `距開打 ${fmtMmSs(timeUntilPull)}`}
           </div>
-          <button class="ae-kill-btn" data-evt="${id}" data-action="kill-event">✓ 已死亡</button>
+          <button class="ae-kill-btn" data-evt="${id}" data-action="${killAction}">✓ 已死亡</button>
         </div>`;
     });
 
@@ -5864,10 +6530,19 @@ async function checkAndRecordAction(actionType) {
   // This preserves input focus and avoids stuttering.
   function tickActivePanel() {
     const events = state.activeEvents || {};
+    // Also include old-island events for tick countdown
+    const oldEvents = {};
+    Object.values(state.oldIsland || {}).forEach(data => {
+      if (data && data.activeEvents) {
+        Object.entries(data.activeEvents).forEach(([id, ev]) => {
+          oldEvents[id] = ev;
+        });
+      }
+    });
     const now = Date.now();
     document.querySelectorAll('.active-event-card').forEach(card => {
       const evtId = card.dataset.evt;
-      const ev = events[evtId];
+      const ev = events[evtId] || oldEvents[evtId];
       if (!ev) return;
       const elapsedSec = (now - ev.spawnedAt) / 1000;
       const currentSecondsLeft = NM_LIFETIME_SEC - elapsedSec;
@@ -5980,6 +6655,22 @@ async function checkAndRecordAction(actionType) {
         }
 
         if (triggerInMs !== null && triggerInMs >= 0) {
+          // Compute "condition remaining" — how long the satisfied condition will last.
+          // Only meaningful for currently-triggerable NMs with conditions (otherwise null).
+          let conditionRemainingSec = null;
+          if (triggerInMs <= 0 && hasCondition && conditionSatisfied) {
+            const remainings = [];
+            if (nm.weather && info.weatherInfo && info.weatherInfo.isCurrent) {
+              remainings.push(info.weatherInfo.endsIn);
+            }
+            if (nm.timeReq === '夜晚' && info.nightInfo && info.nightInfo.isNight) {
+              remainings.push(info.nightInfo.secondsUntilTransition);
+            }
+            if (remainings.length > 0) {
+              // Multi-condition: bottleneck is the SHORTEST remaining (earliest to fail)
+              conditionRemainingSec = Math.min(...remainings);
+            }
+          }
           out.push({
             nmId: nm.id,
             nm,
@@ -5988,6 +6679,7 @@ async function checkAndRecordAction(actionType) {
             triggerInMs,
             reasonLabel,
             isReadyNow: triggerInMs <= 0,
+            conditionRemainingSec,
           });
         }
       });
@@ -6022,19 +6714,35 @@ async function checkAndRecordAction(actionType) {
       const btnLabel = meChosen ? '取消觸發' : '觸發++';
       const btnClass = meChosen ? 'up-trigger-btn chosen' : 'up-trigger-btn';
 
+      // Condition remaining tag — only show if currently triggerable + has condition
+      let condRemainingHtml = '';
+      if (item.conditionRemainingSec != null && item.conditionRemainingSec > 0) {
+        condRemainingHtml = `<span class="up-cond-rem" title="條件還能維持的時間">⏳ 剩 ${formatCondRemaining(item.conditionRemainingSec)}</span>`;
+      }
+
       html += `
         <div class="${rowClass}" data-nm="${item.nmId}">
           <div class="up-main">
             <span class="up-name">${item.nm.name}</span>
             <span class="up-zone">[${item.zoneLabel}]</span>
-            <span class="up-cond">（${item.reasonLabel}）</span>
+            <span class="up-cond">(${item.reasonLabel})</span>
           </div>
           <div class="up-trigger-count">觸發中 ${triggerCount} 人</div>
           <button class="${btnClass}" data-action="toggle-trigger" data-nm="${item.nmId}">${btnLabel}</button>
+          ${condRemainingHtml}
           <span class="up-time">${timeText}</span>
         </div>`;
     });
     body.innerHTML = html;
+  }
+
+  function formatCondRemaining(sec) {
+    sec = Math.max(0, Math.ceil(sec));
+    if (sec < 60) return `${sec}s`;
+    const min = Math.floor(sec / 60);
+    const remSec = sec % 60;
+    if (min < 10) return `${min}m ${String(remSec).padStart(2, '0')}s`;
+    return `${min}m`;
   }
 
   function formatUpcomingTime(ms) {
@@ -6157,6 +6865,43 @@ async function checkAndRecordAction(actionType) {
   function updateCards() {
     const zoneData = NM_DATA[activeZone];
     if (!zoneData) return;
+
+    // If viewing old island, temporarily swap state.spawns/activeEvents/instanceResets to the archived old-island data
+    // so getNmStatus uses the frozen historical state.
+    const viewingOld = activeSubTab === 'old';
+    let savedState = null;
+    if (viewingOld) {
+      const oldData = (state.oldIsland || {})[activeZone];
+      if (!oldData) {
+        // No old data — fall back to current
+        // (this shouldn't happen since updateOldIslandSubtabs would have flipped activeSubTab)
+      } else {
+        savedState = {
+          spawns: state.spawns,
+          activeEvents: state.activeEvents,
+          instanceResets: state.instanceResets,
+        };
+        // Merge old-island data INTO state.spawns (other zones still need their current data)
+        const newSpawns = { ...state.spawns };
+        // First, clear out current spawns for this zone
+        zoneData.nms.forEach(nm => { delete newSpawns[nm.id]; });
+        // Then overlay old-island spawns
+        Object.entries(oldData.spawns || {}).forEach(([nmId, ts]) => { newSpawns[nmId] = ts; });
+        // Same for activeEvents
+        const newActive = { ...state.activeEvents };
+        Object.entries(state.activeEvents || {}).forEach(([id, ev]) => {
+          if (ev.zone === activeZone) delete newActive[id];
+        });
+        Object.entries(oldData.activeEvents || {}).forEach(([id, ev]) => { newActive[id] = ev; });
+        // instanceResets[activeZone] should be cleared (so old data isn't filtered out)
+        const newResets = { ...state.instanceResets };
+        delete newResets[activeZone];
+        state.spawns = newSpawns;
+        state.activeEvents = newActive;
+        state.instanceResets = newResets;
+      }
+    }
+
     zoneData.nms.forEach(nm => {
       const card = document.getElementById(`nm-${nm.id}`);
       if (!card) return;
@@ -6243,6 +6988,13 @@ async function checkAndRecordAction(actionType) {
         detailEl.innerHTML = extra.length ? extra.join(' · ') : '隨時可觸發';
       }
     });
+
+    // Restore state if we swapped for viewing-old
+    if (savedState) {
+      state.spawns = savedState.spawns;
+      state.activeEvents = savedState.activeEvents;
+      state.instanceResets = savedState.instanceResets;
+    }
   }
 
   function updateClock() {
@@ -6582,6 +7334,9 @@ async function checkAndRecordAction(actionType) {
 
   const CANCEL_RESET_WINDOW_MS = 5 * 60 * 1000; // 5 minutes — within this window, the reset can be undone
 
+  const OLD_ISLAND_KEEP_MS = 5 * 60 * 1000;   // 5 min — old-island data lifetime
+  const NEW_ISLAND_BADGE_MS = 10 * 60 * 1000; // 10 min — New badge lifetime on zone tab
+
   async function handleNewInstance(zone) {
     if (!requireLogin()) return;
     if (isBanned()) { showBannedModal(); return; }
@@ -6593,7 +7348,7 @@ async function checkAndRecordAction(actionType) {
     const now = Date.now();
     const updates = {};
 
-    // Capture pre-reset state for potential undo (only NMs in this zone)
+    // Capture pre-reset state for OLD-ISLAND archive (only NMs in this zone)
     const snapshotSpawns = {};
     NM_DATA[zone].nms.forEach(nm => {
       if (state.spawns[nm.id]) snapshotSpawns[nm.id] = state.spawns[nm.id];
@@ -6604,13 +7359,27 @@ async function checkAndRecordAction(actionType) {
     });
     const snapshotPrevReset = state.instanceResets[zone] || null;
 
+    // ① Save old island archive (will be auto-cleaned after 5min)
+    const hasOldData = Object.keys(snapshotSpawns).length > 0 || Object.keys(snapshotActiveEvents).length > 0;
+    if (hasOldData) {
+      updates[`oldIsland/${zone}`] = {
+        spawns: snapshotSpawns,
+        activeEvents: snapshotActiveEvents,
+        resetAt: now,
+      };
+    }
+
+    // ② Set New badge on the zone tab (auto-expires after 10min)
+    updates[`newIslandMark/${zone}`] = now;
+
+    // ③ Clear current island data
     updates[`instanceResets/${zone}`] = now;
     NM_DATA[zone].nms.forEach(nm => { updates[`spawns/${nm.id}`] = null; });
     Object.entries(state.activeEvents).forEach(([id, ev]) => {
       if (ev.zone === zone) updates[`activeEvents/${id}`] = null;
     });
 
-    // record reset in history (compute the path locally) — store snapshot for undo
+    // ④ Record reset in history (with snapshot for undo)
     const resetId = `h_reset_${zone}_${now}`;
     updates[`history/${resetId}`] = {
       type: 'reset',
@@ -6619,7 +7388,6 @@ async function checkAndRecordAction(actionType) {
       reportedBy: reporter,
       createdAt: now,
       updatedAt: now,
-      // Snapshot data (used to undo within 5 minutes)
       _snapshot: {
         spawns: snapshotSpawns,
         activeEvents: snapshotActiveEvents,
@@ -6632,6 +7400,107 @@ async function checkAndRecordAction(actionType) {
     updateCards();
     updateActivePanel();
     updateHistoryModal();
+  }
+
+  // ---- Old Island & New Island Badge cleanup ----
+  // These run client-side as a fallback until a Cloud Function is deployed.
+  // They only fire when state changes (in the snapshot handler), so worst case
+  // expired data lingers until any client comes online.
+
+  async function pruneExpiredOldIsland() {
+    if (!state.oldIsland) return;
+    const now = Date.now();
+    const updates = {};
+    Object.entries(state.oldIsland).forEach(([zone, data]) => {
+      if (!data || !data.resetAt) return;
+      if (now - data.resetAt > OLD_ISLAND_KEEP_MS) {
+        updates[`oldIsland/${zone}`] = null;
+      }
+    });
+    if (Object.keys(updates).length > 0) {
+      try { await stateRef.update(updates); } catch (e) { /* non-fatal */ }
+    }
+  }
+
+  async function pruneExpiredNewIslandMark() {
+    if (!state.newIslandMark) return;
+    const now = Date.now();
+    const updates = {};
+    Object.entries(state.newIslandMark).forEach(([zone, ts]) => {
+      if (!ts) return;
+      if (now - ts > NEW_ISLAND_BADGE_MS) {
+        updates[`newIslandMark/${zone}`] = null;
+      }
+    });
+    if (Object.keys(updates).length > 0) {
+      try { await stateRef.update(updates); } catch (e) { /* non-fatal */ }
+    }
+  }
+
+  // Update New badges on zone tabs based on newIslandMark state.
+  function updateZoneTabsNewBadge() {
+    const now = Date.now();
+    document.querySelectorAll('.zone-tab[data-zone]').forEach(tab => {
+      const zone = tab.dataset.zone;
+      const ts = (state.newIslandMark || {})[zone];
+      const isNew = ts && (now - ts) <= NEW_ISLAND_BADGE_MS;
+      if (isNew) {
+        tab.dataset.new = 'true';
+      } else {
+        delete tab.dataset.new;
+      }
+    });
+  }
+
+  // Old-island sub-tabs: show/hide based on active zone having an oldIsland record.
+  // Also formats the remaining time on the "舊島" tab.
+  function updateOldIslandSubtabs() {
+    const wrap = document.getElementById('zoneSubtabs');
+    if (!wrap) return;
+    const oldData = (state.oldIsland || {})[activeZone];
+    if (!oldData || !oldData.resetAt) {
+      // No old island for this zone — hide sub-tabs and force back to current
+      wrap.style.display = 'none';
+      if (activeSubTab === 'old') {
+        activeSubTab = 'current';
+        renderActiveZoneContent();
+      }
+      return;
+    }
+    const now = Date.now();
+    const remaining = oldData.resetAt + OLD_ISLAND_KEEP_MS - now;
+    if (remaining <= 0) {
+      wrap.style.display = 'none';
+      if (activeSubTab === 'old') {
+        activeSubTab = 'current';
+        renderActiveZoneContent();
+      }
+      return;
+    }
+    wrap.style.display = '';
+    const oldBtn = document.getElementById('zoneSubtabOld');
+    const min = Math.floor(remaining / 60000);
+    const sec = Math.floor((remaining % 60000) / 1000);
+    if (oldBtn) {
+      oldBtn.textContent = `舊島 (${min}:${String(sec).padStart(2, '0')})`;
+    }
+    // Reflect current sub-tab state on buttons
+    wrap.querySelectorAll('.zone-subtab').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.sub === activeSubTab);
+    });
+  }
+
+  // Re-render the active zone (called when switching sub-tabs).
+  // Uses buildZoneContent style but rendering depends on activeSubTab.
+  function renderActiveZoneContent() {
+    // Toggle CSS hook for "frozen" appearance
+    const container = document.getElementById('zoneContainer');
+    if (container) {
+      container.classList.toggle('viewing-old', activeSubTab === 'old');
+    }
+    updateCards();
+    updateActivePanel();
+    updateUpcomingPanel();
   }
 
   // Find the most recent undoable reset for a given zone (within 5min)
@@ -6774,6 +7643,53 @@ async function checkAndRecordAction(actionType) {
     await applyUpdates(updates);
     logUserAction('kill', { nmId: ev.nmId, zone: ev.zone });
     updateCards();
+    updateActivePanel();
+    updateHistoryModal();
+  }
+
+  // Kill an event that lives in oldIsland archive (frozen old data).
+  // Behavior:
+  //   - Remove this event from oldIsland/<zone>/activeEvents/<evtId>
+  //   - Write a kill history entry tagged with old-island context (no merge logic — old data isn't authoritative)
+  async function handleKillOldEvent(evtId) {
+    if (!requireLogin()) return;
+    if (isBanned()) { showBannedModal(); return; }
+    if (!await checkAndRecordAction('kill')) return;
+
+    // Find which zone's oldIsland holds this event
+    let foundZone = null;
+    let foundEv = null;
+    Object.entries(state.oldIsland || {}).forEach(([zone, data]) => {
+      if (foundZone) return;
+      if (data && data.activeEvents && data.activeEvents[evtId]) {
+        foundZone = zone;
+        foundEv = data.activeEvents[evtId];
+      }
+    });
+    if (!foundZone || !foundEv) return;
+
+    const reporter = getUserStub();
+    const killedAt = Date.now();
+    const updates = {};
+    updates[`oldIsland/${foundZone}/activeEvents/${evtId}`] = null;
+
+    // Write a separate history entry (don't merge with current-island history)
+    const hId = `h_old_${foundEv.nmId}_${foundEv.spawnedAt}_${killedAt}`;
+    updates[`history/${hId}`] = {
+      type: 'kill',
+      nmId: foundEv.nmId,
+      zone: foundZone,
+      spawnedAt: foundEv.spawnedAt,
+      killedAt,
+      reportedBy: foundEv.reportedBy || reporter,
+      killedBy: reporter,
+      isOldIsland: true,
+      createdAt: killedAt,
+      updatedAt: killedAt,
+    };
+
+    await applyUpdates(updates);
+    logUserAction('kill_old', { nmId: foundEv.nmId, zone: foundZone });
     updateActivePanel();
     updateHistoryModal();
   }
@@ -7169,10 +8085,23 @@ async function checkAndRecordAction(actionType) {
         const z = tab.dataset.zone;
         if (z === activeZone) return;
         activeZone = z;
+        activeSubTab = 'current'; // reset sub-tab when switching zones
         document.querySelectorAll('.zone-tab').forEach(t => t.classList.toggle('active', t === tab));
         document.querySelectorAll('.zone-content').forEach(s => s.classList.toggle('active', s.dataset.zone === z));
-        updateCards();
+        renderActiveZoneContent();
+        updateOldIslandSubtabs();
         updateClock();
+      });
+    });
+
+    // Sub-tab switching (current / old)
+    document.querySelectorAll('.zone-subtab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sub = btn.dataset.sub;
+        if (sub === activeSubTab) return;
+        activeSubTab = sub;
+        document.querySelectorAll('.zone-subtab').forEach(b => b.classList.toggle('active', b === btn));
+        renderActiveZoneContent();
       });
     });
 
@@ -7180,9 +8109,9 @@ async function checkAndRecordAction(actionType) {
     const apBody = document.getElementById('stripActiveBody');
     if (apBody) {
       apBody.addEventListener('click', (e) => {
+        // kill current-island event
         const btn = e.target.closest('button[data-action="kill-event"]');
         if (btn) {
-          // Two-step confirmation
           const evtId = btn.dataset.evt;
           const ev = (state.activeEvents || {})[evtId];
           if (!ev) return;
@@ -7190,6 +8119,28 @@ async function checkAndRecordAction(actionType) {
           const zoneLabel = NM_DATA[ev.zone] ? NM_DATA[ev.zone].label : '';
           if (nm) {
             showNmConfirmModal(nm, zoneLabel, `確認「${nm.name}」已被擊殺？`, () => handleKillEvent(evtId));
+          }
+          return;
+        }
+        // kill old-island event (frozen, but still allowed to settle)
+        const oldBtn = e.target.closest('button[data-action="kill-old-event"]');
+        if (oldBtn) {
+          const evtId = oldBtn.dataset.evt;
+          // Find which zone holds this old event
+          let foundEv = null;
+          let foundZone = null;
+          Object.entries(state.oldIsland || {}).forEach(([zone, data]) => {
+            if (foundEv) return;
+            if (data && data.activeEvents && data.activeEvents[evtId]) {
+              foundEv = data.activeEvents[evtId];
+              foundZone = zone;
+            }
+          });
+          if (!foundEv) return;
+          const nm = findNm(foundEv.nmId);
+          const zoneLabel = NM_DATA[foundZone] ? NM_DATA[foundZone].label : '';
+          if (nm) {
+            showNmConfirmModal(nm, `${zoneLabel}（舊島）`, `確認「${nm.name}」（舊島）已被擊殺？`, () => handleKillOldEvent(evtId));
           }
         }
       });
@@ -7309,6 +8260,7 @@ async function checkAndRecordAction(actionType) {
     // Sound system: load guest prefs from localStorage; wire settings modal; attach unlock
     loadGuestSoundPrefs();
     wireSoundSettings();
+    wireWeatherForecast();
     attachAudioUnlock();
 
     // Triggering system: everyone (incl. guests) reads to display counts
@@ -7478,6 +8430,9 @@ async function checkAndRecordAction(actionType) {
       tickUpcomingPanel();
 	  // refresh new-instance button cooldown state
       tickNewInstanceCooldown();
+      // refresh old-island sub-tab countdown + New badge state
+      updateOldIslandSubtabs();
+      updateZoneTabsNewBadge();
     }, TICK_MS);
 
     // every 30 seconds, prune stale events + old history
