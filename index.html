@@ -3120,7 +3120,7 @@
 
     <div class="changelog-entry changelog-feature">
       <div class="changelog-version">v2.5.0 <span class="changelog-date">— 2026/05/19</span></div>
-      <div class="changelog-tagline">🎯 實用體驗強化</div>
+      <div class="changelog-tagline">🎯 實用體驗大強化</div>
       <ul class="changelog-list">
         <li>✦ <strong>24 小時天氣預報</strong>：點頂部天氣卡片即可查看四島接下來 24 小時的天氣變化</li>
         <li>✦ <strong>新島提示徽章</strong>：有人回報新島時，對應島嶼 tab 右上角會出現提示，10 分鐘自動消失</li>
@@ -3134,6 +3134,7 @@
 
     <div class="changelog-entry">
       <div class="changelog-version">v2.4.1 <span class="changelog-date">— 2026/05/18</span></div>
+      <div class="changelog-tagline">🛠 Bug Fix</div>
       <ul class="changelog-list">
         <li>✦ <strong>修復了可觸發 NM 未正確顯示的問題</strong></li>
         <li>✦ <strong>修復了帕祖祖在可觸發區域條件時間顯示錯誤的問題</strong></li>
@@ -4544,20 +4545,32 @@ async function processAuthCallback() {
     quack: 'sounds/quack.mp3',
   };
 
-  // Fetch + decode mp3 → AudioBuffer (cached)
+  // Fetch + decode audio → AudioBuffer (cached). Used for built-in mp3s & custom uploads.
   async function getSoundBuffer(key, url) {
     if (soundBuffers[key]) return soundBuffers[key];
     const ctx = getAudioCtx();
-    if (!ctx) return null;
+    if (!ctx) {
+      console.warn('[sound] no AudioContext for:', key);
+      return null;
+    }
     try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('fetch failed');
+      console.log('[sound] fetching:', key, url);
+      const res = await fetch(url, { mode: 'cors', credentials: 'omit' });
+      if (!res.ok) throw new Error(`fetch failed: HTTP ${res.status}`);
       const arr = await res.arrayBuffer();
-      const buf = await ctx.decodeAudioData(arr);
+      console.log('[sound] decoding:', key, 'bytes=', arr.byteLength);
+      // decodeAudioData consumes the buffer; some browsers complain about transferred buffers
+      // so we copy to a fresh ArrayBuffer just in case
+      const safe = arr.slice(0);
+      const buf = await new Promise((resolve, reject) => {
+        // Use the callback form for broader compatibility (Safari)
+        ctx.decodeAudioData(safe, resolve, reject);
+      });
       soundBuffers[key] = buf;
+      console.log('[sound] decoded OK:', key, 'duration=', buf.duration);
       return buf;
     } catch (e) {
-      console.warn('[sound] failed to load buffer:', key, e);
+      console.warn('[sound] getSoundBuffer failed:', key, e);
       return null;
     }
   }
@@ -4686,6 +4699,8 @@ async function processAuthCallback() {
   }
 
   function loadGuestSoundPrefs() {
+    // Only used for guest (unauthenticated) users — pure localStorage read
+    if (isLoggedIn()) return; // logged-in users get prefs from Firebase listener
     try {
       const raw = localStorage.getItem(LS_SOUND_PREFS_KEY);
       if (raw) {
@@ -4858,12 +4873,12 @@ async function processAuthCallback() {
       });
     }
 
-    if (testBtn) testBtn.addEventListener('click', () => {
+    if (testBtn) testBtn.addEventListener('click', async () => {
       tryUnlockAudio();
       // Play once regardless of master toggle for testing — but respect volume
       const oldEnabled = soundPrefs.enabled;
       soundPrefs.enabled = true;
-      playAlertSound();
+      try { await playAlertSound(); } catch (e) { console.warn('[sound] test play failed', e); }
       soundPrefs.enabled = oldEnabled;
     });
 
@@ -5008,13 +5023,28 @@ async function processAuthCallback() {
       const snap = await ref.put(file, { contentType: file.type || `audio/${ext}` });
       const url = await snap.ref.getDownloadURL();
 
-      // ④ Update prefs: set custom URL + auto-switch to it
+      // ④ Pre-decode the uploaded file directly (avoid fetch+CORS roundtrip for the first play)
+      try {
+        const ctx = getAudioCtx();
+        if (ctx) {
+          const arr = await file.arrayBuffer();
+          const buf = await new Promise((resolve, reject) => {
+            ctx.decodeAudioData(arr.slice(0), resolve, reject);
+          });
+          soundBuffers['custom_' + url] = buf;
+          console.log('[sound] pre-cached custom buffer, duration=', buf.duration);
+        }
+      } catch (e) {
+        console.warn('[sound] pre-decode failed (will retry via URL on play)', e);
+      }
+
+      // ⑤ Update prefs: set custom URL + auto-switch to it
       soundPrefs.customUrl = url;
       soundPrefs.customName = file.name;
       soundPrefs.effect = 'custom';
-      // Clear cached buffer of any previous custom upload
+      // Clear any stale custom buffers from previous uploads (other URLs)
       Object.keys(soundBuffers).forEach(k => {
-        if (k.startsWith('custom_')) delete soundBuffers[k];
+        if (k.startsWith('custom_') && k !== 'custom_' + url) delete soundBuffers[k];
       });
       await saveSoundPrefs();
       renderSoundSettingsModal();
