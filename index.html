@@ -3946,6 +3946,18 @@ async function processAuthCallback() {
       currentUser = null;
       localStorage.removeItem(AUTH_STORAGE_KEY);
       updateAuthUI();
+      return;
+    }
+    if (fbUser && currentUser) {
+      // Firebase auth (re)established after a page reload — wire up listeners that
+      // require auth.currentUser to be present. On a fresh reload, boot() runs before
+      // Firebase finishes restoring the session, so these listeners didn't attach then.
+      if (!soundPrefsListener) {
+        attachSoundPrefsListener();
+      }
+      // Re-detect triggering choice now that auth is ready
+      triggeringMyChoice = findMyTriggeringChoice();
+      updateUpcomingPanel();
     }
   });
 
@@ -4750,14 +4762,36 @@ async function processAuthCallback() {
     }
   }
 
-  function openSoundSettings() {
-    if (!isLoggedIn()) {
-      // Guests can adjust master switch / volume only
-      loadGuestSoundPrefs();
-    }
-    renderSoundSettingsModal();
+  async function openSoundSettings() {
     const bd = document.getElementById('soundSettingsBackdrop');
     if (bd) bd.classList.add('active');
+    if (!isLoggedIn()) {
+      // Guests use localStorage
+      loadGuestSoundPrefs();
+      renderSoundSettingsModal();
+      return;
+    }
+    // Logged-in: fetch the latest prefs once from Firebase before rendering,
+    // so a freshly-reloaded page shows the correct saved sound immediately
+    // (instead of waiting for the realtime listener which may lag).
+    renderSoundSettingsModal(); // render with whatever we have first (instant feedback)
+    try {
+      const snap = await userMetaRef.child(currentUser.id).child('soundPrefs').get();
+      const v = snap.val();
+      if (v && typeof v === 'object') {
+        soundPrefs = {
+          enabled: v.enabled !== undefined ? !!v.enabled : true,
+          volume: typeof v.volume === 'number' ? v.volume : 50,
+          perNm: v.perNm && typeof v.perNm === 'object' ? v.perNm : {},
+          effect: typeof v.effect === 'string' ? v.effect : 'duduDu',
+          customUrl: typeof v.customUrl === 'string' ? v.customUrl : null,
+          customName: typeof v.customName === 'string' ? v.customName : null,
+        };
+        renderSoundSettingsModal(); // re-render with fresh data
+      }
+    } catch (e) {
+      console.warn('[sound] fetch prefs on open failed', e);
+    }
   }
 
   function renderSoundSettingsModal() {
