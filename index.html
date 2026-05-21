@@ -2984,7 +2984,7 @@
   <header>
     <div class="title-block">
       <h1>Eureka NM Tracker</h1>
-      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.5.0</button></div>
+      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.5.1</button></div>
       <div class="auth-row">
         <div class="auth-box" id="authBox">
           <span class="auth-status-text" id="authStatusText">🔒 請登入</span>
@@ -3117,17 +3117,27 @@
 <div class="modal-backdrop" id="changelogBackdrop">
   <div class="modal" style="max-width: 520px; max-height: 70vh; overflow-y: auto;">
     <h3>📜 更新日誌</h3>
+	  
+	<div class="changelog-entry changelog-feature">
+      <div class="changelog-version">v2.5.1 <span class="changelog-date">— 2026/05/21</span></div>
+      <div class="changelog-tagline">🛠 Bug Fix</div>
+      <ul class="changelog-list">
+        <li>✦ <strong>修復重新整理後自訂音效消失的問題</strong></li>
+        <li>✦ <strong>修復重新整理或跨裝置時，自訂音效無法正常播放的問題</strong></li>
+		<li>我終於修好它們啦 哇哈哈哈哈哈哈哈</li>
+      </ul>
+    </div>
 
+	  
     <div class="changelog-entry changelog-feature">
       <div class="changelog-version">v2.5.0 <span class="changelog-date">— 2026/05/19</span></div>
-      <div class="changelog-tagline">🎯 實用體驗大強化</div>
       <ul class="changelog-list">
-        <li>✦ <strong>24 小時天氣預報</strong>：點頂部天氣卡片即可查看四島接下來 24 小時的天氣變化</li>
-        <li>✦ <strong>新島提示徽章</strong>：有人回報新島時，對應島嶼 tab 右上角會出現提示，10 分鐘自動消失</li>
-        <li>✦ <strong>新舊島並存</strong>：新島重置後，舊島資料保留 5 分鐘供繼續打的人查看</li>
-        <li>✦ <strong>自選提示音</strong>：可從「嘟嘟嘟」/「呱呱」中選擇，或上傳自己的 mp3</li>
-        <li>✦ <strong>顯示伺服器內暱稱</strong>：回報名稱改用 FF14 大型任務支援群內的暱稱</li>
-        <li>✦ <strong>即將可觸發加條件剩餘</strong>：可觸發 NM 顯示天氣/夜晚還能維持多久</li>
+        <li>✦ 24 小時天氣預報：點頂部天氣卡片即可查看四島接下來 24 小時的天氣變化</li>
+        <li>✦ 新島提示徽章：有人回報新島時，對應島嶼 tab 右上角會出現提示，10 分鐘自動消失</li>
+        <li>✦ 新舊島並存：新島重置後，舊島資料保留 5 分鐘供繼續打的人查看</li>
+        <li>✦ 自選提示音：可從「嘟嘟嘟」/「呱呱」中選擇，或上傳自己的 mp3</li>
+        <li>✦ 顯示伺服器內暱稱：回報名稱改用 FF14 大型任務支援群內的暱稱</li>
+        <li>✦ 即將可觸發加條件剩餘：可觸發 NM 顯示天氣/夜晚還能維持多久</li>
         <li>✦ 「提示音」改名為「使用者設定」，之後所有設定都會放這裡</li>
       </ul>
     </div>
@@ -3853,7 +3863,7 @@
   const AUTH_STORAGE_KEY = 'eureka_user_info';
 	
 　// Current build version — must match Firebase eureka/meta/currentVersion
-  const APP_VERSION = 'v2.5.0';
+  const APP_VERSION = 'v2.5.1';
   const metaRef = db.ref('eureka/meta');
 
   // Watch for version updates: if Firebase has a newer version, prompt reload
