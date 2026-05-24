@@ -3129,7 +3129,7 @@ const WX_ICON = {
   <header>
     <div class="title-block">
       <h1>Eureka NM Tracker</h1>
-      <div class="subtitle">優雷卡菁英惡名追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.5.1</button></div>
+      <div class="subtitle">優雷卡惡名菁英追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.6.0</button></div>
       <div class="auth-row">
         <div class="auth-box" id="authBox">
           <span class="auth-status-text" id="authStatusText">🔒 請登入</span>
@@ -3275,16 +3275,32 @@ const WX_ICON = {
     <h3>📜 更新日誌</h3>
 	  
 	<div class="changelog-entry changelog-feature">
+      <div class="changelog-version">v2.6.0 <span class="changelog-date">— 2026/05/24</span></div>
+      <div class="changelog-tagline">🎉 大改版：全 NM 追蹤、卡面翻新、體驗優化</div>
+      <ul class="changelog-list">
+        <li>✦ <strong>全 NM 追蹤</strong>：四島所有臨危受命 NM 全數收錄（八寶、島主、其它），不再只追八寶島主</li>
+        <li>✦ <strong>緊湊模式</strong>：右上角開關一鍵切換，整條依狀態染色（紅冷卻／黃等待／綠可觸發）</li>
+        <li>✦ <strong>自定義追蹤</strong>：在「使用者設定 → 其它」勾選想追蹤的分類，並可在「自定義追蹤」分頁不分島集中查看</li>
+        <li>✦ <strong>其它 NM 計時</strong>：出現一鍵記錄、共用計時，可手動修正時間、取消回報（其它 NM 只在緊湊模式顯示）</li>
+        <li>✦ <strong>卡片翻新</strong>：每隻 NM 加入專屬橫幅圖、等級徽章、天氣圖示，計時資訊更清楚</li>
+        <li>✦ <strong>回報排行榜</strong>：選單可查看回報貢獻前五名（出現＋擊殺）</li>
+        <li>✦ <strong>島嶼存活時間</strong>：頂部顯示四島距上次新島重置多久</li>
+        <li>✦ <strong>選單整合</strong>：排行榜、教學、設定、問題回報、已知問題、斗內、GitHub 全收進「☰ 選單」</li>
+        <li>✦ <strong>使用者設定分頁化</strong>：分「提示音／其它」，新增回報二段確認開關</li>
+        <li>✦ <strong>天氣預報優化</strong>：四島同步單一捲動、不同天氣以顏色區分，提高閱讀性 (點選右上當前天氣即可打開天氣預報)</li>
+        <li>✦ 進行中、即將可觸發面板版面精簡優化</li>
+		<li>✦ 刀大呱呱的提示音音量提高100%，請注意調整音量</li>
+      </ul>
+    </div>
+	  
+	<div class="changelog-entry">
       <div class="changelog-version">v2.5.1 <span class="changelog-date">— 2026/05/21</span></div>
       <div class="changelog-tagline">🛠 Bug Fix</div>
       <ul class="changelog-list">
         <li>✦ <strong>修復重新整理後自訂音效消失的問題</strong></li>
         <li>✦ <strong>修復重新整理或跨裝置時，自訂音效無法正常播放的問題</strong></li>
-		<li>我終於修好它們啦 哇哈哈哈哈哈哈哈</li>
       </ul>
     </div>
-
-	  
     <div class="changelog-entry">
       <div class="changelog-version">v2.5.0 <span class="changelog-date">— 2026/05/19</span></div>
 	  <div class="changelog-tagline">提示音更新與用戶體驗優化</div>
@@ -3592,7 +3608,7 @@ const WX_ICON = {
   <div class="modal" style="max-width: 1100px; max-height: 85vh; overflow-y: auto;">
     <h3>☁ 24 小時天氣預報</h3>
     <div style="font-size: 12px; color: var(--parchment-dim); margin-bottom: 14px;">
-      未來 24 小時各島嶼的天氣變化（連續相同天氣已合併）
+      未來 24 小時各島嶼的天氣變化
     </div>
     <div class="weather-forecast-grid" id="weatherForecastGrid">
       <!-- populated by JS -->
@@ -4129,7 +4145,7 @@ const WX_ICON = {
   const AUTH_STORAGE_KEY = 'eureka_user_info';
 	
 　// Current build version — must match Firebase eureka/meta/currentVersion
-  const APP_VERSION = 'v2.5.1';
+  const APP_VERSION = 'v2.6.0';
   const metaRef = db.ref('eureka/meta');
 
   // Watch for version updates: if Firebase has a newer version, prompt reload
@@ -8937,7 +8953,7 @@ async function checkAndRecordAction(actionType) {
       const ct=document.getElementById('confirmToggle');
       if(ct) ct.onchange=()=>saveConfirmSetting(ct.checked);
       // 斗內帳號顯示
-      const as=document.getElementById('acctShow'); if(as) as.onclick=()=>{ document.getElementById('acctNum').textContent='0000-0000-0000-0000'; };
+      const as=document.getElementById('acctShow'); if(as) as.onclick=()=>{ document.getElementById('acctNum').textContent='9015-6557-9887'; };
       // 頁尾/底部入口（若存在）
       // 緊湊模式切換
       wireDensityToggle();
@@ -9469,12 +9485,12 @@ async function checkAndRecordAction(actionType) {
 <div class="modal-backdrop" id="donateModal">
   <div class="modal" style="max-width:440px;">
     <h3>☕ 支持作者</h3>
-    <p class="donate-intro">這個工具完全免費、無廣告。若它對你有幫助、也願意請我喝杯咖啡，非常感謝！💛 贊助純屬自願，<b>不影響任何功能</b>。</p>
+    <p class="donate-intro">這個工具完全免費、無廣告。若它對您有幫助、也願意請我吃顆茶葉蛋，非常感謝！💛 贊助純屬自願，<b>不影響任何功能</b>。</p>
     <div class="donate-card">
       <div class="dc-row"><span class="dc-k">銀行</span><span class="dc-v"> 中國信託(822) </span></div>
       <div class="dc-row"><span class="dc-k">帳號</span><span class="dc-v" id="acctNum">點右側顯示 →</span><button class="donate-copy" id="acctShow">顯示</button></div>
     </div>
-    <p class="donate-thanks">帳號採「點擊才顯示」設計，避免被爬蟲掃取。每一份支持都是我持續維護的動力，感謝你 🙏</p>
+    <p class="donate-thanks">每一份支持都是我持續維護與更新的動力，感謝您 🙏</p>
     <div class="modal-actions"><button class="modal-btn" data-close>關閉</button></div>
   </div>
 </div>
