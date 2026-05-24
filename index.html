@@ -9244,7 +9244,7 @@ async function checkAndRecordAction(actionType) {
 
     // === 展示安全模式（DEMO）：不連 Firebase、不需登入，用假資料呈現畫面 ===
     // （正式版會還原為下面註解掉的真實連線）
-    const DEMO = true;
+    const DEMO = false;
     window.__DEMO__ = DEMO;
     if (DEMO) {
       const now = Date.now();
