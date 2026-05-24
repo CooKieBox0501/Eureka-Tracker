@@ -3168,7 +3168,7 @@ const WX_ICON = {
   <!-- 公告 banner（可關閉）-->
   <div class="announce-banner" id="announceBanner">
     <span class="ab-tag">公告</span>
-    <span class="ab-text" id="announceText"><b>v2.6 更新！</b>新增全NM支援、回報排行榜、緊湊模式、天氣顯示優化...等多項更新，詳情請點選版本號(v2.6.0)查看更新日誌以了解更多。感謝大家支持 💛</span>
+    <span class="ab-text" id="announceText"><b>v2.6 更新！</b>新增全NM、回報排行榜、緊湊模式、天氣圖示，詳情請點選版本號(v2.6.0)查看更新日誌以了解更多。感謝大家支持 💛</span>
     <button class="ab-close" id="announceClose" title="關閉公告">×</button>
   </div>
 
@@ -3555,7 +3555,6 @@ const WX_ICON = {
         <button class="scf-btn active" data-cat="all">全部</button>
         <button class="scf-btn" data-cat="bao">八寶</button>
         <button class="scf-btn" data-cat="lord">島主</button>
-        <button class="scf-btn" data-cat="other">其它</button>
       </div>
       <div id="soundNmList"></div>
     </div>
@@ -4946,6 +4945,9 @@ async function processAuthCallback() {
 
   function isSoundEnabledForNm(nmId) {
     if (!soundPrefs.enabled) return false;
+    // 其它類 NM 一律不發提示音（只保留八寶、島主）
+    const nm = (typeof findNm === 'function') ? findNm(nmId) : null;
+    if (nm && (nm.category || 'bao') === 'other') return false;
     const per = soundPrefs.perNm || {};
     // default: enabled unless explicitly set to false
     if (per[nmId] === false) return false;
@@ -5157,7 +5159,7 @@ async function processAuthCallback() {
     const zoneData = NM_DATA[soundSettingsTab];
     if (!zoneData) return;
     let html = '';
-    let nms = zoneData.nms;
+    let nms = zoneData.nms.filter(nm => (nm.category||'bao') !== 'other'); // 其它 NM 不提供提示音設定
     if (soundNmCatFilter !== 'all') nms = nms.filter(nm => (nm.category||'bao') === soundNmCatFilter);
     nms.forEach(nm => {
       const cat = nm.category || 'bao';
@@ -6570,9 +6572,10 @@ async function checkAndRecordAction(actionType) {
           history: data.history || {},
           oldIsland: data.oldIsland || {},
           newIslandMark: data.newIslandMark || {},
+          otherReporters: data.otherReporters || {},
         };
       } else {
-        state = { spawns: {}, instanceResets: {}, activeEvents: {}, history: {}, oldIsland: {}, newIslandMark: {} };
+        state = { spawns: {}, instanceResets: {}, activeEvents: {}, history: {}, oldIsland: {}, newIslandMark: {}, otherReporters: {} };
       }
       firstSnapshotReceived = true;
       setSyncStatus('ok', '已同步');
@@ -7596,9 +7599,9 @@ async function checkAndRecordAction(actionType) {
     const extraHtml = `
       <div class="manual-choose">
         <button class="manual-opt alive" id="moAlive"><span class="mo-ico">🟢</span><span><span class="mo-t">補報存活（修正時間）</span><span class="mo-d">怪還活著，但要修正出現／開戰時間</span></span></button>
-        <button class="manual-opt dead" id="moDead"><span class="mo-ico">🔴</span><span><span class="mo-t">補報死亡</span><span class="mo-d"> 怪已經死了，補登或修正出現時間</span></span></button>
+        <button class="manual-opt dead" id="moDead"><span class="mo-ico">🔴</span><span><span class="mo-t">補報死亡</span><span class="mo-d">怪已經死了，補登或修正出現時間</span></span></button>
       </div>
-      <p class="lb-note" style="margin-top:14px;">分兩種是為了避免「其實死了卻被報活」（出現後需滿 8 分鐘才安全）。</p>
+      <p class="lb-note" style="margin-top:14px;">分兩種是為了避免「其實死了卻被報活」（出現後需滿 8 分鐘才安全）。<br>＊第二階段接上後會自動帶入時間判斷。</p>
     `;
     showModal(`手動補報「${nm.name}」`, '', null, { extraHtml, hideConfirm: true, cancelText: '取消' });
     // 綁定兩鈕（showModal 後 DOM 已就緒）
@@ -8983,16 +8986,30 @@ async function checkAndRecordAction(actionType) {
         else btn.textContent=`取消(${left})`;
       },1000);
     }
-    // 其它 NM 出現：無二段確認、無圖、記防濫用、寫 spawn（直接開始 2hr 計時）
+    // 其它 NM 出現：只記錄出現時間（spawns）+ 回報者名稱，不建立 activeEvents（不進「進行中」），無二段確認、無圖
     async function handleOtherSpawn(nmId){
       if(window.__DEMO__){
-        // DEMO：直接寫假 state 展示「出現→取消」切換
-        if(typeof state!=='undefined'){ state.spawns=state.spawns||{}; state.spawns[nmId]=Date.now(); }
+        if(typeof state!=='undefined'){
+          state.spawns=state.spawns||{}; state.spawns[nmId]=Date.now();
+          state.otherReporters=state.otherReporters||{}; state.otherReporters[nmId]='你（示範）';
+        }
         if(window.reapplyDensity) window.reapplyDensity();
         return;
       }
-      // 正式：防濫用檢查 + 寫入（handleReport 內含 requireLogin/checkAndRecordAction）
-      if(typeof handleReport==='function'){ handleReport(nmId); }
+      // 正式環境
+      if(typeof requireLogin==='function' && !requireLogin()) return;
+      if(typeof isBanned==='function' && isBanned()){ if(typeof showBannedModal==='function') showBannedModal(); return; }
+      if(typeof checkAndRecordAction==='function'){ const ok=await checkAndRecordAction('report'); if(!ok) return; }
+      const now=Date.now();
+      const reporterName=(currentUser && currentUser.name) ? currentUser.name : '';
+      const prevName=(state.otherReporters && state.otherReporters[nmId]) ? state.otherReporters[nmId] : '';
+      const updates={};
+      updates[`spawns/${nmId}`]=now;
+      updates[`otherReporters/${nmId}`]=reporterName;   // 上次出現回報者（其它 NM 專用）
+      updates[`otherReportersPrev/${nmId}`]=prevName;    // 保存前一位，供取消還原
+      if(typeof applyUpdates==='function'){ await applyUpdates(updates); }
+      try{ if(typeof triggeringRef!=='undefined') await triggeringRef.child(nmId).remove(); }catch(e){}
+      if(typeof logUserAction==='function') logUserAction('report',{nmId});
       if(window.reapplyDensity) window.reapplyDensity();
     }
     // 其它 NM 取消：二段確認（沿用設定）+ 記防濫用 + 寫 null
@@ -9001,12 +9018,80 @@ async function checkAndRecordAction(actionType) {
       const zl='';
       const doCancel=async()=>{
         if(typeof checkAndRecordAction==='function'){ const ok=await checkAndRecordAction('cancel'); if(!ok) return; }
-        if(typeof state!=='undefined' && state.spawns){ state.spawns[nmId]=null; delete state.spawns[nmId]; }
-        if(typeof db!=='undefined' && !window.__DEMO__){ db.ref('eureka/state/spawns/'+nmId).set(null).catch(()=>{}); if(typeof logUserAction==='function') logUserAction('cancel',{nmId}); }
+        if(window.__DEMO__){
+          if(typeof state!=='undefined' && state.spawns){ delete state.spawns[nmId]; if(state.otherReporters) state.otherReporters[nmId]=''; }
+          if(window.reapplyDensity) window.reapplyDensity();
+          return;
+        }
+        const prevName=(state.otherReportersPrev && state.otherReportersPrev[nmId]) ? state.otherReportersPrev[nmId] : '';
+        const updates={};
+        updates[`spawns/${nmId}`]=null;                   // 清除出現時間（回到沒生過）
+        updates[`otherReporters/${nmId}`]=prevName;       // 還原上一位回報者（空就空）
+        updates[`otherReportersPrev/${nmId}`]=null;
+        if(typeof applyUpdates==='function'){ await applyUpdates(updates); }
+        if(typeof logUserAction==='function') logUserAction('cancel',{nmId});
         if(window.reapplyDensity) window.reapplyDensity();
       };
       // 取消需要二段確認（可被設定關閉）
       showNmConfirmModal(nm, zl, `確認取消「${nm.name}」的出現紀錄？`, doCancel, { noImage:true });
+    }
+    // 其它 NM 修正出現時間：只改 spawns，不建立 activeEvents（不進「進行中」）
+    function openOtherFixModal(nmId){
+      const nm=findNm(nmId); if(!nm) return;
+      if(!window.__DEMO__ && typeof requireLogin==='function' && !requireLogin()) return;
+      const extraHtml=`
+        <div class="time-mode-tabs">
+          <button class="time-mode-tab active" data-mode="ago">幾分鐘前出現</button>
+          <button class="time-mode-tab" data-mode="clock">指定時間出現</button>
+        </div>
+        <div class="time-input-group" data-pane="ago">
+          <span class="time-input-label">分鐘前 (0–119)</span>
+          <input class="time-input" id="ofTimeAgo" type="text" inputmode="numeric" placeholder="例如：10" />
+          <div class="time-input-hint">輸入「10」表示 10 分鐘前出現，冷卻剩約 1 小時 50 分。</div>
+        </div>
+        <div class="time-input-group" data-pane="clock" style="display:none;">
+          <span class="time-input-label">出現時間（24 或 12 小時制）</span>
+          <input class="time-input" id="ofTimeClock" type="text" inputmode="numeric" placeholder="例如：1800 或 18:00" />
+        </div>
+        <div class="time-input-error" id="ofTimeError"></div>`;
+      showModal(`修正「${nm.name}」出現時間`, '', () => {
+        const activeTab=document.querySelector('.time-mode-tab.active');
+        const mode=activeTab?activeTab.dataset.mode:'ago';
+        const input=mode==='ago'?document.getElementById('ofTimeAgo').value:document.getElementById('ofTimeClock').value;
+        const ts=parseManualTime(input, mode);
+        const errEl=document.getElementById('ofTimeError');
+        if(!ts){ errEl.textContent='請輸入有效時間（0–119 分鐘前，或 1800 / 18:00）。'; return false; }
+        const commit=async()=>{
+          if(window.__DEMO__){
+            if(typeof state!=='undefined'){ state.spawns=state.spawns||{}; state.spawns[nmId]=ts; state.otherReporters=state.otherReporters||{}; state.otherReporters[nmId]='你（示範）'; }
+            if(window.reapplyDensity) window.reapplyDensity();
+            return;
+          }
+          if(typeof isBanned==='function' && isBanned()){ if(typeof showBannedModal==='function') showBannedModal(); return; }
+          if(typeof checkAndRecordAction==='function'){ const ok=await checkAndRecordAction('manual_report'); if(!ok) return; }
+          const reporterName=(currentUser && currentUser.name)?currentUser.name:'';
+          const updates={};
+          updates[`spawns/${nmId}`]=ts;
+          updates[`otherReporters/${nmId}`]=reporterName;
+          const zone=findZoneOfNm(nmId);
+          if(zone && state.instanceResets[zone] && state.instanceResets[zone] > ts){ updates[`instanceResets/${zone}`]=ts-1; }
+          if(typeof applyUpdates==='function'){ await applyUpdates(updates); }
+          if(typeof logUserAction==='function') logUserAction('manual_report',{nmId,timestamp:ts});
+          if(window.reapplyDensity) window.reapplyDensity();
+        };
+        commit();
+      }, {
+        extraHtml, confirmText:'確認修正',
+        afterShow:()=>{
+          document.querySelectorAll('.time-mode-tab').forEach(tab=>{
+            tab.addEventListener('click',()=>{
+              document.querySelectorAll('.time-mode-tab').forEach(t=>t.classList.toggle('active',t===tab));
+              document.querySelectorAll('[data-pane]').forEach(p=>{ p.style.display = p.dataset.pane===tab.dataset.mode?'':'none'; });
+            });
+          });
+          const a=document.getElementById('ofTimeAgo'); if(a) a.focus();
+        }
+      });
     }
     // 一般模式：依追蹤分類隱藏卡片（其它分類在一般模式一律隱藏）
     function applyTrackingFilter(){
@@ -9134,7 +9219,7 @@ async function checkAndRecordAction(actionType) {
           <td><button class="cc-map" data-nm="${nm.id}" title="地圖位置（製作中）">🗺️</button></td>
           <td class="cc-mob">${nm.mob||''}</td>
           <td><div class="cc-cond">${cond}</div></td>
-          <td class="cc-last">${nm._lastReporter||'—'}</td>
+          <td class="cc-last">${(typeof state!=='undefined' && state.otherReporters && state.otherReporters[nm.id]) ? state.otherReporters[nm.id] : '—'}</td>
           <td class="cc-time">${tv}</td>
           <td><button class="cc-report" data-nm="${nm.id}" data-zone="${zid}">出現</button></td>
         </tr>`;
@@ -9161,7 +9246,7 @@ async function checkAndRecordAction(actionType) {
           b.onclick=()=>handleOtherCancel(b.dataset.nm);
         });
         // 其它 NM：修正（手動輸入時間）
-        grid.querySelectorAll('.cc-fix').forEach(b=>b.onclick=()=>{ if(typeof checkAndRecordAction==='function'){} openManualTimeModal(b.dataset.nm); });
+        grid.querySelectorAll('.cc-fix').forEach(b=>b.onclick=()=>openOtherFixModal(b.dataset.nm));
         grid.querySelectorAll('.cc-sortable').forEach(th=>th.onclick=()=>{ const k=th.dataset.sort; if(sortKey===k){ sortDir=(sortDir==='asc'?'desc':'asc'); } else { sortKey=k; sortDir='asc'; } applyDensityAll(); });
         grid.querySelectorAll('.cc-map').forEach(b=>b.onclick=()=>{ showMapPlaceholder(b.dataset.nm); });
       }else{
@@ -9211,7 +9296,7 @@ async function checkAndRecordAction(actionType) {
         if(nm.weather){const ic=(typeof WX_ICON!=='undefined'&&WX_ICON[nm.weather])?`<img src="${WX_ICON[nm.weather]}">`:'';cond+=`<span class="cc-wx">${ic}${nm.weather}</span>`;}
         if(nm.timeReq){cond+=`<span class="cc-wx">🌙 ${nm.timeReq}</span>`;}
         if(!nm.weather&&!nm.timeReq)cond='<span style="color:var(--ink-faded)">無條件</span>';
-        const lastReporter = nm._lastReporter || '—';
+        const lastReporter = (typeof state!=='undefined' && state.otherReporters && state.otherReporters[nm.id]) ? state.otherReporters[nm.id] : '—';
         const roleTag = nm.category==='lord'?'<span class="nk" style="color:var(--gold-bright)">島主</span>':(nm.category==='other'?'':'<span class="nk" style="color:var(--el-ice)">八寶</span>');
         // 其它 NM：出現/取消(已生過) + 修正鈕；八寶島主：原本的出現鈕
         let actionCell;
@@ -9246,7 +9331,7 @@ async function checkAndRecordAction(actionType) {
 
     // === 展示安全模式（DEMO）：不連 Firebase、不需登入，用假資料呈現畫面 ===
     // （正式版會還原為下面註解掉的真實連線）
-    const DEMO = false;
+    const DEMO = true;
     window.__DEMO__ = DEMO;
     if (DEMO) {
       const now = Date.now();
@@ -9271,6 +9356,7 @@ async function checkAndRecordAction(actionType) {
         history: {},
         oldIsland: {},
         newIslandMark: { anemos: now - 3*3600*1000, pagos: now - 48*60*1000, pyros: now - (5*3600+11*60)*1000, hydatos: now - 90*1000 },
+        otherReporters: {}, otherReportersPrev: {},
       };
       buildZoneContent();
       renderActiveZoneContent();
@@ -9373,7 +9459,8 @@ async function checkAndRecordAction(actionType) {
   <div class="modal" style="max-width:440px;">
     <h3>🏆 回報貢獻排行榜</h3>
     <div class="lb-list" id="lbList"></div>
-    <p class="lb-note">分數＝出現回報 ＋ 擊殺回報（手動補報不計）· 請勿為了分數而亂玩按鈕 !</p>
+    <p class="lb-note">分數＝出現回報 ＋ 擊殺回報（手動補報不計）</p>
+	<p>
     <div class="modal-actions"><button class="modal-btn" data-close>關閉</button></div>
   </div>
 </div>
@@ -9384,7 +9471,7 @@ async function checkAndRecordAction(actionType) {
     <h3>☕ 支持作者</h3>
     <p class="donate-intro">這個工具完全免費、無廣告。若它對你有幫助、也願意請我喝杯咖啡，非常感謝！💛 贊助純屬自願，<b>不影響任何功能</b>。</p>
     <div class="donate-card">
-      <div class="dc-row"><span class="dc-k">銀行</span><span class="dc-v">（將由站長填入）</span></div>
+      <div class="dc-row"><span class="dc-k">銀行</span><span class="dc-v"> 中國信託(822) </span></div>
       <div class="dc-row"><span class="dc-k">帳號</span><span class="dc-v" id="acctNum">點右側顯示 →</span><button class="donate-copy" id="acctShow">顯示</button></div>
     </div>
     <p class="donate-thanks">帳號採「點擊才顯示」設計，避免被爬蟲掃取。每一份支持都是我持續維護的動力，感謝你 🙏</p>
@@ -9399,7 +9486,7 @@ async function checkAndRecordAction(actionType) {
     <p class="donate-intro"><b>這是什麼？</b><br>讓全伺服器玩家共同回報菁英怪（NM）的出現與死亡，即時同步給所有人，方便組隊討伐。</p>
     <p class="donate-intro"><b>怎麼用？</b><br>① Discord 登入　② 看到怪出現按「出現回報」　③ 怪死了按「已死亡」　④ 系統自動倒數下次可觸發。</p>
     <p class="donate-intro"><b>顏色？</b><br>🔴 冷卻中　🟡 等待條件　🟢 可以觸發　🔵 進行中</p>
-    <p class="lb-note">＊完整「互動式逐鈕導覽」將於最後一波加入。</p>
+    <p class="lb-note">＊完整「互動式逐鈕導覽」將於v2.7.0加入。</p>
     <div class="modal-actions"><button class="modal-btn" data-close>關閉</button></div>
   </div>
 </div>
