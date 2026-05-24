@@ -3168,7 +3168,7 @@ const WX_ICON = {
   <!-- 公告 banner（可關閉）-->
   <div class="announce-banner" id="announceBanner">
     <span class="ab-tag">公告</span>
-    <span class="ab-text" id="announceText"><b>v2.6 更新！</b>目前您處於v2.6.0的測試版本，請不要使用任何按鈕直到正式發布，感謝配合！</span>
+    <span class="ab-text" id="announceText"><b>v2.6 更新！</b>新增全NM支援、回報排行榜、緊湊模式、天氣顯示優化...等多項更新，詳情請點選版本號(v2.6.0)查看更新日誌以了解更多。感謝大家支持 💛</span>
     <button class="ab-close" id="announceClose" title="關閉公告">×</button>
   </div>
 
@@ -7595,10 +7595,10 @@ async function checkAndRecordAction(actionType) {
     if (!nm) return;
     const extraHtml = `
       <div class="manual-choose">
-        <button class="manual-opt alive" id="moAlive"><span class="mo-ico">🟢</span><span><span class="mo-t">補報存活（修正時間）</span><span class="mo-d">怪還活著，但要修正出現/開戰時間</span></span></button>
-        <button class="manual-opt dead" id="moDead"><span class="mo-ico">🔴</span><span><span class="mo-t">補報死亡</span><span class="mo-d">怪已經死了，補登或修正出現時間</span></span></button>
+        <button class="manual-opt alive" id="moAlive"><span class="mo-ico">🟢</span><span><span class="mo-t">補報存活（修正時間）</span><span class="mo-d">怪還活著，但要修正出現／開戰時間</span></span></button>
+        <button class="manual-opt dead" id="moDead"><span class="mo-ico">🔴</span><span><span class="mo-t">補報死亡</span><span class="mo-d"> 怪已經死了，補登或修正出現時間</span></span></button>
       </div>
-      <p class="lb-note" style="margin-top:14px;">分兩種是為了避免「其實死了卻被報活」（出現後需滿 8 分鐘才安全）。<br>＊第二階段接上後會自動帶入時間判斷。</p>
+      <p class="lb-note" style="margin-top:14px;">分兩種是為了避免「其實死了卻被報活」（出現後需滿 8 分鐘才安全）。</p>
     `;
     showModal(`手動補報「${nm.name}」`, '', null, { extraHtml, hideConfirm: true, cancelText: '取消' });
     // 綁定兩鈕（showModal 後 DOM 已就緒）
@@ -7948,6 +7948,8 @@ async function checkAndRecordAction(actionType) {
     updateUpcomingPanel();
     if (activeZone === 'custom' && typeof window.renderCustomTracking === 'function') window.renderCustomTracking();
     if (typeof window.reapplyDensity === 'function') window.reapplyDensity();
+    // v2.6：一般模式套用追蹤分類篩選（避免顯示未勾選/其它的空白卡片）
+    if (typeof window.applyTrackingFilter === 'function' && activeZone !== 'custom') window.applyTrackingFilter();
   }
 
   // Find the most recent undoable reset for a given zone (within 5min)
@@ -9023,7 +9025,7 @@ async function checkAndRecordAction(actionType) {
     window.applyTrackingFilter = applyTrackingFilter;
     // #3 島嶼存活時間：距上次新島重置多久（重置過歸零，即從重置時間開始計）
     const ZONE_EL = { anemos:'wind', pagos:'ice', pyros:'fire', hydatos:'water' };
-    const ZONE_SHORT2 = { anemos:'常風之地', pagos:'恆冰之地', pyros:'湧火之地', hydatos:'豐水之地' };
+    const ZONE_SHORT2 = { anemos:'常風', pagos:'恆冰', pyros:'湧火', hydatos:'豐水' };
     window.renderIslandLife = function(){
       const el=document.getElementById('islandLife'); if(!el) return;
       const now=Date.now();
@@ -9036,7 +9038,7 @@ async function checkAndRecordAction(actionType) {
           txt = h>0 ? `${h}小時${m}分` : `${m}分`;
           if(sec<300) fresh='fresh'; // 5分內視為剛重置
         }
-        return `<div class="il-chip ${fresh}" data-el="${ZONE_EL[z]}"><span class="il-dot"></span><span class="il-label">${ZONE_SHORT2[z]}存在時長</span><span class="il-val">${txt}</span></div>`;
+        return `<div class="il-chip ${fresh}" data-el="${ZONE_EL[z]}"><span class="il-dot"></span><span class="il-label">${ZONE_SHORT2[z]}存活</span><span class="il-val">${txt}</span></div>`;
       }).join('');
     };
     // #2 公告系統
@@ -9290,6 +9292,11 @@ async function checkAndRecordAction(actionType) {
     attachVersionListener();
     updateClock();
 
+    // === v2.6 新功能綁定（正式環境）===
+    wireV26UI();                                              // 選單、設定分頁、公告、追蹤勾選、二段確認開關、緊湊切換
+    if (typeof applyTrackingFilter === 'function') applyTrackingFilter();  // 套用追蹤分類（避免空白卡片）
+    if (window.renderIslandLife) window.renderIslandLife();   // 島嶼存活時間
+
     // tick every second for clock + cooldown countdowns
     setInterval(() => {
       updateClock();
@@ -9303,6 +9310,8 @@ async function checkAndRecordAction(actionType) {
       // refresh old-island sub-tab countdown + New badge state
       updateOldIslandSubtabs();
       updateZoneTabsNewBadge();
+      // v2.6 島嶼存活時間
+      if (window.renderIslandLife) window.renderIslandLife();
     }, TICK_MS);
 
     // every 30 seconds, prune stale events + old history
@@ -9364,7 +9373,7 @@ async function checkAndRecordAction(actionType) {
   <div class="modal" style="max-width:440px;">
     <h3>🏆 回報貢獻排行榜</h3>
     <div class="lb-list" id="lbList"></div>
-    <p class="lb-note">分數＝出現回報 ＋ 擊殺回報（手動補報不計）· 請勿為了排名亂按按紐！</p>
+    <p class="lb-note">分數＝出現回報 ＋ 擊殺回報（手動補報不計）· 請勿為了分數而亂玩按鈕 !</p>
     <div class="modal-actions"><button class="modal-btn" data-close>關閉</button></div>
   </div>
 </div>
@@ -9373,9 +9382,9 @@ async function checkAndRecordAction(actionType) {
 <div class="modal-backdrop" id="donateModal">
   <div class="modal" style="max-width:440px;">
     <h3>☕ 支持作者</h3>
-    <p class="donate-intro">這個工具完全免費、無廣告。若它對你有幫助、也願意請我吃顆茶葉蛋，非常感謝！💛 贊助純屬自願，<b>不影響任何功能</b>。</p>
+    <p class="donate-intro">這個工具完全免費、無廣告。若它對你有幫助、也願意請我喝杯咖啡，非常感謝！💛 贊助純屬自願，<b>不影響任何功能</b>。</p>
     <div class="donate-card">
-      <div class="dc-row"><span class="dc-k">銀行</span><span class="dc-v"> 中國信託(822) </span></div>
+      <div class="dc-row"><span class="dc-k">銀行</span><span class="dc-v">（將由站長填入）</span></div>
       <div class="dc-row"><span class="dc-k">帳號</span><span class="dc-v" id="acctNum">點右側顯示 →</span><button class="donate-copy" id="acctShow">顯示</button></div>
     </div>
     <p class="donate-thanks">帳號採「點擊才顯示」設計，避免被爬蟲掃取。每一份支持都是我持續維護的動力，感謝你 🙏</p>
@@ -9390,7 +9399,7 @@ async function checkAndRecordAction(actionType) {
     <p class="donate-intro"><b>這是什麼？</b><br>讓全伺服器玩家共同回報菁英怪（NM）的出現與死亡，即時同步給所有人，方便組隊討伐。</p>
     <p class="donate-intro"><b>怎麼用？</b><br>① Discord 登入　② 看到怪出現按「出現回報」　③ 怪死了按「已死亡」　④ 系統自動倒數下次可觸發。</p>
     <p class="donate-intro"><b>顏色？</b><br>🔴 冷卻中　🟡 等待條件　🟢 可以觸發　🔵 進行中</p>
-    <p class="lb-note">＊完整「互動式逐鈕導覽」將於v2.7.0加入。</p>
+    <p class="lb-note">＊完整「互動式逐鈕導覽」將於最後一波加入。</p>
     <div class="modal-actions"><button class="modal-btn" data-close>關閉</button></div>
   </div>
 </div>
