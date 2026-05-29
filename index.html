@@ -1338,6 +1338,14 @@ const WX_ICON = {
     border: 1px solid var(--border-light);
     flex-shrink: 0;
   }
+  /* 頭像載入失敗時的首字 fallback */
+  .av-fallback {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: linear-gradient(135deg,#28304a,#8a6d20);
+    color: #fff; font-weight: 700; font-size: 13px; flex-shrink: 0;
+    border: 1px solid var(--border-light);
+  }
 
   .admin-row-main {
     flex: 1;
@@ -1795,6 +1803,14 @@ const WX_ICON = {
     color: var(--gold-deep);
     margin: 0 8px;
   }
+  .site-contact {
+    margin-top: 10px;
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--ink-faded);
+    opacity: 0.7;
+    letter-spacing: 0.02em;
+  }
 
   /* mobile */
   @media (max-width: 640px) {
@@ -1818,6 +1834,10 @@ const WX_ICON = {
   }
 
   .modal-backdrop.active { display: flex; }
+  /* 公告預覽：暫時透明化管理面板讓使用者看到 banner */
+  .modal-backdrop.previewing { background: rgba(0,0,0,0); backdrop-filter: none; pointer-events: none; }
+  .modal-backdrop.previewing .modal { opacity: 0.18; transition: opacity .15s; pointer-events: auto; transform: translateY(40vh) scale(0.7); }
+  .modal-backdrop.previewing .modal:hover { opacity: 1; }
 
   .modal {
     background: var(--bg-card);
@@ -2978,6 +2998,8 @@ const WX_ICON = {
   }
   /* ===== v2.6 新增 UI ===== */
   /* 身份組標籤 */
+  .role-check{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--ink-bright);user-select:none;}
+  .role-check input{width:16px;height:16px;accent-color:var(--gold);}
   .role-badge{display:inline-block;font-size:10px;font-weight:700;padding:1px 7px;border-radius:99px;margin-left:4px;vertical-align:middle;}
   .role-badge.role-0{background:rgba(212,168,75,0.2);color:var(--gold-bright);border:1px solid var(--gold-deep);}
   .role-badge.role-1{background:rgba(142,197,232,0.18);color:var(--el-ice);border:1px solid rgba(142,197,232,0.4);}
@@ -3068,6 +3090,9 @@ const WX_ICON = {
   .snm-cat.bao{background:rgba(142,197,232,0.15);color:var(--el-ice);}
   .snm-cat.lord{background:rgba(212,168,75,0.18);color:var(--gold-bright);}
   .snm-cat.other{background:rgba(255,255,255,0.06);color:var(--ink-faded);}
+  .snm-lv{display:inline-block;font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--gold);background:rgba(212,168,75,0.1);padding:1px 6px;border-radius:3px;margin-right:5px;}
+  .track-quick{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-bottom:10px;}
+  .track-quick-label{font-size:12px;color:var(--ink-faded);}
 
   /* 緊湊模式 */
   .density-switch-wrap{display:inline-flex;align-items:center;gap:9px;}
@@ -3168,7 +3193,7 @@ const WX_ICON = {
   <!-- 公告 banner（可關閉）-->
   <div class="announce-banner" id="announceBanner">
     <span class="ab-tag">公告</span>
-    <span class="ab-text" id="announceText"><b>v2.6 更新！</b>新增全NM、回報排行榜、緊湊模式、天氣圖示，詳情請點選版本號(v2.6.0)查看更新日誌以了解更多。感謝大家支持 💛</span>
+    <span class="ab-text" id="announceText"><b>v2.6.1 更新！</b>修了一個魔貨物車輛的BUG，詳情請點選版本號(v2.6.1)查看更新日誌以了解更多。感謝大家支持 💛</span>
     <button class="ab-close" id="announceClose" title="關閉公告">×</button>
   </div>
 
@@ -3225,6 +3250,9 @@ const WX_ICON = {
       FINAL FANTASY is a registered trademark of Square Enix Holdings Co., Ltd.<br>
       本網站為非官方愛好者工具，與 SQUARE ENIX 無關。
     </div>
+    <div class="site-contact">
+      信箱：cheese60410@gmail.com　·　Discord：cookie_box　·　FFXIV：波波露@巴哈姆特
+    </div>
     <span class="ornament">❦</span>
   </footer>
 
@@ -3274,9 +3302,29 @@ const WX_ICON = {
   <div class="modal" style="max-width: 520px; max-height: 70vh; overflow-y: auto;">
     <h3>📜 更新日誌</h3>
 	  
-	<div class="changelog-entry changelog-feature">
+	<div class="changelog-entry changelog-bugfix">
+      <div class="changelog-version">v2.6.1 <span class="changelog-date">— 2026/05/29</span></div>
+      <div class="changelog-tagline">🛠 Bug Fix & 體驗優化</div>
+      <ul class="changelog-list">
+        <li>✦ <strong>修復其它 NM 取消鈕鎖定問題</strong>：取消鈕的 10 秒鎖定僅在剛回報的當下生效，切換島嶼或重新整理不會再次鎖定</li>
+        <li>✦ <strong>修復其它 NM 冷卻過後仍顯示「取消」</strong>：2 小時冷卻結束或新島重置後，按鈕會正確變回「出現」</li>
+        <li>✦ <strong>修復八寶、島主的「上次出現回報者」未顯示</strong>：緊湊模式現在所有 NM 都會顯示上次回報的玩家名稱</li>
+        <li>✦ <strong>修復島嶼存活時間在新島幾分鐘後消失</strong>：改用永久保留的重置時間戳，存活時間會持續顯示</li>
+        <li>✦ <strong>修復自定義追蹤切換一般/緊湊不即時生效</strong>：現在點按鈕當下即切換，不需再切島來回</li>
+        <li>✦ <strong>修復取消新島重置後 NEW 標籤仍存在</strong>：取消重置時 NEW 標籤會一併消失</li>
+        <li>✦ <strong>修復自定義追蹤分頁顯示「本區 N 分鐘後變 null」</strong>：改顯示「跨島嶼模式」提示</li>
+        <li>✦ <strong>Discord 頭像破圖優化</strong>：頭像載入失敗時自動顯示名字首字，不再出現破圖</li>
+        <li>✦ <strong>追蹤設定改為每隻 NM 獨立勾選</strong>：可細部選擇追蹤哪些 NM，並提供分類過濾與快速全開／恢復預設按鈕</li>
+        <li>✦ <strong>提示音設定加回其它 NM</strong>：其它 NM 預設關閉提示音，使用者可自行開啟，名稱前加上等級方便查找</li>
+        <li>✦ <strong>使用者設定 → 其它分頁可正常切換、各項設定可正常使用</strong></li>
+        <li>✦ 頁尾新增聯絡資訊</li>
+		<li>感謝各位這段期間的耐心等候</li>
+      </ul>
+    </div>
+	  
+	<div class="changelog-entry">
       <div class="changelog-version">v2.6.0 <span class="changelog-date">— 2026/05/24</span></div>
-      <div class="changelog-tagline">🎉 大改版：全 NM 追蹤、卡面翻新、體驗優化</div>
+      <div class="changelog-tagline">全 NM 追蹤、卡面翻新、體驗優化</div>
       <ul class="changelog-list">
         <li>✦ <strong>全 NM 追蹤</strong>：四島所有臨危受命 NM 全數收錄（八寶、島主、其它），不再只追八寶島主</li>
         <li>✦ <strong>緊湊模式</strong>：右上角開關一鍵切換，整條依狀態染色（紅冷卻／黃等待／綠可觸發）</li>
@@ -3292,7 +3340,6 @@ const WX_ICON = {
 		<li>✦ 刀大呱呱的提示音音量提高100%，請注意調整音量</li>
       </ul>
     </div>
-	  
 	<div class="changelog-entry">
       <div class="changelog-version">v2.5.1 <span class="changelog-date">— 2026/05/21</span></div>
       <div class="changelog-tagline">🛠 Bug Fix</div>
@@ -3571,6 +3618,7 @@ const WX_ICON = {
         <button class="scf-btn active" data-cat="all">全部</button>
         <button class="scf-btn" data-cat="bao">八寶</button>
         <button class="scf-btn" data-cat="lord">島主</button>
+        <button class="scf-btn" data-cat="other">其它</button>
       </div>
       <div id="soundNmList"></div>
     </div>
@@ -3579,11 +3627,29 @@ const WX_ICON = {
     <!-- 其它分頁 -->
     <div class="settings-pane" data-pane="other" style="display:none;">
       <div class="sound-settings-section">
-        <div class="settings-subtitle">追蹤分類（勾選才顯示）</div>
-        <label class="track-row"><input type="checkbox" id="trackBao" checked> 八寶</label>
-        <label class="track-row"><input type="checkbox" id="trackLord" checked> 島主</label>
-        <label class="track-row"><input type="checkbox" id="trackOther"> 其它</label>
-        <div class="track-note">💡「其它」分類的 NM 只會在<b>緊湊模式</b>下顯示。</div>
+        <div class="settings-subtitle">追蹤的 NM（勾選才會顯示）</div>
+        <div class="track-quick">
+          <span class="track-quick-label">快速：</span>
+          <button class="modal-btn small" data-track-bulk="bao-on">八寶全開</button>
+          <button class="modal-btn small" data-track-bulk="lord-on">島主全開</button>
+          <button class="modal-btn small" data-track-bulk="other-on">其它全開</button>
+          <button class="modal-btn small" data-track-bulk="reset">恢復預設</button>
+        </div>
+        <div class="sound-perNm-tabs" id="trackNmTabs">
+          <button class="sound-nm-tab active" data-zone="anemos">常風</button>
+          <button class="sound-nm-tab" data-zone="pagos">恆冰</button>
+          <button class="sound-nm-tab" data-zone="pyros">湧火</button>
+          <button class="sound-nm-tab" data-zone="hydatos">豐水</button>
+        </div>
+        <div class="sound-cat-filter" id="trackCatFilter">
+          <span class="scf-label">篩選：</span>
+          <button class="scf-btn active" data-cat="all">全部</button>
+          <button class="scf-btn" data-cat="bao">八寶</button>
+          <button class="scf-btn" data-cat="lord">島主</button>
+          <button class="scf-btn" data-cat="other">其它</button>
+        </div>
+        <div id="trackNmList"></div>
+        <div class="track-note">💡「其它」分類的 NM 只會在<b>緊湊模式</b>或<b>自定義追蹤</b>分頁顯示。</div>
       </div>
       <div class="sound-settings-section" style="margin-top:14px;">
         <label class="sound-row">
@@ -3836,6 +3902,15 @@ const WX_ICON = {
     <div class="admin-tab-content" data-content="users">
       <div style="margin-bottom: 12px;">
         <input type="text" id="userSearch" placeholder="搜尋名稱或 ID..." style="width: 100%; background: var(--bg-deep); border: 1px solid var(--border-light); color: var(--ink-bright); padding: 8px 10px; font-family: var(--font-cjk); font-size: 13px; box-sizing: border-box;">
+      </div>
+      <div style="margin-bottom: 12px; display:flex; align-items:center; gap:8px;">
+        <label style="color: var(--ink-faded); font-size: 12px;">排序：</label>
+        <select id="adminUserSort" style="background: var(--bg-deep); border: 1px solid var(--border-light); color: var(--ink-bright); padding: 6px 10px; font-family: var(--font-cjk); font-size: 13px;">
+          <option value="role-actions">身份組 + 貢獻次數</option>
+          <option value="name">名稱 (A→Z)</option>
+          <option value="recent-new">最近操作（新→舊）</option>
+          <option value="recent-old">最近操作（舊→新）</option>
+        </select>
       </div>
       <div id="adminUsersList" class="admin-users-list"></div>
     </div>
@@ -4630,6 +4705,14 @@ async function processAuthCallback() {
     if (!src || typeof src !== 'string' || src.trim() === '') return DISCORD_DEFAULT_AVATAR;
     return src;
   }
+  // 產生帶 onerror 的頭像 img；圖片載入失敗時降回顯示名字首字
+  function avatarImgHtml(src, name, cls){
+    const url = getAvatarUrl(src);
+    const initial = (name && name.length) ? escapeHtml(name[0]) : '?';
+    const safeName = escapeHtml(name || '');
+    const onerr = `this.onerror=null;this.style.display='none';this.insertAdjacentHTML('afterend','<span class=\\'av-fallback\\'>${initial}</span>');`;
+    return `<img class="${cls||''}" src="${url}" alt="${safeName}" onerror="${onerr}">`;
+  }
 
   // Very simple Markdown renderer (bold, italic, links, line breaks)
   function renderMarkdown(text) {
@@ -4961,13 +5044,12 @@ async function processAuthCallback() {
 
   function isSoundEnabledForNm(nmId) {
     if (!soundPrefs.enabled) return false;
-    // 其它類 NM 一律不發提示音（只保留八寶、島主）
-    const nm = (typeof findNm === 'function') ? findNm(nmId) : null;
-    if (nm && (nm.category || 'bao') === 'other') return false;
     const per = soundPrefs.perNm || {};
-    // default: enabled unless explicitly set to false
-    if (per[nmId] === false) return false;
-    return true;
+    const nm = (typeof findNm === 'function') ? findNm(nmId) : null;
+    const cat = nm ? (nm.category || 'bao') : 'bao';
+    const defaultOn = (cat !== 'other');  // 其它預設關
+    if (per[nmId] === undefined) return defaultOn;
+    return per[nmId] !== false;
   }
 
   // Called whenever a new snapshot arrives — diffs against last spawns to detect new reports
@@ -5175,7 +5257,7 @@ async function processAuthCallback() {
     const zoneData = NM_DATA[soundSettingsTab];
     if (!zoneData) return;
     let html = '';
-    let nms = zoneData.nms.filter(nm => (nm.category||'bao') !== 'other'); // 其它 NM 不提供提示音設定
+    let nms = zoneData.nms;  // 全 NM（含其它）
     if (soundNmCatFilter !== 'all') nms = nms.filter(nm => (nm.category||'bao') === soundNmCatFilter);
     nms.forEach(nm => {
       const cat = nm.category || 'bao';
@@ -5186,7 +5268,7 @@ async function processAuthCallback() {
       const catLabel = cat==='lord'?'<span class="snm-cat lord">島主</span>':(cat==='other'?'<span class="snm-cat other">其它</span>':'<span class="snm-cat bao">八寶</span>');
       html += `
         <div class="sound-nm-row" data-nm="${nm.id}">
-          <span>${nm.name} <span style="color:var(--parchment-dim);font-size:11px;">· ${nm.nickname}</span> ${catLabel}</span>
+          <span><span class="snm-lv">Lv${nm.level}</span> ${nm.name} <span style="color:var(--parchment-dim);font-size:11px;">· ${nm.nickname||''}</span> ${catLabel}</span>
           <label class="switch">
             <input type="checkbox" data-nm-toggle="${nm.id}" ${isOn ? 'checked' : ''}>
             <span class="slider"></span>
@@ -5839,7 +5921,7 @@ async function checkAndRecordAction(actionType) {
           html += `
             <div class="admin-online-row">
               <span class="admin-online-dot ${idle ? 'idle' : ''}"></span>
-              <img class="admin-row-avatar" src="${getAvatarUrl(p.avatar)}" alt="">
+              ${avatarImgHtml(p.avatar, p.name, "admin-row-avatar")}
               <div class="admin-row-main">
                 <div class="admin-row-name">${escapeHtml(p.name || '')}</div>
                 <div class="admin-row-sub">最後活動：${formatRelativeTime(now - p.lastActive)}</div>
@@ -5872,11 +5954,40 @@ async function checkAndRecordAction(actionType) {
       return (u.name || '').toLowerCase().includes(search) || uid.includes(search);
     });
     const ROLE_ORDER = { '主催': 0, '觸發者': 1, '回報者': 2 };
-    const ROLE_BADGE = (r) => r ? `<span class="role-badge role-${ROLE_ORDER[r] ?? 9}">${r}</span>` : '';
+    // 取得使用者的身份組陣列（相容舊單一 role 欄位）
+    function getRoles(u){
+      if (!u) return [];
+      if (Array.isArray(u.roles)) return u.roles.filter(r => r in ROLE_ORDER);
+      if (u.role && (u.role in ROLE_ORDER)) return [u.role];
+      return [];
+    }
+    function rolesMinOrder(u){
+      const rs = getRoles(u);
+      if (!rs.length) return 9;
+      return Math.min(...rs.map(r => ROLE_ORDER[r]));
+    }
+    const ROLES_BADGES = (u) => getRoles(u).map(r =>
+      `<span class="role-badge role-${ROLE_ORDER[r] ?? 9}">${r}</span>`
+    ).join('');
+
+    // #12 排序模式（從下拉讀取）
+    const sortSel = document.getElementById('adminUserSort');
+    const sortMode = sortSel ? sortSel.value : 'role-actions';
     entries.sort((a, b) => {
-      const ra = ROLE_ORDER[a[1].role] ?? 9, rb = ROLE_ORDER[b[1].role] ?? 9;
-      if (ra !== rb) return ra - rb;                              // 先依身份組
-      return (b[1].stats?.totalActions || 0) - (a[1].stats?.totalActions || 0); // 再依貢獻次數
+      const ua = a[1], ub = b[1];
+      if (sortMode === 'name') {
+        return (ua.name || '').localeCompare(ub.name || '', 'zh-Hant');
+      }
+      if (sortMode === 'recent-new') {
+        return (ub.lastSeen || 0) - (ua.lastSeen || 0);
+      }
+      if (sortMode === 'recent-old') {
+        return (ua.lastSeen || 0) - (ub.lastSeen || 0);
+      }
+      // 預設：身份組 + 貢獻次數
+      const ra = rolesMinOrder(ua), rb = rolesMinOrder(ub);
+      if (ra !== rb) return ra - rb;
+      return (ub.stats?.totalActions || 0) - (ua.stats?.totalActions || 0);
     });
     if (entries.length === 0) {
       list.innerHTML = '<div class="ki-empty">沒有符合的使用者</div>';
@@ -5890,9 +6001,9 @@ async function checkAndRecordAction(actionType) {
       const actions = u.stats?.totalActions || 0;
       html += `
         <div class="admin-user-row" data-uid="${uid}">
-          <img class="admin-row-avatar" src="${getAvatarUrl(u.avatar)}" alt="">
+          ${avatarImgHtml(u.avatar, u.name, "admin-row-avatar")}
           <div class="admin-row-main">
-            <div class="admin-row-name">${escapeHtml(u.name || '')} ${ROLE_BADGE(u.role)} ${flagBadge}</div>
+            <div class="admin-row-name">${escapeHtml(u.name || '')} ${ROLES_BADGES(u)} ${flagBadge}</div>
             <div class="admin-row-sub">登入 ${u.loginCount || 0} 次 · ${actions} 次操作 · 最後 ${lastSeen}</div>
           </div>
           <div class="admin-row-actions">
@@ -5960,21 +6071,13 @@ async function checkAndRecordAction(actionType) {
       </div>
 
       <div class="ud-section">
-        <div class="ud-section-title">身份組</div>
-        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-          <select id="udRoleSelect" style="background:var(--bg-deep);border:1px solid var(--border-light);color:var(--ink-bright);padding:7px 10px;font-family:var(--font-cjk);font-size:13px;">
-            <option value="">（無）</option>
-            <option value="主催">主催</option>
-            <option value="觸發者">觸發者</option>
-            <option value="回報者">回報者</option>
-          </select>
-          <button class="modal-btn" id="udSaveRoleBtn">儲存身份組</button>
+        <div class="ud-section-title">身份組（可複選）</div>
+        <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
+          <label class="role-check"><input type="checkbox" data-role="主催"> <span class="role-badge role-0">主催</span></label>
+          <label class="role-check"><input type="checkbox" data-role="觸發者"> <span class="role-badge role-1">觸發者</span></label>
+          <label class="role-check"><input type="checkbox" data-role="回報者"> <span class="role-badge role-2">回報者</span></label>
         </div>
-      </div>
-
-      <div class="ud-section">
-        <div class="ud-section-title">標籤</div>
-        <div id="udTags"></div>
+        <button class="modal-btn" id="udSaveRoleBtn">儲存身份組</button>
       </div>
 
       <div class="ud-section">
@@ -5999,43 +6102,34 @@ async function checkAndRecordAction(actionType) {
       </div>
     `;
 
-    // Load user meta (tags + notes)
+    // Load user meta (notes only — tags 已併入身份組)
     const metaSnap = await userMetaRef.child(uid).once('value');
     const meta = metaSnap.val() || {};
-    const tagsEl = document.getElementById('udTags');
-    const tagNames = ['主催', '回報者', '觸發者'];
-    const userTags = meta.tags || [];
-    tagsEl.innerHTML = tagNames.map(t => `
-      <span class="ud-tag ${userTags.includes(t) ? 'active' : ''}" data-tag="${t}">${t}</span>
-    `).join('');
-    tagsEl.querySelectorAll('.ud-tag').forEach(el => {
-      el.addEventListener('click', () => el.classList.toggle('active'));
-    });
     document.getElementById('udNotesInput').value = meta.notes || '';
 
-    // #6 身份組：載入現值 + 儲存
-    const roleSelect = document.getElementById('udRoleSelect');
-    if (roleSelect) {
-      roleSelect.value = user.role || '';
-      const saveRoleBtn = document.getElementById('udSaveRoleBtn');
-      if (saveRoleBtn) saveRoleBtn.addEventListener('click', async () => {
-        const role = roleSelect.value;
-        try {
-          await usersRef.child(uid).child('role').set(role || null);
-          if (adminUsersCache[uid]) adminUsersCache[uid].role = role;
-          renderUsersList();
-          alert('已儲存身份組');
-        } catch (e) { alert('儲存失敗：' + e.message); }
-      });
-    }
+    // #11 身份組（多選）：載入現值 + 儲存（陣列）
+    const currentRoles = getRoles(user);
+    document.querySelectorAll('[data-role]').forEach(cb => {
+      cb.checked = currentRoles.includes(cb.dataset.role);
+    });
+    const saveRoleBtn = document.getElementById('udSaveRoleBtn');
+    if (saveRoleBtn) saveRoleBtn.addEventListener('click', async () => {
+      const roles = [...document.querySelectorAll('[data-role]')]
+        .filter(cb => cb.checked).map(cb => cb.dataset.role);
+      try {
+        await usersRef.child(uid).child('roles').set(roles.length ? roles : null);
+        await usersRef.child(uid).child('role').set(null); // 清掉舊單一欄位
+        if (adminUsersCache[uid]) { adminUsersCache[uid].roles = roles; adminUsersCache[uid].role = null; }
+        renderUsersList();
+        alert('已儲存身份組');
+      } catch (e) { alert('儲存失敗：' + e.message); }
+    });
 
-    // Save meta button
+    // Save meta button (notes only)
     document.getElementById('udSaveMetaBtn').addEventListener('click', async () => {
-      const activeTags = [...tagsEl.querySelectorAll('.ud-tag.active')].map(el => el.dataset.tag);
       const notes = document.getElementById('udNotesInput').value.trim();
       try {
         await userMetaRef.child(uid).update({
-          tags: activeTags,
           notes,
           updatedAt: Date.now(),
         });
@@ -6187,7 +6281,7 @@ async function checkAndRecordAction(actionType) {
       const setTime = flag.setAt ? new Date(flag.setAt).toLocaleString() : '—';
       html += `
         <div class="admin-flag-row">
-          <img class="admin-row-avatar" src="${getAvatarUrl(u.avatar)}" alt="">
+          ${avatarImgHtml(u.avatar, u.name, "admin-row-avatar")}
           <div class="admin-row-main">
             <div class="admin-row-name">${escapeHtml(u.name || uid)} <span class="admin-flag-status ${flag.status}">${statusLabel}</span></div>
             <div class="admin-row-sub">標記時間：${setTime}</div>
@@ -7418,6 +7512,13 @@ async function checkAndRecordAction(actionType) {
       `${period} · ${isNight ? '日出' : '日落'} ${formatSeconds(ni.secondsUntilTransition)}後（<span class="eta">${transitionHM}</span>）`;
 
     // current weather for active zone
+    if (activeZone === 'custom') {
+      // 自定義追蹤分頁不屬於單一島嶼，顯示專屬訊息
+      document.getElementById('currentWeather').textContent = '跨島嶼模式';
+      document.getElementById('weatherCountdown').innerHTML =
+        `<span style="color:var(--ink-faded);">請切回島嶼分頁查看天氣</span>`;
+      return;
+    }
     const forecast = getWeatherForecast(activeZone, 2);
     if (forecast.length) {
       const cur = forecast[0];
@@ -7735,6 +7836,8 @@ async function checkAndRecordAction(actionType) {
     const updates = {};
 
     updates[`spawns/${nmId}`] = now;
+    // 同步寫入「上次回報者」供緊湊表顯示（八寶/島主/其它通用）
+    updates[`otherReporters/${nmId}`] = reporter.name || '';
 
     // also create an active event entry, so others know group is forming
     if (zone) {
@@ -7787,6 +7890,7 @@ async function checkAndRecordAction(actionType) {
     if (!await checkAndRecordAction('cancel')) return;
     const updates = {};
     updates[`spawns/${nmId}`] = null;
+    updates[`otherReporters/${nmId}`] = null;
     Object.entries(state.activeEvents).forEach(([id, ev]) => {
       if (ev.nmId === nmId) updates[`activeEvents/${id}`] = null;
     });
@@ -8005,6 +8109,8 @@ async function checkAndRecordAction(actionType) {
     });
     // Delete the reset history entry
     updates[`history/${target.id}`] = null;
+    // 同時清除 NEW 標籤（既然回到重置前狀態，就不該再顯示新島提示）
+    updates[`newIslandMark/${zone}`] = null;
 
     await applyUpdates(updates);
     logUserAction('cancel_reset', { zone });
@@ -8021,6 +8127,7 @@ async function checkAndRecordAction(actionType) {
     const updates = {};
 
     updates[`spawns/${nmId}`] = timestamp;
+    updates[`otherReporters/${nmId}`] = reporter.name || '';
 
     // ensure instance reset doesn't shadow this entry
     if (zone && state.instanceResets[zone] && state.instanceResets[zone] > timestamp) {
@@ -8856,6 +8963,8 @@ async function checkAndRecordAction(actionType) {
     // User search
     const userSearchEl = document.getElementById('userSearch');
     if (userSearchEl) userSearchEl.addEventListener('input', () => renderUsersList());
+    const userSortEl = document.getElementById('adminUserSort');
+    if (userSortEl) userSortEl.addEventListener('change', () => renderUsersList());
 
     // Report filter
     const reportFilterEl = document.getElementById('reportFilter');
@@ -8909,7 +9018,10 @@ async function checkAndRecordAction(actionType) {
           .slice(0,5);
         if(!arr.length){ el.innerHTML='<div style="text-align:center;color:var(--ink-faded);padding:14px;">尚無資料</div>'; return; }
         el.innerHTML=arr.map((x,i)=>{
-          const av=x.avatar?`<img src="${x.avatar}" alt="">`:x.name[0];
+          const initial=(x.name&&x.name.length)?escapeHtml(x.name[0]):'?';
+          const av=x.avatar
+            ? `<img src="${x.avatar}" alt="" onerror="this.onerror=null;this.style.display='none';this.insertAdjacentHTML('afterend','${initial}');">`
+            : initial;
           return `<div class="lb-row"><span class="lb-rk">${i+1}</span><span class="lb-av">${av}</span><span class="lb-nm">${x.name}</span><span class="lb-sc">${x.score} <small>次</small></span></div>`;
         }).join('');
       }).catch(()=>{ el.innerHTML='<div style="text-align:center;color:var(--ink-faded);padding:14px;">載入失敗</div>'; });
@@ -8942,12 +9054,70 @@ async function checkAndRecordAction(actionType) {
           document.querySelectorAll('.settings-pane').forEach(p=>{ p.style.display = (p.dataset.pane===tab.dataset.pane)?'':'none'; });
         };
       });
-      // 追蹤分類勾選（localStorage）
-      const prefs=getTrackPrefs();
-      const tb=document.getElementById('trackBao'), tl=document.getElementById('trackLord'), to=document.getElementById('trackOther');
-      if(tb){ tb.checked=prefs.bao; tl.checked=prefs.lord; to.checked=prefs.other;
-        [tb,tl,to].forEach(cb=>cb.onchange=()=>{ setTrackPrefs({bao:tb.checked,lord:tl.checked,other:to.checked}); applyTrackingFilter(); });
+      // 追蹤設定（per-NM 個別勾選）
+      let trackZoneTab = 'anemos';
+      let trackCatFilter = 'all';
+      function renderTrackNmList(){
+        const list=document.getElementById('trackNmList'); if(!list) return;
+        const zd=NM_DATA[trackZoneTab]; if(!zd) return;
+        let nms=zd.nms;
+        if(trackCatFilter!=='all') nms=nms.filter(nm=>(nm.category||'bao')===trackCatFilter);
+        let html='';
+        nms.forEach(nm=>{
+          const checked = isNmTracked(nm) ? 'checked' : '';
+          const cat = nm.category||'bao';
+          const catLabel = cat==='lord'?'<span class="snm-cat lord">島主</span>':(cat==='other'?'<span class="snm-cat other">其它</span>':'<span class="snm-cat bao">八寶</span>');
+          html += `
+            <div class="sound-nm-row" data-nm="${nm.id}">
+              <span><span class="snm-lv">Lv${nm.level}</span> ${nm.name} <span style="color:var(--parchment-dim);font-size:11px;">· ${nm.nickname||''}</span> ${catLabel}</span>
+              <label class="switch">
+                <input type="checkbox" data-track-toggle="${nm.id}" ${checked}>
+                <span class="slider"></span>
+              </label>
+            </div>`;
+        });
+        if(!html) html='<div style="padding:14px;text-align:center;color:var(--ink-faded);font-size:13px;">此分類在本島沒有 NM</div>';
+        list.innerHTML=html;
+        list.querySelectorAll('[data-track-toggle]').forEach(cb=>{
+          cb.onchange=()=>{
+            setNmTracked(cb.dataset.trackToggle, cb.checked);
+            applyTrackingFilter();
+            if(activeZone==='custom' && window.renderCustomTracking) window.renderCustomTracking();
+          };
+        });
       }
+      document.querySelectorAll('#trackNmTabs .sound-nm-tab').forEach(t=>{
+        t.onclick=()=>{
+          document.querySelectorAll('#trackNmTabs .sound-nm-tab').forEach(x=>x.classList.toggle('active',x===t));
+          trackZoneTab=t.dataset.zone; renderTrackNmList();
+        };
+      });
+      document.querySelectorAll('#trackCatFilter .scf-btn').forEach(b=>{
+        b.onclick=()=>{
+          document.querySelectorAll('#trackCatFilter .scf-btn').forEach(x=>x.classList.toggle('active',x===b));
+          trackCatFilter=b.dataset.cat; renderTrackNmList();
+        };
+      });
+      // 快速操作
+      document.querySelectorAll('[data-track-bulk]').forEach(btn=>{
+        btn.onclick=()=>{
+          const cmd=btn.dataset.trackBulk;
+          const prefs=getTrackPrefs();
+          if(cmd==='reset'){
+            setTrackPrefs({}); // 清空 → 回到預設
+          }else{
+            const [cat,act]=cmd.split('-');
+            Object.values(NM_DATA).forEach(zd=>zd.nms.forEach(nm=>{
+              if((nm.category||'bao')===cat) prefs[nm.id] = (act==='on');
+            }));
+            setTrackPrefs(prefs);
+          }
+          renderTrackNmList();
+          applyTrackingFilter();
+          if(activeZone==='custom' && window.renderCustomTracking) window.renderCustomTracking();
+        };
+      });
+      renderTrackNmList();
       // 二段確認開關（存設定）
       loadConfirmSetting(); syncConfirmToggle();
       const ct=document.getElementById('confirmToggle');
@@ -8971,7 +9141,13 @@ async function checkAndRecordAction(actionType) {
           <button class="density-switch ${densityMode==='compact'?'compact':''}" role="switch" aria-label="切換一般/緊湊"><span class="ds-knob"></span></button>
           <span class="ds-label ${densityMode==='compact'?'on':''}" data-side="compact">緊湊</span>`;
         tb.appendChild(wrap);
-        wrap.querySelector('.density-switch').onclick=()=>{ densityMode=(densityMode==='compact'?'normal':'compact'); syncDensityTabs(); applyDensityAll(); };
+        wrap.querySelector('.density-switch').onclick=()=>{
+          densityMode=(densityMode==='compact'?'normal':'compact');
+          syncDensityTabs();
+          applyDensityAll();
+          // 自定義追蹤分頁要立刻切換（不依賴切島）
+          if(activeZone==='custom' && window.renderCustomTracking) window.renderCustomTracking();
+        };
       });
     }
     function densityToggleLabel(){ return ''; }
@@ -8988,6 +9164,15 @@ async function checkAndRecordAction(actionType) {
     function showMapPlaceholder(nmId){
       const nm=findNm(nmId);
       showModal(`🗺️ ${nm?nm.name:''} 地圖位置`, '此 NM 的地圖位置圖製作中，敬請期待。', null, { hideConfirm:true, cancelText:'關閉' });
+    }
+    // 紀錄「剛點出現」的時間戳，用於取消鈕的 10 秒鎖（只在剛剛回報的當下生效）
+    const justSpawnedAt = {};
+    function markJustSpawned(nmId){ justSpawnedAt[nmId] = Date.now(); }
+    function shouldLockCancel(nmId){
+      const t = justSpawnedAt[nmId];
+      if(!t) return 0;
+      const left = 10 - Math.floor((Date.now()-t)/1000);
+      return left>0 ? left : 0;
     }
     // 按鈕鎖定 n 秒（防連點），倒數顯示
     function lockBtn(btn, secs){
@@ -9009,6 +9194,7 @@ async function checkAndRecordAction(actionType) {
           state.spawns=state.spawns||{}; state.spawns[nmId]=Date.now();
           state.otherReporters=state.otherReporters||{}; state.otherReporters[nmId]='你（示範）';
         }
+        markJustSpawned(nmId);   // 標記剛剛回報，取消鈕鎖 10 秒（只此使用者）
         if(window.reapplyDensity) window.reapplyDensity();
         return;
       }
@@ -9026,6 +9212,7 @@ async function checkAndRecordAction(actionType) {
       if(typeof applyUpdates==='function'){ await applyUpdates(updates); }
       try{ if(typeof triggeringRef!=='undefined') await triggeringRef.child(nmId).remove(); }catch(e){}
       if(typeof logUserAction==='function') logUserAction('report',{nmId});
+      markJustSpawned(nmId);   // 標記剛剛回報，取消鈕鎖 10 秒（只此使用者）
       if(window.reapplyDensity) window.reapplyDensity();
     }
     // 其它 NM 取消：二段確認（沿用設定）+ 記防濫用 + 寫 null
@@ -9111,14 +9298,11 @@ async function checkAndRecordAction(actionType) {
     }
     // 一般模式：依追蹤分類隱藏卡片（其它分類在一般模式一律隱藏）
     function applyTrackingFilter(){
-      const prefs=getTrackPrefs();
       document.querySelectorAll('.nm-card').forEach(card=>{
         const nm=findNm(card.dataset.nm); if(!nm) return;
         const c=nm.category||'bao';
-        let show=true;
-        if(c==='bao') show=prefs.bao;
-        else if(c==='lord') show=prefs.lord;
-        else if(c==='other') show=false; // 一般模式不顯示其它
+        let show = isNmTracked(nm);
+        if(c==='other') show=false; // 一般模式不顯示其它
         card.style.display = show?'':'none';
       });
       if(densityMode==='compact'){ applyDensityAll(); } // 緊湊模式重繪以套用篩選
@@ -9131,7 +9315,10 @@ async function checkAndRecordAction(actionType) {
       const el=document.getElementById('islandLife'); if(!el) return;
       const now=Date.now();
       el.innerHTML=Object.keys(ZONE_EL).map(z=>{
-        const mark=(typeof state!=='undefined' && state.newIslandMark && state.newIslandMark[z]) ? state.newIslandMark[z] : null;
+        // 用 instanceResets（永久保留的重置時間戳），而非 newIslandMark（10分後被清掉）
+        const mark=(typeof state!=='undefined' && state.instanceResets && state.instanceResets[z])
+          ? state.instanceResets[z]
+          : ((typeof state!=='undefined' && state.newIslandMark && state.newIslandMark[z]) ? state.newIslandMark[z] : null);
         let txt='—', fresh='';
         if(mark){
           const sec=Math.floor((now-mark)/1000);
@@ -9139,7 +9326,7 @@ async function checkAndRecordAction(actionType) {
           txt = h>0 ? `${h}小時${m}分` : `${m}分`;
           if(sec<300) fresh='fresh'; // 5分內視為剛重置
         }
-        return `<div class="il-chip ${fresh}" data-el="${ZONE_EL[z]}"><span class="il-dot"></span><span class="il-label">${ZONE_SHORT2[z]}存活</span><span class="il-val">${txt}</span></div>`;
+        return `<div class="il-chip ${fresh}" data-el="${ZONE_EL[z]}"><span class="il-dot"></span><span class="il-label">${ZONE_SHORT2[z]}存在時間</span><span class="il-val">${txt}</span></div>`;
       }).join('');
     };
     // #2 公告系統
@@ -9163,26 +9350,50 @@ async function checkAndRecordAction(actionType) {
       if(input && !window.__DEMO__ && typeof announcementsRef!=='undefined'){
         announcementsRef.child('current').once('value').then(s=>{const a=s.val()||{};input.value=a.text||'';enabled.checked=!!a.enabled;}).catch(()=>{});
       }
+      // 預覽狀態：暫存原 banner 內容/顯示狀態，預覽時最小化管理面板
+      let previewState = null;
+      function exitPreview(){
+        if(!previewState) return;
+        // 還原 banner（如果不是即時監聽會立刻被同步覆蓋的）
+        if(previewState.text != null) textEl.innerHTML = previewState.text;
+        if(previewState.wasHidden) banner.classList.add('hidden'); else banner.classList.remove('hidden');
+        // 還原管理面板
+        const ap=document.getElementById('adminPanelBackdrop'); if(ap) ap.classList.remove('previewing');
+        previewState=null;
+        if(preview){ preview.textContent='預覽'; }
+      }
+      if(preview) preview.onclick=()=>{
+        if(previewState){ exitPreview(); return; }
+        // 暫存當前 banner
+        previewState = { text: textEl.innerHTML, wasHidden: banner.classList.contains('hidden') };
+        if(enabled.checked && input.value.trim()){ textEl.innerHTML=input.value.trim(); banner.classList.remove('hidden'); }
+        else banner.classList.add('hidden');
+        // 最小化管理面板（保持運作，但讓使用者看得到 banner）
+        const ap=document.getElementById('adminPanelBackdrop'); if(ap) ap.classList.add('previewing');
+        preview.textContent='結束預覽';
+      };
+      // 修改：儲存成功後若在預覽，順便退出
       if(saveBtn) saveBtn.onclick=()=>{
         const payload={ text: input.value.trim(), enabled: enabled.checked, updatedAt: Date.now() };
-        if(window.__DEMO__){ // DEMO：直接更新 banner 預覽
+        if(window.__DEMO__){
           if(payload.enabled && payload.text){ textEl.innerHTML=payload.text; banner.classList.remove('hidden'); }
           else banner.classList.add('hidden');
           if(status){status.style.display='';status.textContent='（DEMO）已套用至預覽';setTimeout(()=>status.style.display='none',2000);}
+          previewState=null;  // 已套用，清掉暫存
+          const ap=document.getElementById('adminPanelBackdrop'); if(ap) ap.classList.remove('previewing');
+          if(preview) preview.textContent='預覽';
           return;
         }
         announcementsRef.child('current').set(payload).then(()=>{
           if(status){status.style.display='';status.textContent='已發佈！';setTimeout(()=>status.style.display='none',2000);}
+          previewState=null;
+          const ap=document.getElementById('adminPanelBackdrop'); if(ap) ap.classList.remove('previewing');
+          if(preview) preview.textContent='預覽';
         }).catch(e=>{ if(status){status.style.display='';status.style.color='#ff6b6b';status.textContent='發佈失敗：'+e.message;} });
-      };
-      if(preview) preview.onclick=()=>{
-        if(enabled.checked && input.value.trim()){ textEl.innerHTML=input.value.trim(); banner.classList.remove('hidden'); }
-        else banner.classList.add('hidden');
       };
     }
     // 自定義追蹤：不分島，顯示所有勾選追蹤的 NM
     window.renderCustomTracking = function(){
-      const prefs=getTrackPrefs();
       const grid=document.getElementById('customGrid');
       const note=document.querySelector('#zone-custom .custom-empty-note');
       if(!grid) return;
@@ -9190,17 +9401,25 @@ async function checkAndRecordAction(actionType) {
       let all=[];
       Object.entries(NM_DATA).forEach(([zid,zd])=>zd.nms.forEach(nm=>all.push({nm,zid})));
       if(densityMode==='compact'){
-        // 緊湊：含 other（依勾選），用表格
-        const list=all.filter(({nm})=>{const c=nm.category||'bao';return c==='bao'?prefs.bao:c==='lord'?prefs.lord:prefs.other;});
+        // 緊湊：依個別追蹤勾選
+        const list=all.filter(({nm})=>isNmTracked(nm));
         grid.classList.add('compact');
         grid.innerHTML = list.length? compactTableHtmlMulti(list) : '';
         note.style.display = list.length? 'none':'block';
-        grid.querySelectorAll('.cc-report').forEach(b=>b.onclick=()=>{ const nm=findNm(b.dataset.nm); const zid=b.dataset.zone; const zl=NM_DATA[zid]?NM_DATA[zid].label:''; if(nm) showNmConfirmModal(nm,zl,`確認回報「${nm.name}」已出現？`,()=>handleReport(b.dataset.nm)); });
+        // 一般八寶/島主出現：走二段確認
+        grid.querySelectorAll('.cc-report:not(.other)').forEach(b=>b.onclick=()=>{ const nm=findNm(b.dataset.nm); const zid=b.dataset.zone; const zl=NM_DATA[zid]?NM_DATA[zid].label:''; if(nm) showNmConfirmModal(nm,zl,`確認回報「${nm.name}」已出現？`,()=>handleReport(b.dataset.nm)); });
+        grid.querySelectorAll('.cc-report.other').forEach(b=>b.onclick=()=>handleOtherSpawn(b.dataset.nm));
+        grid.querySelectorAll('.cc-cancel').forEach(b=>{
+          const left = shouldLockCancel(b.dataset.nm);
+          if(left>0) lockBtn(b, left);
+          b.onclick=()=>handleOtherCancel(b.dataset.nm);
+        });
+        grid.querySelectorAll('.cc-fix').forEach(b=>b.onclick=()=>openOtherFixModal(b.dataset.nm));
         grid.querySelectorAll('.cc-sortable').forEach(th=>th.onclick=()=>{ const k=th.dataset.sort; if(sortKey===k){sortDir=(sortDir==='asc'?'desc':'asc');}else{sortKey=k;sortDir='asc';} window.renderCustomTracking(); });
         grid.querySelectorAll('.cc-map').forEach(b=>b.onclick=()=>showMapPlaceholder(b.dataset.nm));
       }else{
-        // 一般：只顯示 bao/lord（other 只在緊湊顯示）
-        const list=all.filter(({nm})=>{const c=nm.category||'bao';return c==='bao'?prefs.bao:c==='lord'?prefs.lord:false;});
+        // 一般：只顯示 bao/lord 中被追蹤的（other 只在緊湊顯示）
+        const list=all.filter(({nm})=>isNmTracked(nm) && (nm.category||'bao')!=='other');
         grid.classList.remove('compact');
         grid.innerHTML='';
         list.forEach(({nm,zid})=>{ const card=document.createElement('article'); card.className='nm-card'; card.id=`nm-${nm.id}`; card.dataset.nm=nm.id; card.dataset.zone=zid; card.innerHTML=renderCardInner(nm); grid.appendChild(card); });
@@ -9228,6 +9447,22 @@ async function checkAndRecordAction(actionType) {
         if(nm.timeReq){cond+=`<span class="cc-wx">🌙 ${nm.timeReq}</span>`;}
         if(!nm.weather&&!nm.timeReq)cond='<span style="color:var(--ink-faded)">無條件</span>';
         const roleTag = nm.category==='lord'?'<span class="nk" style="color:var(--gold-bright)">島主</span>':(nm.category==='bao'?'<span class="nk" style="color:var(--el-ice)">八寶</span>':'');
+        // 其它 NM 也需出現/取消/修正三鈕
+        let actionCell;
+        if(nm.category==='other'){
+          const spawnTs = (typeof state!=='undefined' && state.spawns) ? state.spawns[nm.id] : 0;
+          const COOLDOWN_MS = 2*60*60*1000;
+          const resetTs = (typeof state!=='undefined' && state.instanceResets) ? (state.instanceResets[zid]||0) : 0;
+          const newIsTs = (typeof state!=='undefined' && state.newIslandMark) ? (state.newIslandMark[zid]||0) : 0;
+          const guardTs = Math.max(resetTs, newIsTs);
+          const stillActive = spawnTs && spawnTs > guardTs && (Date.now()-spawnTs) < COOLDOWN_MS;
+          actionCell = stillActive
+            ? `<button class="cc-cancel" data-nm="${nm.id}" data-zone="${zid}">取消</button>`
+            : `<button class="cc-report other" data-nm="${nm.id}" data-zone="${zid}">出現</button>`;
+          actionCell += `<button class="cc-fix" data-nm="${nm.id}" data-zone="${zid}" title="手動輸入/修正出現時間">修正</button>`;
+        }else{
+          actionCell = `<button class="cc-report" data-nm="${nm.id}" data-zone="${zid}">出現</button>`;
+        }
         return `<tr class="${cls}">
           <td class="cc-lv">Lv${nm.level}</td>
           <td class="cc-nm"><b>${nm.name}</b><span class="nk">${nm.nickname||''}</span> ${roleTag}</td>
@@ -9237,7 +9472,7 @@ async function checkAndRecordAction(actionType) {
           <td><div class="cc-cond">${cond}</div></td>
           <td class="cc-last">${(typeof state!=='undefined' && state.otherReporters && state.otherReporters[nm.id]) ? state.otherReporters[nm.id] : '—'}</td>
           <td class="cc-time">${tv}</td>
-          <td><button class="cc-report" data-nm="${nm.id}" data-zone="${zid}">出現</button></td>
+          <td class="cc-act">${actionCell}</td>
         </tr>`;
       }).join('');
       return `<table class="nm-table-c"><thead><tr>
@@ -9256,9 +9491,10 @@ async function checkAndRecordAction(actionType) {
         grid.querySelectorAll('.cc-report:not(.other)').forEach(b=>b.onclick=()=>{ const nm=findNm(b.dataset.nm); const zl=NM_DATA[zid].label; if(nm) showNmConfirmModal(nm,zl,`確認回報「${nm.name}」已出現？`,()=>handleReport(b.dataset.nm)); });
         // 其它 NM：出現（無二段確認、無圖、記防濫用、直接 2hr 計時）
         grid.querySelectorAll('.cc-report.other').forEach(b=>b.onclick=()=>handleOtherSpawn(b.dataset.nm));
-        // 其它 NM：取消（二段確認；按鈕先鎖 10 秒）
+        // 其它 NM：取消（二段確認；只在剛剛回報的 10 秒內鎖）
         grid.querySelectorAll('.cc-cancel').forEach(b=>{
-          lockBtn(b,10); // 進畫面即鎖 10 秒防誤點
+          const left = shouldLockCancel(b.dataset.nm);
+          if(left>0) lockBtn(b, left);
           b.onclick=()=>handleOtherCancel(b.dataset.nm);
         });
         // 其它 NM：修正（手動輸入時間）
@@ -9276,21 +9512,27 @@ async function checkAndRecordAction(actionType) {
     window.reapplyDensity = function(){ if(activeZone==='custom'){ if(window.renderCustomTracking) window.renderCustomTracking(); } else if(densityMode==='compact'){ applyDensityZone(activeZone); } };
     // 追蹤分類設定（localStorage）
     function getTrackPrefs(){
-      try{ const v=JSON.parse(localStorage.getItem('trackPrefs')); if(v) return v; }catch(e){}
-      return { bao:true, lord:true, other:false };
+      try{ const v=JSON.parse(localStorage.getItem('trackPrefsV2')); if(v && typeof v==='object') return v; }catch(e){}
+      return {}; // 空 → 用預設（八寶/島主 true, 其它 false）
     }
-    function setTrackPrefs(p){ try{ localStorage.setItem('trackPrefs', JSON.stringify(p)); }catch(e){} }
+    function setTrackPrefs(p){ try{ localStorage.setItem('trackPrefsV2', JSON.stringify(p)); }catch(e){} }
+    // 判斷單一 NM 是否被追蹤（個別設定優先；無設定則用預設：八寶/島主 true、其它 false）
+    function isNmTracked(nm){
+      const prefs=getTrackPrefs();
+      const v=prefs[nm.id];
+      if(v===true) return true;
+      if(v===false) return false;
+      return (nm.category||'bao') !== 'other'; // 預設：非其它都追蹤
+    }
+    function setNmTracked(nmId, v){
+      const prefs=getTrackPrefs();
+      prefs[nmId]=!!v;
+      setTrackPrefs(prefs);
+    }
     let sortKey='level', sortDir='asc'; // level|time ; asc|desc
     function compactTableHtml(nms, zid){
-      const prefs=getTrackPrefs();
-      // 篩選追蹤分類（緊湊模式才會顯示 other）
-      let list=nms.filter(nm=>{
-        const c=nm.category||'bao';
-        if(c==='bao') return prefs.bao;
-        if(c==='lord') return prefs.lord;
-        if(c==='other') return prefs.other; // 緊湊模式本來就允許 other
-        return true;
-      });
+      // 篩選追蹤分類（緊湊模式才會顯示 other；其它 NM 即使未追蹤也不在這顯示）
+      let list=nms.filter(nm=>isNmTracked(nm));
       // 計算每隻狀態與排序用數值
       const rows=list.map(nm=>{
         const info=getNmStatus(zid,nm);
@@ -9314,11 +9556,17 @@ async function checkAndRecordAction(actionType) {
         if(!nm.weather&&!nm.timeReq)cond='<span style="color:var(--ink-faded)">無條件</span>';
         const lastReporter = (typeof state!=='undefined' && state.otherReporters && state.otherReporters[nm.id]) ? state.otherReporters[nm.id] : '—';
         const roleTag = nm.category==='lord'?'<span class="nk" style="color:var(--gold-bright)">島主</span>':(nm.category==='other'?'':'<span class="nk" style="color:var(--el-ice)">八寶</span>');
-        // 其它 NM：出現/取消(已生過) + 修正鈕；八寶島主：原本的出現鈕
+        // 其它 NM：出現/取消(已生過且仍有效) + 修正鈕；八寶島主：原本的出現鈕
         let actionCell;
         if(nm.category==='other'){
-          const spawned = (typeof state!=='undefined' && state.spawns && state.spawns[nm.id]);
-          if(spawned){
+          // 判斷是否仍處於「有效的出現紀錄」狀態：spawn 時間存在 + 2 小時內 + 未被新島重置覆蓋
+          const spawnTs = (typeof state!=='undefined' && state.spawns) ? state.spawns[nm.id] : 0;
+          const COOLDOWN_MS = 2*60*60*1000;
+          const resetTs = (typeof state!=='undefined' && state.instanceResets && zid) ? (state.instanceResets[zid]||0) : 0;
+          const newIsTs = (typeof state!=='undefined' && state.newIslandMark && zid) ? (state.newIslandMark[zid]||0) : 0;
+          const guardTs = Math.max(resetTs, newIsTs);
+          const stillActive = spawnTs && spawnTs > guardTs && (Date.now()-spawnTs) < COOLDOWN_MS;
+          if(stillActive){
             actionCell=`<button class="cc-cancel" data-nm="${nm.id}" data-zone="${zid}">取消</button>`;
           }else{
             actionCell=`<button class="cc-report other" data-nm="${nm.id}" data-zone="${zid}">出現</button>`;
