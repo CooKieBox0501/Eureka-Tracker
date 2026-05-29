@@ -3154,7 +3154,7 @@ const WX_ICON = {
   <header>
     <div class="title-block">
       <h1>Eureka NM Tracker</h1>
-      <div class="subtitle">優雷卡惡名菁英追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.6.0</button></div>
+      <div class="subtitle">優雷卡惡名菁英追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.6.1</button></div>
       <div class="auth-row">
         <div class="auth-box" id="authBox">
           <span class="auth-status-text" id="authStatusText">🔒 請登入</span>
@@ -3302,7 +3302,7 @@ const WX_ICON = {
   <div class="modal" style="max-width: 520px; max-height: 70vh; overflow-y: auto;">
     <h3>📜 更新日誌</h3>
 	  
-	<div class="changelog-entry changelog-bugfix">
+	<div class="changelog-entry changelog-feature">
       <div class="changelog-version">v2.6.1 <span class="changelog-date">— 2026/05/29</span></div>
       <div class="changelog-tagline">🛠 Bug Fix & 體驗優化</div>
       <ul class="changelog-list">
@@ -4220,7 +4220,7 @@ const WX_ICON = {
   const AUTH_STORAGE_KEY = 'eureka_user_info';
 	
 　// Current build version — must match Firebase eureka/meta/currentVersion
-  const APP_VERSION = 'v2.6.0';
+  const APP_VERSION = 'v2.6.1';
   const metaRef = db.ref('eureka/meta');
 
   // Watch for version updates: if Firebase has a newer version, prompt reload
@@ -9326,7 +9326,7 @@ async function checkAndRecordAction(actionType) {
           txt = h>0 ? `${h}小時${m}分` : `${m}分`;
           if(sec<300) fresh='fresh'; // 5分內視為剛重置
         }
-        return `<div class="il-chip ${fresh}" data-el="${ZONE_EL[z]}"><span class="il-dot"></span><span class="il-label">${ZONE_SHORT2[z]}存在時間</span><span class="il-val">${txt}</span></div>`;
+        return `<div class="il-chip ${fresh}" data-el="${ZONE_EL[z]}"><span class="il-dot"></span><span class="il-label">${ZONE_SHORT2[z]}存活</span><span class="il-val">${txt}</span></div>`;
       }).join('');
     };
     // #2 公告系統
