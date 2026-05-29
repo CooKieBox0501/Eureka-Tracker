@@ -5828,6 +5828,20 @@ async function checkAndRecordAction(actionType) {
   let adminListenersAttached = false;
   let currentDetailUid = null; // which user we're viewing in detail
 
+	// 身份組（管理面板共用）
+   const ROLE_ORDER = { '主催': 0, '觸發者': 1, '好波友': 2, '蟲蟲一叢叢': 3 };
+   function getRoles(u) {
+     if (!u) return [];
+     if (Array.isArray(u.roles)) return u.roles.filter(r => r in ROLE_ORDER);
+     if (u.role && (u.role in ROLE_ORDER)) return [u.role];
+     return [];
+   }
+   function rolesMinOrder(u) {
+     const rs = getRoles(u);
+     if (!rs.length) return 9;
+     return Math.min(...rs.map(r => ROLE_ORDER[r]));
+   }
+	
   function showAdminPanel() {
     if (!isAdmin()) return;
     if (!adminListenersAttached) {
@@ -5953,19 +5967,7 @@ async function checkAndRecordAction(actionType) {
       if (!search) return true;
       return (u.name || '').toLowerCase().includes(search) || uid.includes(search);
     });
-    // 身份組（管理面板共用）
-   const ROLE_ORDER = { '主催': 0, '觸發者': 1, '好波友': 2, '蟲蟲一叢叢': 3 };
-   function getRoles(u) {
-     if (!u) return [];
-     if (Array.isArray(u.roles)) return u.roles.filter(r => r in ROLE_ORDER);
-     if (u.role && (u.role in ROLE_ORDER)) return [u.role];
-     return [];
-   }
-   function rolesMinOrder(u) {
-     const rs = getRoles(u);
-     if (!rs.length) return 9;
-     return Math.min(...rs.map(r => ROLE_ORDER[r]));
-   }
+    
     const ROLES_BADGES = (u) => getRoles(u).map(r =>
       `<span class="role-badge role-${ROLE_ORDER[r] ?? 9}">${r}</span>`
     ).join('');
