@@ -5953,19 +5953,19 @@ async function checkAndRecordAction(actionType) {
       if (!search) return true;
       return (u.name || '').toLowerCase().includes(search) || uid.includes(search);
     });
-    const ROLE_ORDER = { '主催': 0, '觸發者': 1, '回報者': 2 };
-    // 取得使用者的身份組陣列（相容舊單一 role 欄位）
-    function getRoles(u){
-      if (!u) return [];
-      if (Array.isArray(u.roles)) return u.roles.filter(r => r in ROLE_ORDER);
-      if (u.role && (u.role in ROLE_ORDER)) return [u.role];
-      return [];
-    }
-    function rolesMinOrder(u){
-      const rs = getRoles(u);
-      if (!rs.length) return 9;
-      return Math.min(...rs.map(r => ROLE_ORDER[r]));
-    }
+    // 身份組（管理面板共用）
+   const ROLE_ORDER = { '主催': 0, '觸發者': 1, '好波友': 2, '蟲蟲一叢叢': 3 };
+   function getRoles(u) {
+     if (!u) return [];
+     if (Array.isArray(u.roles)) return u.roles.filter(r => r in ROLE_ORDER);
+     if (u.role && (u.role in ROLE_ORDER)) return [u.role];
+     return [];
+   }
+   function rolesMinOrder(u) {
+     const rs = getRoles(u);
+     if (!rs.length) return 9;
+     return Math.min(...rs.map(r => ROLE_ORDER[r]));
+   }
     const ROLES_BADGES = (u) => getRoles(u).map(r =>
       `<span class="role-badge role-${ROLE_ORDER[r] ?? 9}">${r}</span>`
     ).join('');
