@@ -3004,6 +3004,7 @@ const WX_ICON = {
   .role-badge.role-0{background:rgba(212,168,75,0.2);color:var(--gold-bright);border:1px solid var(--gold-deep);}
   .role-badge.role-1{background:rgba(142,197,232,0.18);color:var(--el-ice);border:1px solid rgba(142,197,232,0.4);}
   .role-badge.role-2{background:rgba(118,214,168,0.15);color:var(--ready);border:1px solid rgba(118,214,168,0.4);}
+  .role-badge.role-3{background:rgba(190,150,255,0.16);color:#c9a6ff;border:1px solid rgba(190,150,255,0.4);}
   /* 島嶼存活時間 */
   .island-life{display:flex;gap:8px;flex-wrap:wrap;max-width:1200px;margin:0 auto 14px;}
   .il-chip{display:flex;align-items:center;gap:7px;background:var(--bg-card,#1a2030);border:1px solid var(--border-cool,#2e3650);padding:6px 12px;font-size:12px;}
@@ -6077,7 +6078,8 @@ async function checkAndRecordAction(actionType) {
         <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
           <label class="role-check"><input type="checkbox" data-role="主催"> <span class="role-badge role-0">主催</span></label>
           <label class="role-check"><input type="checkbox" data-role="觸發者"> <span class="role-badge role-1">觸發者</span></label>
-          <label class="role-check"><input type="checkbox" data-role="回報者"> <span class="role-badge role-2">回報者</span></label>
+          <label class="role-check"><input type="checkbox" data-role="好波友"> <span class="role-badge role-2">好波友</span></label>
+          <label class="role-check"><input type="checkbox" data-role="蟲蟲一叢叢"> <span class="role-badge role-3">蟲蟲一叢叢</span></label>
         </div>
         <button class="modal-btn" id="udSaveRoleBtn">儲存身份組</button>
       </div>
@@ -6111,12 +6113,12 @@ async function checkAndRecordAction(actionType) {
 
     // #11 身份組（多選）：載入現值 + 儲存（陣列）
     const currentRoles = getRoles(user);
-    document.querySelectorAll('[data-role]').forEach(cb => {
+    document.querySelectorAll('.role-check input[data-role]').forEach(cb => {
       cb.checked = currentRoles.includes(cb.dataset.role);
     });
     const saveRoleBtn = document.getElementById('udSaveRoleBtn');
     if (saveRoleBtn) saveRoleBtn.addEventListener('click', async () => {
-      const roles = [...document.querySelectorAll('[data-role]')]
+      const roles = [...document.querySelectorAll('.role-check input[data-role]')]
         .filter(cb => cb.checked).map(cb => cb.dataset.role);
       try {
         await usersRef.child(uid).child('roles').set(roles.length ? roles : null);
