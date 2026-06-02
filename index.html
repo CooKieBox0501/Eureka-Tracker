@@ -3585,7 +3585,7 @@ const WX_ICON = {
   <header>
     <div class="title-block">
       <h1>Eureka NM Tracker</h1>
-      <div class="subtitle">優雷卡惡名菁英追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.7.2</button></div>
+      <div class="subtitle">優雷卡惡名菁英追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.7.3</button></div>
       <div class="auth-row">
         <div class="auth-box" id="authBox">
           <span class="auth-status-text" id="authStatusText">🔒 請登入</span>
@@ -3624,7 +3624,7 @@ const WX_ICON = {
   <!-- 公告 banner（可關閉）-->
   <div class="announce-banner" id="announceBanner">
     <span class="ab-tag">公告</span>
-    <span class="ab-text" id="announceText"><b>v2.6.1 更新！</b>修了一個魔貨物車輛的BUG，詳情請點選版本號(v2.6.1)查看更新日誌以了解更多。感謝大家支持 💛</span>
+    <span class="ab-text" id="announceText">感謝大家支持 💛</span>
     <button class="ab-close" id="announceClose" title="關閉公告">×</button>
   </div>
 
@@ -3744,9 +3744,19 @@ const WX_ICON = {
 <div class="modal-backdrop" id="changelogBackdrop">
   <div class="modal" style="max-width: 520px; max-height: 70vh; overflow-y: auto;">
     <h3>📜 更新日誌</h3>
+
+	<div class="changelog-entry changelog-feature">
+      <div class="changelog-version">v2.7.3 <span class="changelog-date">— 2026/06/02</span></div>
+      <div class="changelog-tagline">🛠 Bug Fix & 體驗優化</div>
+      <ul class="changelog-list">
+        <li>✦ 修復了新手教學選單不會收回選單的問題</li>
+		<li>✦ 現在進行新手教學時，點擊視窗外也會進行下一步，而不會關閉教學</li>
+      </ul>
+    </div>
+
 	  
 	<div class="changelog-entry changelog-feature">
-      <div class="changelog-version">v2.7.0 - 2.7.2<span class="changelog-date">— 2026/06/01</span></div>
+      <div class="changelog-version">v2.7.0 - 2.7.2<span class="changelog-date">— 2026/06/02</span></div>
       <div class="changelog-tagline">🗼 兵武塔 正式登場</div>
       <ul class="changelog-list">
         <li>✦ <strong>未確認飛行物體（水母）追蹤</strong>：出現回報、開打時間設定、死亡回報、自動推算下一隻水母</li>
@@ -6838,7 +6848,7 @@ const SKILLS = {
   const AUTH_STORAGE_KEY = 'eureka_user_info';
 	
 　// Current build version — must match Firebase eureka/meta/currentVersion
-  const APP_VERSION = 'v2.7.2';
+  const APP_VERSION = 'v2.7.3';
   const metaRef = db.ref('eureka/meta');
 
   // Watch for version updates: if Firebase has a newer version, prompt reload
