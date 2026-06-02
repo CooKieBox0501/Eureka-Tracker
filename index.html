@@ -5685,11 +5685,15 @@ const SKILLS = {
     if (until && now < until) {
       const rem = until - now;
       const col = teleportColor(rem);
-      chip.classList.add('active');
-      chip.innerHTML = `<img src="${BA_IMG.teleport}" class="il-teleport-icon" alt="傳送準備">`
-        + `<span class="il-label">傳送準備倒數</span>`
-        + `<span class="il-val" style="color:${col};font-family:var(--font-mono);">${fmtTeleport(rem)}</span>`;
-      chip.style.borderColor = col;
+      if (!chip.classList.contains('active')) {
+        // 從非作用→作用：建立一次結構（避免每秒重建導致呼吸燈重置）
+        chip.classList.add('active');
+        chip.innerHTML = `<img src="${BA_IMG.teleport}" class="il-teleport-icon" alt="傳送準備">`
+          + `<span class="il-label">傳送準備倒數</span>`
+          + `<span class="il-val" data-tp-val style="font-family:var(--font-mono);"></span>`;
+      }
+      const valEl = chip.querySelector('[data-tp-val]');
+      if (valEl) { valEl.textContent = fmtTeleport(rem); valEl.style.color = col; }
     } else {
       // 到期：清 Firebase（任一登入者，只清一次）
       if (until && now >= until && typeof isLoggedIn==='function' && isLoggedIn() && !window.__DEMO__) {
@@ -5795,7 +5799,7 @@ const SKILLS = {
       rows.push(`<div class="active-event-card ba-injected" data-ba-row="desk" style="border-left:3px solid #d9534f;">
         <div class="ae-r1">
           <span class="ae-name">兵武塔調查支援<span class="ae-nick" style="color:#c9a3ff;">· 兵武塔 BA · 服務台</span></span>
-          <span class="ae-countdown"><span class="hot">● 戰鬥中</span> <span data-ba-active="${d.spawnedAt}">剩 ${fmtMS(left)}</span></span>
+          <span class="ae-countdown"><span class="hot">● 戰鬥中</span> 剩 <span data-ba-active="${d.spawnedAt}">${fmtMS(left)}</span></span>
         </div>
         ${carryBtnsHtml(d)}
         <div class="ae-r2">
@@ -6391,7 +6395,7 @@ const SKILLS = {
     // 置頂注入列：存活倒數（剩 / 戰鬥中）
     document.querySelectorAll('[data-ba-active]').forEach(el=>{
       const sp=parseInt(el.dataset.baActive,10);
-      el.textContent='剩 '+fmtMS(BA_LIFETIME_MS-(now-sp));
+      el.textContent=fmtMS(BA_LIFETIME_MS-(now-sp));
     });
     // 置頂注入列：服務台踩塔倒數
     document.querySelectorAll('[data-ba-desk-et]').forEach(el=>{
@@ -12060,7 +12064,7 @@ async function checkAndRecordAction(actionType) {
       const ct=document.getElementById('confirmToggle');
       if(ct) ct.onchange=()=>saveConfirmSetting(ct.checked);
       // 斗內帳號顯示
-      const as=document.getElementById('acctShow'); if(as) as.onclick=()=>{ document.getElementById('acctNum').textContent='9015-6557-9887'; };
+      const as=document.getElementById('acctShow'); if(as) as.onclick=()=>{ document.getElementById('acctNum').textContent='先暫時關閉啦><'; };
       // 頁尾/底部入口（若存在）
       // 緊湊模式切換
       wireDensityToggle();
@@ -12887,7 +12891,7 @@ async function checkAndRecordAction(actionType) {
     <h3>☕ 支持作者</h3>
     <p class="donate-intro">這個工具完全免費、無廣告。若它對您有幫助、也願意請我吃顆茶葉蛋，非常感謝！💛 贊助純屬自願，<b>不影響任何功能</b>。</p>
     <div class="donate-card">
-      <div class="dc-row"><span class="dc-k">銀行</span><span class="dc-v"> 中國信託(822) </span></div>
+      <div class="dc-row"><span class="dc-k">銀行</span><span class="dc-v"> - </span></div>
       <div class="dc-row"><span class="dc-k">帳號</span><span class="dc-v" id="acctNum">點右側顯示 →</span><button class="donate-copy" id="acctShow">顯示</button></div>
     </div>
     <p class="donate-thanks">每一份支持都是我持續維護與更新的動力，感謝您 🙏</p>
