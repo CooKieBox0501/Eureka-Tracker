@@ -3585,7 +3585,7 @@ const WX_ICON = {
   <header>
     <div class="title-block">
       <h1>Eureka NM Tracker</h1>
-      <div class="subtitle">優雷卡惡名菁英追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.6.1</button></div>
+      <div class="subtitle">優雷卡惡名菁英追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.7.1</button></div>
       <div class="auth-row">
         <div class="auth-box" id="authBox">
           <span class="auth-status-text" id="authStatusText">🔒 請登入</span>
@@ -3746,20 +3746,22 @@ const WX_ICON = {
     <h3>📜 更新日誌</h3>
 	  
 	<div class="changelog-entry changelog-feature">
-      <div class="changelog-version">v2.7.0 <span class="changelog-date">— 2026/06/01</span></div>
-      <div class="changelog-tagline">🗼 兵武塔 BA 正式登場</div>
+      <div class="changelog-version">v2.7.0 & v2.7.1<span class="changelog-date">— 2026/06/01</span></div>
+      <div class="changelog-tagline">:tokyo_tower: 兵武塔 正式登場</div>
       <ul class="changelog-list">
-        <li>✦ <strong>水母（未確認飛行物體）追蹤</strong>：時間到會自己出現的 NM，可回報出現、協調開打時間（ET）、回報死亡，生命週期 15 分鐘</li>
-        <li>✦ <strong>服務台（兵武塔調查支援）追蹤</strong>：踩塔預告、ET 踩塔時間倒數、戰鬥計時、死亡回報</li>
+        <li>✦ <strong>未確認飛行物體（水母）追蹤</strong>：出現回報、開打時間設定、死亡回報、自動推算下一隻水母</li>
+        <li>✦ <strong>兵武塔調查支援（服務台）追蹤</strong>：出現預告、踩塔設定、ET 踩塔時間倒數、戰鬥計時、死亡回報</li>
         <li>✦ <strong>文理攜帶標記</strong>：服務台可標記「我已攜帶文理驅魔／虛槍」，讓大家知道目前有誰帶了，避免重複浪費</li>
-        <li>✦ <strong>塔內狀況、傳送準備倒數、下一隻預估出現時刻</strong>都會即時顯示</li>
-        <li>✦ <strong>文理技能查表</strong>：56 種文理合成表與職業篩選，點圖看取得方式、合成材料與效果</li>
-        <li>✦ <strong>主催開團排班表</strong>：未來七天開團行事曆、最終狀態、永久保存場次</li>
-        <li>✦ <strong>使用者設定改版</strong>：分為提示音／自定義追蹤／兵武塔／其它四個分頁；兵武塔的提示音與顯示可各自獨立開關（預設關閉，需自行開啟）</li>
-        <li>✦ <strong>提示音可分情境設定</strong>：一般 NM、水母、服務台可各自選擇不同音效，並可上傳兩份自訂音效自由套用</li>
-        <li>✦ <strong>公告投票</strong>：公告區可進行投票與想法蒐集</li>
-        <li>✦ 新手教學擴充，涵蓋使用者設定各分頁</li>
-        <li>感謝大家一路以來的支持與回饋 💛</li>
+        <li>✦ <strong>塔內狀況、傳送準備倒數、下一隻水母預估出現時刻</strong>都會即時顯示</li>
+        <li>✦ <strong>文理技能查表</strong>：56 種文理合成表與職業篩選，點擊可看取得方式、合成材料與效果</li>
+        <li>✦ <strong>主催開團排班表</strong>：未來七天開團行事曆、點擊可看詳細說明、可回報最終狀態與最終註記、可另外永久保存場次</li>
+        <li>✦ <strong>主催開團排行榜</strong>：現在也會紀錄主催的開團場次，可在選單 -> 回報排行榜 進行查看</li>
+        <li>✦ <strong>使用者設定改版</strong>：分為提示音／自定義追蹤／兵武塔／其它四個分頁；兵武塔的提示音與顯示可各自獨立開關（預設皆為關閉，需自行開啟）</li>
+        <li>✦ <strong>提示音可分別設定</strong>：一般 NM、水母、服務台可各自選擇不同音效，並可上傳兩份自訂音效自由套用</li>
+        <li>✦ <strong>新手教學更新</strong>：現在有更詳細和更好的新手教學可以用！</li>
+        <li>✦ <strong>公告投票</strong>：公告區將可進行投票與想法蒐集</li>
+        <li>✦ 放大了「使用者設定」與「選單」的按鈕，現在將更容易點擊</li>
+        <li>感謝大家一路以來的支持與回饋 :yellow_heart:</li>
       </ul>
     </div>
 	  
@@ -6016,7 +6018,7 @@ const SKILLS = {
       <div class="ba-subnav"><button class="ba-back-btn" data-ba="back-overview">← 返回概覽</button></div>
       ${schToolbar('📅 未來七天主催開團排班表','calendar',canCreate)}
       <div class="sch-calendar">${heads}${timecol}${cols}</div>
-      <div class="sch-note-bottom">若有開團需求但無法建立排程，請聯絡波波露 (Discord: cookie_box) 取得主催身份組。已結束場次會標示最終狀態。</div>`;
+      <div class="sch-note-bottom">若有開團需求但無法建立排程，請聯絡波波露 (Discord: cookie_box)。若主催們想更改自己的顏色也一樣聯絡波波露。已結束的場次請幫忙協助標記或註記~</div>`;
   }
 
   function histCardHtml(s){
@@ -6836,7 +6838,7 @@ const SKILLS = {
   const AUTH_STORAGE_KEY = 'eureka_user_info';
 	
 　// Current build version — must match Firebase eureka/meta/currentVersion
-  const APP_VERSION = 'v2.7.0';
+  const APP_VERSION = 'v2.7.1';
   const metaRef = db.ref('eureka/meta');
 
   // Watch for version updates: if Firebase has a newer version, prompt reload
@@ -12893,24 +12895,24 @@ async function checkAndRecordAction(actionType) {
   function buildSteps(){
     const S = [];
     const forceAnemos = ()=>{ try{ const t=document.querySelector('.zone-tab[data-zone="anemos"]'); if(t && !t.classList.contains('active')) t.click(); }catch(e){} };
-    S.push({ sel:null, title:'歡迎使用優雷卡 NM 追蹤站 👋',
-      body:'這個小導覽會帶你認識主要功能，大約 1 分鐘。隨時可按「略過導覽」結束。隨時可以從「選單 → 新手教學」再次開啟本導覽。' });
+     S.push({ sel:null, title:'歡迎使用優雷卡 NM 追蹤站 👋',
+      body:'這個小導覽會帶你認識主要功能，大約 3 分鐘。隨時可按「略過導覽」結束。也隨時可以從「選單 → 新手教學」再次開啟本導覽。' });
     S.push({ sel:'.zone-tabs, .zone-nav, nav', title:'區域分頁',
       body:'這裡切換四個優雷卡區域（常風／恆冰／湧火／豐水）、自定義追蹤，以及兵武塔 BA。每區有自己的 NM 清單。' });
     S.push({ sel:'#islandLife, .island-life', title:'島嶼存活時間',
-      body:'顯示各區「實例島」的存活倒數。重置後會開新島，時間到提醒你留意新島生成。' });
+      body:'顯示四大島嶼的存活時間，讓你知道距離上次刷新過了多久。最右方為兵武塔的傳送倒數計時。' });
     S.push({ sel:'#eorzeaClock, .et-clock, .clock', title:'艾歐澤亞時間（ET）',
       body:'遊戲內時間與天氣會影響部分 NM 觸發。這裡即時顯示 ET 與天氣狀態。' });
     S.push({ sel:'#stripActiveBody, #stripActive, .strip-active', title:'進行中',
-      body:'目前正在進行（已被回報出現、組隊討伐中）的 NM 會列在這裡，附存活倒數。' });
+      body:'目前正在進行（已被回報出現、組隊討伐中）的 NM 會列在這裡，附存活倒數、開戰時間與開打時間調整。' });
     S.push({ sel:'#stripUpcomingBody, #stripUpcoming, .strip-upcoming', title:'即將可觸發',
-      body:'已滿足或即將滿足觸發條件的 NM。觸發人數、預估時間都看得到，方便揪人。' });
+      body:'已滿足或即將滿足觸發條件的 NM。可以看到還有多久能觸發，或是條件還持續多久。可以點選觸發++來告訴別人你正在觸發某個NM' });
     S.push({ sel:'.nm-card, .nm-row', title:'NM 卡片', before:forceAnemos,
-      body:'每隻 NM 一張卡，顯示等級、名稱、狀態與冷卻倒數。顏色：🔴冷卻中　🟡等待條件　🟢可觸發　🔵進行中。' });
+      body:'每隻 NM 一張卡，顯示等級、名稱、狀態、條件與冷卻倒數。顏色：🔴冷卻中　🟡等待條件　🟢可觸發。' });
     S.push({ sel:'.nm-card .report-btn, .nm-card button, .report-btn', title:'回報出現 / 死亡', before:forceAnemos,
-      body:'看到怪出現按「出現回報」、被打死按「死亡回報」。你的回報會即時同步給全站玩家——這就是本站的核心！' });
+      body:'看到怪出現按「出現回報」、被打死按「死亡回報」，如果非當下回報可以按下方的手動輸入時間。你的回報會即時同步給全站玩家！' });
     S.push({ sel:'#authBox', title:'Discord 登入',
-      body:'回報功能需要登入（防濫用）。用 Discord 一鍵登入即可，免註冊。登入後設定也會跨裝置同步。' });
+      body:'回報相關功能都需要登入才能使用。用 Discord 一鍵登入即可。登入後使用者設定也會跨裝置同步。' });
     // 先教使用者設定、再教選單（由左到右）
     S.push({ sel:'#soundSettingsBtn', title:'使用者設定',
       body:'點這裡可設定提示音、追蹤的 NM、兵武塔、二段確認等。接下來帶你看設定裡的四個分頁。' });
