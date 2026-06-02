@@ -3585,7 +3585,7 @@ const WX_ICON = {
   <header>
     <div class="title-block">
       <h1>Eureka NM Tracker</h1>
-      <div class="subtitle">優雷卡惡名菁英追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.6.1</button></div>
+      <div class="subtitle">優雷卡惡名菁英追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.7.0</button></div>
       <div class="auth-row">
         <div class="auth-box" id="authBox">
           <span class="auth-status-text" id="authStatusText">🔒 請登入</span>
@@ -3672,7 +3672,7 @@ const WX_ICON = {
     <button class="zone-tab" data-zone="pyros"><span class="zh">湧火之地</span>Pyros</button>
     <button class="zone-tab" data-zone="hydatos"><span class="zh">豐水之地</span>Hydatos</button>
     <button class="zone-tab zone-tab-custom" data-zone="custom"><span class="zh">自定義追蹤</span>Custom</button>
-    <button class="zone-tab zone-tab-ba locked" data-zone="ba" id="zoneTabBa"><span class="zh">兵武塔</span>BA</button>
+    <button class="zone-tab zone-tab-ba" data-zone="ba" id="zoneTabBa"><span class="zh">兵武塔</span>BA</button>
   </nav>
 
   <!-- Sub-tabs: current island / old island (only visible if old-island data exists for active zone) -->
@@ -6648,8 +6648,7 @@ const SKILLS = {
   function applyLock(){
     const tab=document.getElementById('zoneTabBa');
     if(!tab) return;
-    if(isAdmin()) tab.classList.remove('locked');
-    else tab.classList.add('locked');
+    tab.classList.remove('locked');   // 正式上線：對所有人開放
   }
 
   // ════════ 分頁整合：讓既有 switchZone 能切到 BA ════════
@@ -11604,7 +11603,10 @@ async function checkAndRecordAction(actionType) {
     const clBackdrop = document.getElementById('changelogBackdrop');
     const clClose = document.getElementById('changelogClose');
     if (vBtn) vBtn.addEventListener('click', () => clBackdrop.classList.add('active'));
-    if (clClose) clClose.addEventListener('click', () => clBackdrop.classList.remove('active'));
+    if (clClose) clClose.addEventListener('click', () => {
+      clBackdrop.classList.remove('active');
+      maybeAutoStartTour();   // 關閉更新日誌後，視情況自動開始教學
+    });
     if (clBackdrop) clBackdrop.addEventListener('click', (e) => {
       if (e.target === clBackdrop) clBackdrop.classList.remove('active');
     });
@@ -12755,6 +12757,15 @@ async function checkAndRecordAction(actionType) {
     // First-time-on-this-version: auto-show changelog modal
     maybeShowFirstTimeChangelog();
     migrateBaSettingsOnceV270();
+	// 正式上線：初次載入此版本、關閉更新日誌後，自動跑一次新手教學（每人僅一次）
+  	function maybeAutoStartTour() {
+    	const FLAG = 'auto_tour_v270';
+    	try {
+      	if (localStorage.getItem(FLAG)) return;   // 已自動跑過
+      	localStorage.setItem(FLAG, '1');
+    	} catch (e) { return; }
+    	setTimeout(() => { if (typeof window.startTour === 'function') window.startTour(); }, 400);
+  	}
   }
 
   // 一次性：使用者首次載入 v2.7.0 時，把兵武塔四項設定強制關閉一次（僅執行一次）
