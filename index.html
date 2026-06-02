@@ -4538,15 +4538,12 @@ const WX_ICON = {
       手動修正水母的出現時間。可輸入「幾分鐘前」或指定實際時間（與一般 NM 補報相同）。
     </p>
     <div style="margin-bottom: 14px;">
-      <label style="display:flex; align-items:center; gap:8px; margin-bottom:10px; cursor:pointer; color:var(--ink-bright); font-family:var(--font-cjk); font-size:14px;">
-        <input type="radio" name="baFixMode" value="ago" checked style="accent-color:var(--gold);"> 幾分鐘前出現
-      </label>
+      <label style="display:block; margin-bottom:6px; color:var(--ink-bright); font-family:var(--font-cjk); font-size:14px;">幾分鐘前出現</label>
       <input type="number" id="baFixAgoInput" min="0" max="240" placeholder="例如 8" style="width:100%; background:var(--bg-deep); border:1px solid var(--border-light); color:var(--ink-bright); padding:8px 10px; font-family:var(--font-mono); font-size:14px; box-sizing:border-box;">
     </div>
+    <div style="text-align:center; color:var(--ink-faded); font-size:12px; margin-bottom:10px;">— 或 —</div>
     <div style="margin-bottom: 16px;">
-      <label style="display:flex; align-items:center; gap:8px; margin-bottom:10px; cursor:pointer; color:var(--ink-bright); font-family:var(--font-cjk); font-size:14px;">
-        <input type="radio" name="baFixMode" value="tst" style="accent-color:var(--gold);"> 指定出現時間 (HHMM)
-      </label>
+      <label style="display:block; margin-bottom:6px; color:var(--ink-bright); font-family:var(--font-cjk); font-size:14px;">指定出現時間 (HHMM)</label>
       <input type="text" id="baFixEtInput" inputmode="numeric" maxlength="4" placeholder="例如 1100＝11:00 出現" style="width:100%; background:var(--bg-deep); border:1px solid var(--border-light); color:var(--ink-bright); padding:8px 10px; font-family:var(--font-mono); font-size:14px; box-sizing:border-box;">
     </div>
     <div class="modal-actions">
@@ -5224,15 +5221,23 @@ const SKILLS = {
     renderAll();
   }
   // 水母開打時間（ET）：與一般 NM / 服務台相同，協調幾點開打
-  async function jellySetPull(hhmm){
-    if (!/^\d{4}$/.test(hhmm)) { baAlert('格式錯誤', '請輸入 4 位數 ET 時間，例如 2100。'); return; }
-    const hh = parseInt(hhmm.slice(0,2),10), mm = parseInt(hhmm.slice(2),10);
-    if (hh>23 || mm>59) { baAlert('格式錯誤', 'ET 時間超出範圍（00:00–23:59）。'); return; }
+  // 開打時間用「剩餘時間 MMSS」制（同一般 NM）：輸入 0800 = 剩 8:00 時開打
+  async function jellySetPull(mmss){
+    const j = baState.jellyfish;
+    if (!j || !j.spawnedAt || j.killedAt) { baAlert('無法設定', '水母目前不在進行中。'); return; }
+    if (!/^\d{3,4}$/.test(mmss)) { baAlert('格式錯誤', '請輸入剩餘時間 MMSS，例如 0800＝剩 8 分時開打。'); return; }
+    const s = mmss.padStart(4,'0');
+    const mm = parseInt(s.slice(0,2),10), ss = parseInt(s.slice(2),10);
+    if (ss>59) { baAlert('格式錯誤', '秒數需在 00–59。'); return; }
+    let secLeft = mm*60 + ss;
+    // 夾在 0 ~ 存活上限之間
+    secLeft = Math.max(0, Math.min(Math.floor(BA_LIFETIME_MS/1000), secLeft));
     if (!(await guard('ba_jelly_pull'))) return;
-    const etTargetMs = parseEtPullToMs(hhmm);
-    const realTargetMs = Date.now() + etTargetToRealRemainingMs(etTargetMs);
-    await baUpdate({ 'jellyfish/pullEt':hhmm, 'jellyfish/pullTargetMs': realTargetMs, 'jellyfish/pullSetBy':myName() });
-    if (typeof logUserAction === 'function') logUserAction('ba_jelly_pull', { hhmm });
+    // 開打絕對時間戳 = 自然消失時間 − 剩餘秒數
+    const vanishMs = j.spawnedAt + BA_LIFETIME_MS;
+    const realTargetMs = vanishMs - secLeft*1000;
+    await baUpdate({ 'jellyfish/pullEt': s, 'jellyfish/pullTargetMs': realTargetMs, 'jellyfish/pullSetBy': myName() });
+    if (typeof logUserAction === 'function') logUserAction('ba_jelly_pull', { mmss: s });
     renderAll();
   }
   async function jellyCancelPull(){
@@ -5545,7 +5550,7 @@ const SKILLS = {
       }
       // 出現時間（TST）+ 調整；開打時間（ET）輸入框
       statusHtml += `<div class="ba-card-status" style="font-size:12px;">出現時間 ${typeof fmtHM==='function'?fmtHM(new Date(j.spawnedAt)):''}${j.spawnedBy?(' · 由 '+esc(j.spawnedBy)):''}　<a data-ba="jelly-fix" style="color:#c9a3ff;cursor:pointer;">調整出現</a></div>`;
-      statusHtml += `<div class="ba-card-status" style="font-size:12px;"><span class="ba-desk-etline">開打時間 ET <input class="ba-et-input" id="baJellyPull" inputmode="numeric" maxlength="4" placeholder="HHMM" value="${j.pullEt||''}"></span>${j.pullTargetMs?' <a data-ba="jelly-pull-cancel" style="color:#c9a3ff;cursor:pointer;">取消</a>':''}</div>`;
+      statusHtml += `<div class="ba-card-status" style="font-size:12px;"><span class="ba-desk-etline" title="剩餘時間 MMSS：例如 0800＝剩 8 分時開打">開打時間 <input class="ba-et-input" id="baJellyPull" inputmode="numeric" maxlength="4" placeholder="MMSS" value="${j.pullEt||''}"></span>${j.pullTargetMs?' <a data-ba="jelly-pull-cancel" style="color:#c9a3ff;cursor:pointer;">取消</a>':''}</div>`;
       if (!j.inActiveEvent) statusHtml += `<div class="ba-card-status">目前無主催開團</div>`;
     } else if (j && j.killedAt) {
       const tag = j.isNatural ? '自然消失' : '擊殺';
@@ -5726,13 +5731,30 @@ const SKILLS = {
     return `<div class="ba-carry-wrap">${mkBtn('驅魔','文理驅魔')}${mkBtn('虛槍','文理虛槍')}</div>`;
   }
 
+  let _baInjectSig = '';
   function injectActiveTop(){
     const body = document.getElementById('stripActiveBody');
     const countEl = document.getElementById('stripActiveCount');
     if (!body) return;
-    // 焦點保護：若使用者正在輸入 BA 的 ET 框，跳過這次重建（避免一點擊就被重建而取消）
+    // 焦點保護：若使用者正在輸入 BA 的 ET 框，跳過這次重建
     const ae = document.activeElement;
     if (ae && (ae.id==='baDeskEtTop' || ae.id==='baJellyPullTop')) return;
+    // 簽章：BA 列的「結構性」狀態（不含每秒變動的倒數），相同就不重建 → 呼吸燈不中斷
+    const j0 = baState.jellyfish, d0 = baState.desk;
+    const sig = JSON.stringify({
+      jShow: baShowEnabled('jelly'), dShow: baShowEnabled('desk'),
+      jAlive: !!(j0 && j0.spawnedAt && !j0.killedAt && j0.inActiveEvent),
+      jPull: !!(j0 && j0.pullTargetMs), jBy: j0&&j0.spawnedBy,
+      dStatus: d0 && d0.status, dHasEt: !!(d0 && d0.etPullTargetMs),
+      dBy: d0&&d0.announcedBy,
+      carriers: d0 && d0.carriers ? Object.keys(d0.carriers).map(k=>k+':'+Object.keys(d0.carriers[k]||{}).length).join(',') : ''
+    });
+    if (sig === _baInjectSig && body.querySelector('.ba-injected')) {
+      // 結構不變 → 不重建（倒數由 tick 以 textContent 更新），避免呼吸動畫重置
+      if (countEl) countEl.textContent = String(body.querySelectorAll('.active-event-card').length);
+      return;
+    }
+    _baInjectSig = sig;
     body.querySelectorAll('.ba-injected').forEach(n=>n.remove());
     const rows = [];
     const now = Date.now();
@@ -5750,7 +5772,7 @@ const SKILLS = {
       } else {
         cd = `剩 <span data-ba-active="${j.spawnedAt}">${fmtMS(BA_LIFETIME_MS-(now-j.spawnedAt))}</span> 自然消失`;
       }
-      etRow = `<span class="ae-pull-mini">開打時間 ET<input class="ae-pull-input" id="baJellyPullTop" inputmode="numeric" maxlength="4" placeholder="HHMM" value="${j.pullEt||''}" /></span>`;
+      etRow = `<span class="ae-pull-mini" title="剩餘時間 MMSS：例如 0800＝剩 8 分時開打">開打時間<input class="ae-pull-input" id="baJellyPullTop" inputmode="numeric" maxlength="4" placeholder="MMSS" value="${j.pullEt||''}" /></span>`;
       rows.push(`<div class="active-event-card ba-injected" data-ba-row="jelly" style="border-left:3px solid #a878ff;">
         <div class="ae-r1">
           <span class="ae-name">未確認飛行物體<span class="ae-nick" style="color:#c9a3ff;">· 兵武塔 BA · 水母</span></span>
@@ -6568,7 +6590,6 @@ const SKILLS = {
     const bd=document.getElementById('baFixBackdrop');
     document.getElementById('baFixAgoInput').value='';
     document.getElementById('baFixEtInput').value='';
-    bd.querySelector('input[name="baFixMode"][value="ago"]').checked=true;
     bd.classList.add('active');
   }
   function openNewIslandModal(){
@@ -6605,15 +6626,22 @@ const SKILLS = {
     // 補報
     document.getElementById('baFixCancel').onclick=()=>close('baFixBackdrop');
     document.getElementById('baFixSubmit').onclick=()=>{
-      const mode=document.querySelector('input[name="baFixMode"]:checked').value;
+      const agoRaw = document.getElementById('baFixAgoInput').value.trim();
+      const tstRaw = document.getElementById('baFixEtInput').value.trim();
       let ts;
-      if(mode==='ago'){ const m=parseInt(document.getElementById('baFixAgoInput').value,10);
-        if(isNaN(m)||m<0){ baAlert('格式錯誤','請輸入有效分鐘數。'); return; } ts=Date.now()-m*60000; }
-      else { const v=document.getElementById('baFixEtInput').value.trim();
-        if(!/^\d{4}$/.test(v)){ baAlert('格式錯誤','請輸入 4 位數時間，例如 1100＝11:00 出現。'); return; }
-        const hh=parseInt(v.slice(0,2),10), mm=parseInt(v.slice(2),10);
+      if (tstRaw !== '') {
+        // 有填「指定出現時間」→ 優先用它
+        if(!/^\d{4}$/.test(tstRaw)){ baAlert('格式錯誤','指定時間請輸入 4 位數，例如 1100＝11:00 出現。'); return; }
+        const hh=parseInt(tstRaw.slice(0,2),10), mm=parseInt(tstRaw.slice(2),10);
         if(hh>23||mm>59){ baAlert('格式錯誤','時間超出範圍（00:00–23:59）。'); return; }
-        ts=tstHHMMToPastRealMs(v); }
+        ts=tstHHMMToPastRealMs(tstRaw);
+      } else if (agoRaw !== '') {
+        const m=parseInt(agoRaw,10);
+        if(isNaN(m)||m<0){ baAlert('格式錯誤','請輸入有效分鐘數。'); return; }
+        ts=Date.now()-m*60000;
+      } else {
+        baAlert('請輸入時間','請填「幾分鐘前」或「指定出現時間」其中一個。'); return;
+      }
       close('baFixBackdrop'); jellyFix(ts);
     };
     // 新島
