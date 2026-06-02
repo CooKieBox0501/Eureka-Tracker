@@ -3501,6 +3501,7 @@ const WX_ICON = {
   /* 二段確認開關警語 */
   .confirm-warn{background:rgba(232,105,74,0.08);border:1px solid rgba(232,105,74,0.3);padding:10px 13px;font-size:12px;color:#e8a08a;margin-top:8px;line-height:1.6;}
   .ba-set-note{background:rgba(168,120,255,0.08);border:1px solid rgba(168,120,255,0.3);padding:10px 13px;font-size:12px;color:#c9b3e8;margin-bottom:12px;line-height:1.6;border-radius:3px;}
+  .settings-modal-fixed .settings-pane { min-height: 360px; }
   /* 設定分頁 */
   .settings-tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:16px;}
   .settings-tab{background:none;border:none;color:var(--ink-faded);cursor:pointer;padding:10px 18px;font-size:14px;font-weight:700;font-family:var(--font-cjk);position:relative;}
@@ -3746,17 +3747,20 @@ const WX_ICON = {
 	  
 	<div class="changelog-entry changelog-feature">
       <div class="changelog-version">v2.7.0 <span class="changelog-date">— 2026/06/01</span></div>
-      <div class="changelog-tagline">🗼 兵武塔 BA 正式登場</div>
+      <div class="changelog-tagline">🗼 兵武塔 正式登場</div>
       <ul class="changelog-list">
-        <li>✦ <strong>水母（未確認飛行物體）追蹤</strong>：時間到會自己出現的 NM，可回報出現、協調開打時間（ET）、回報死亡，生命週期 15 分鐘</li>
-        <li>✦ <strong>服務台（兵武塔調查支援）追蹤</strong>：踩塔預告、ET 踩塔時間倒數、戰鬥計時、死亡回報</li>
+        <li>✦ <strong>未確認飛行物體（水母）追蹤</strong>：出現回報、開打時間設定、死亡回報、自動推算下一隻水母</li>
+        <li>✦ <strong>兵武塔調查支援（服務台）追蹤</strong>：出現預告、踩塔設定、ET 踩塔時間倒數、戰鬥計時、死亡回報</li>
         <li>✦ <strong>文理攜帶標記</strong>：服務台可標記「我已攜帶文理驅魔／虛槍」，讓大家知道目前有誰帶了，避免重複浪費</li>
-        <li>✦ <strong>塔內狀況、傳送準備倒數、下一隻預估出現時刻</strong>都會即時顯示</li>
-        <li>✦ <strong>文理技能查表</strong>：56 種文理合成表與職業篩選，點圖看取得方式、合成材料與效果</li>
-        <li>✦ <strong>主催開團排班表</strong>：未來七天開團行事曆、最終狀態、永久保存場次</li>
-        <li>✦ <strong>使用者設定改版</strong>：分為提示音／自定義追蹤／兵武塔／其它四個分頁；兵武塔的提示音與顯示可各自獨立開關（預設關閉，需自行開啟）</li>
-        <li>✦ <strong>公告投票</strong>：公告區可進行投票與想法蒐集</li>
-        <li>✦ 新手教學擴充，涵蓋使用者設定各分頁</li>
+        <li>✦ <strong>塔內狀況、傳送準備倒數、下一隻水母預估出現時刻</strong>都會即時顯示</li>
+        <li>✦ <strong>文理技能查表</strong>：56 種文理合成表與職業篩選，點擊可看取得方式、合成材料與效果</li>
+        <li>✦ <strong>主催開團排班表</strong>：未來七天開團行事曆、點擊可看詳細說明、可回報最終狀態與最終註記、可另外永久保存場次</li>
+		<li>✦ <strong>主催開團排行榜</strong>：現在也會紀錄主催的開團場次，可在選單 -> 回報排行榜 進行查看</li>
+        <li>✦ <strong>使用者設定改版</strong>：分為提示音／自定義追蹤／兵武塔／其它四個分頁；兵武塔的提示音與顯示可各自獨立開關（預設皆為關閉，需自行開啟）</li>
+        <li>✦ <strong>提示音可分別設定</strong>：一般 NM、水母、服務台可各自選擇不同音效，並可上傳兩份自訂音效自由套用</li>
+        <li>✦ <strong>新手教學更新</strong>：現在有更詳細和更好的新手教學可以用！</li>
+		<li>✦ <strong>公告投票</strong>：公告區將可進行投票與想法蒐集</li>
+		<li>✦ 放大了「使用者設定」與「選單」的按鈕，現在將更容易點擊</li>
         <li>感謝大家一路以來的支持與回饋 💛</li>
       </ul>
     </div>
@@ -4015,7 +4019,7 @@ const WX_ICON = {
 
 <!-- Sound settings modal -->
 <div class="modal-backdrop" id="soundSettingsBackdrop">
-  <div class="modal" style="max-width: 540px; max-height: 80vh; overflow-y: auto;">
+  <div class="modal settings-modal-fixed" style="max-width: 540px; width: 540px; max-height: 80vh; overflow-y: auto;">
     <h3>⚙ 使用者設定</h3>
     <div id="soundGuestNotice" style="display:none; padding: 10px 12px; background: rgba(212,168,75,0.1); border: 1px solid rgba(212,168,75,0.4); margin-bottom: 14px; font-size: 13px; color: var(--ink-bright);">
       訪客僅能調整提示音開關 / 主音量，登入後可個別設定每隻 NM 是否提示。
@@ -4039,21 +4043,17 @@ const WX_ICON = {
         </label>
       </label>
       <label class="sound-row">
-        <span class="sound-label">音效選擇</span>
+        <span class="sound-label">一般 NM 音效</span>
         <div style="display:flex; gap:6px; flex:1; justify-content:flex-end; align-items:center;">
           <select id="soundEffectSelect" class="sound-select">
             <option value="duduDu">嘟嘟嘟（預設）</option>
             <option value="quack">呱呱</option>
+            <option value="custom1">自訂音效 1</option>
+            <option value="custom2">自訂音效 2</option>
           </select>
-          <button class="modal-btn small" id="soundUploadBtn" title="上傳自訂音效 (mp3/ogg/wav, ≤50KB, ≤2 秒)">📤 上傳</button>
-          <input type="file" id="soundUploadInput" accept=".mp3,.ogg,.wav,audio/mpeg,audio/ogg,audio/wav,audio/x-wav" style="display:none;">
+          <button class="modal-btn small" id="soundTestBtn" title="測試一般 NM 音效">🔔 測試</button>
         </div>
       </label>
-      <div id="soundCustomInfo" style="display:none; padding: 8px 12px; background: rgba(212,168,75,0.06); border: 1px dashed rgba(212,168,75,0.3); font-size: 12px; color: var(--ink); margin-bottom: 8px;">
-        <span id="soundCustomName">自訂音效</span>
-        <button class="link-btn" id="soundDeleteCustomBtn" style="float:right;">移除</button>
-      </div>
-      <div id="soundUploadStatus" style="display:none; padding: 8px 12px; font-size: 12px; margin-bottom: 8px;"></div>
       <label class="sound-row">
         <span class="sound-label">主音量</span>
         <div style="display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end;">
@@ -4061,9 +4061,30 @@ const WX_ICON = {
           <span id="soundVolumeLabel" style="font-family:var(--font-mono);font-size:12px;color:var(--gold-bright);min-width:36px;text-align:right;">50%</span>
         </div>
       </label>
-      <div style="text-align:center; margin: 12px 0;">
-        <button class="modal-btn" id="soundTestBtn">🔔 測試播放</button>
-      </div>
+      <hr style="border:none;border-top:1px dashed var(--border);margin:12px 0;">
+      <div class="settings-subtitle">自訂音效（可上傳 2 份，三種情境共用）</div>
+      <div class="ba-set-note" style="margin-bottom:10px;">支援 mp3 / ogg / wav，≤50KB、≤2 秒。上傳後可在「一般 NM 音效」「水母音效」「服務台音效」自由選用。</div>
+      <!-- 自訂槽 1 -->
+      <label class="sound-row">
+        <span class="sound-label">自訂音效 1<br><span id="soundCustom1Name" style="font-size:11px;color:var(--ink-faded);">尚未上傳</span></span>
+        <div style="display:flex; gap:6px; flex:1; justify-content:flex-end; align-items:center;">
+          <button class="modal-btn small" data-sound-test-slot="custom1" title="試聽">▶</button>
+          <button class="modal-btn small" data-sound-upload-slot="custom1">📤 上傳</button>
+          <button class="link-btn" data-sound-del-slot="custom1" style="display:none;">移除</button>
+          <input type="file" data-sound-file-slot="custom1" accept=".mp3,.ogg,.wav,audio/mpeg,audio/ogg,audio/wav,audio/x-wav" style="display:none;">
+        </div>
+      </label>
+      <!-- 自訂槽 2 -->
+      <label class="sound-row">
+        <span class="sound-label">自訂音效 2<br><span id="soundCustom2Name" style="font-size:11px;color:var(--ink-faded);">尚未上傳</span></span>
+        <div style="display:flex; gap:6px; flex:1; justify-content:flex-end; align-items:center;">
+          <button class="modal-btn small" data-sound-test-slot="custom2" title="試聽">▶</button>
+          <button class="modal-btn small" data-sound-upload-slot="custom2">📤 上傳</button>
+          <button class="link-btn" data-sound-del-slot="custom2" style="display:none;">移除</button>
+          <input type="file" data-sound-file-slot="custom2" accept=".mp3,.ogg,.wav,audio/mpeg,audio/ogg,audio/wav,audio/x-wav" style="display:none;">
+        </div>
+      </label>
+      <div id="soundUploadStatus" style="display:none; padding: 8px 12px; font-size: 12px; margin:8px 0;"></div>
     </div>
     <hr style="border:none;border-top:1px dashed var(--border);margin:14px 0;">
     <div id="soundPerNmContainer">
@@ -4124,15 +4145,33 @@ const WX_ICON = {
     <div class="settings-pane" data-pane="ba" style="display:none;">
       <div class="sound-settings-section">
         <div class="settings-subtitle">兵武塔 BA 提示音與顯示</div>
-        <div class="ba-set-note">水母與服務台的提示音、是否顯示在「進行中」區域，都在此設定。<b>四項皆預設關閉</b>，想收到提示音／看到資訊請自行開啟。</div>
-        <label class="sound-row"><span class="sound-label">🪼 水母 — 出現提示音</span>
+        <div class="ba-set-note">水母與服務台的提示音、是否顯示在「進行中」區域，都在此設定。<b>四項皆預設關閉</b>，想收到提示音／看到資訊請自行開啟。提示音可各自選擇不同音效。</div>
+        <div class="settings-subtitle" style="font-size:11px;margin-top:6px;">🎐 水母</div>
+        <label class="sound-row"><span class="sound-label">水母 — 出現提示音</span>
           <label class="switch"><input type="checkbox" id="baToggleJellySound"><span class="slider"></span></label></label>
-        <label class="sound-row"><span class="sound-label">🪼 水母 — 顯示於「進行中」</span>
+        <label class="sound-row"><span class="sound-label">水母 — 音效</span>
+          <div style="display:flex;gap:6px;flex:1;justify-content:flex-end;align-items:center;">
+            <select id="baJellyEffect" class="sound-select">
+              <option value="duduDu">嘟嘟嘟</option><option value="quack">呱呱</option>
+              <option value="custom1">自訂 1</option><option value="custom2">自訂 2</option>
+            </select>
+            <button class="modal-btn small" data-ba-test="jelly" title="試聽">▶</button>
+          </div></label>
+        <label class="sound-row"><span class="sound-label">水母 — 顯示於「進行中」</span>
           <label class="switch"><input type="checkbox" id="baToggleJellyShow"><span class="slider"></span></label></label>
-        <hr style="border:none;border-top:1px dashed var(--border);margin:10px 0;">
-        <label class="sound-row"><span class="sound-label">🛎 服務台 — 出現提示音</span>
+        <hr style="border:none;border-top:1px dashed var(--border);margin:12px 0;">
+        <div class="settings-subtitle" style="font-size:11px;">🛎 服務台</div>
+        <label class="sound-row"><span class="sound-label">服務台 — 出現提示音</span>
           <label class="switch"><input type="checkbox" id="baToggleDeskSound"><span class="slider"></span></label></label>
-        <label class="sound-row"><span class="sound-label">🛎 服務台 — 顯示於「進行中」</span>
+        <label class="sound-row"><span class="sound-label">服務台 — 音效</span>
+          <div style="display:flex;gap:6px;flex:1;justify-content:flex-end;align-items:center;">
+            <select id="baDeskEffect" class="sound-select">
+              <option value="duduDu">嘟嘟嘟</option><option value="quack">呱呱</option>
+              <option value="custom1">自訂 1</option><option value="custom2">自訂 2</option>
+            </select>
+            <button class="modal-btn small" data-ba-test="desk" title="試聽">▶</button>
+          </div></label>
+        <label class="sound-row"><span class="sound-label">服務台 — 顯示於「進行中」</span>
           <label class="switch"><input type="checkbox" id="baToggleDeskShow"><span class="slider"></span></label></label>
       </div>
     </div>
@@ -4486,7 +4525,7 @@ const WX_ICON = {
   <div class="modal" style="max-width: 420px;">
     <h3>🔧 補報水母出現時間</h3>
     <p style="color: var(--ink-faded); font-family: var(--font-cjk); font-size: 13px; line-height: 1.6; margin-bottom: 16px;">
-      手動修正水母的出現時間。可輸入「幾分鐘前」或指定 ET 時間。
+      手動修正水母的出現時間。可輸入「幾分鐘前」或指定實際時間（與一般 NM 補報相同）。
     </p>
     <div style="margin-bottom: 14px;">
       <label style="display:flex; align-items:center; gap:8px; margin-bottom:10px; cursor:pointer; color:var(--ink-bright); font-family:var(--font-cjk); font-size:14px;">
@@ -4496,9 +4535,9 @@ const WX_ICON = {
     </div>
     <div style="margin-bottom: 16px;">
       <label style="display:flex; align-items:center; gap:8px; margin-bottom:10px; cursor:pointer; color:var(--ink-bright); font-family:var(--font-cjk); font-size:14px;">
-        <input type="radio" name="baFixMode" value="et" style="accent-color:var(--gold);"> 指定 ET 時間 (HHMM)
+        <input type="radio" name="baFixMode" value="tst" style="accent-color:var(--gold);"> 指定出現時間 (HHMM)
       </label>
-      <input type="text" id="baFixEtInput" inputmode="numeric" maxlength="4" placeholder="例如 2130" style="width:100%; background:var(--bg-deep); border:1px solid var(--border-light); color:var(--ink-bright); padding:8px 10px; font-family:var(--font-mono); font-size:14px; box-sizing:border-box;">
+      <input type="text" id="baFixEtInput" inputmode="numeric" maxlength="4" placeholder="例如 1100＝11:00 出現" style="width:100%; background:var(--bg-deep); border:1px solid var(--border-light); color:var(--ink-bright); padding:8px 10px; font-family:var(--font-mono); font-size:14px; box-sizing:border-box;">
     </div>
     <div class="modal-actions">
       <button class="modal-btn" id="baFixCancel">取消</button>
@@ -5313,7 +5352,7 @@ const SKILLS = {
     if (j && j.spawnedAt && j.inActiveEvent && !j.killedAt && within30(j.spawnedAt)) {
       const key = 'j'+j.spawnedAt;
       if (lastSoundKey.jellyfish !== key && enabled('ba_jellyfish')) {
-        if (typeof playAlertSound==='function') playAlertSound();
+        if (typeof playAlertSound==='function') playAlertSound('jelly');
         lastSoundKey.jellyfish = key;
       }
     }
@@ -5322,7 +5361,7 @@ const SKILLS = {
     if (dk && dk.status==='announced' && within30(dk.announcedAt)) {
       const key = 'd'+dk.announcedAt;
       if (lastSoundKey.desk !== key && enabled('ba_desk')) {
-        if (typeof playAlertSound==='function') playAlertSound();
+        if (typeof playAlertSound==='function') playAlertSound('desk');
         lastSoundKey.desk = key;
       }
     }
@@ -5979,7 +6018,7 @@ const SKILLS = {
       <div class="ba-subnav"><button class="ba-back-btn" data-ba="back-overview">← 返回概覽</button></div>
       ${schToolbar('📅 未來七天主催開團排班表','calendar',canCreate)}
       <div class="sch-calendar">${heads}${timecol}${cols}</div>
-      <div class="sch-note-bottom">若有開團需求但無法建立排程，請聯絡波波露 (Discord: cookie_box) 取得主催身份組。已結束場次會標示最終狀態。</div>`;
+      <div class="sch-note-bottom">若有開團需求但無法建立排程，請聯絡波波露 (Discord: cookie_box)。若主催們想更改自己的顏色也一樣聯絡波波露。已結束的場次請幫忙協助標記或註記~;
   }
 
   function histCardHtml(s){
@@ -6386,7 +6425,7 @@ const SKILLS = {
         case 'desk-announce': deskAnnounce(); break;
         case 'desk-set-et': { const v=(document.getElementById('baDeskEt')||{}).value||''; deskSetEt(v.trim()); break; }
         case 'desk-cancel-et':
-          baConfirm('ET 取消','取消踩塔時間設定？仍維持在預告狀態，可重新設定。').then(ok=>{ if(ok) deskCancelEt(); }); break;
+          deskCancelEt(); break;
         case 'desk-cancel':
           baConfirm('取消預告','取消服務台出現預告？將回到初始狀態。').then(ok=>{ if(ok) deskCancelAnnounce(); }); break;
         case 'desk-kill':
@@ -6542,6 +6581,15 @@ const SKILLS = {
     return Date.now()-realDiff;
   }
 
+  // TST HHMM → 最近的「過去」真實時間戳（指定真實世界幾點出現，與一般 NM 補報相同）
+  function tstHHMMToPastRealMs(hhmm){
+    const hh=parseInt(hhmm.slice(0,2),10), mm=parseInt(hhmm.slice(2),10);
+    const now=new Date();
+    const t=new Date(now.getFullYear(),now.getMonth(),now.getDate(),hh,mm,0,0);
+    if(t.getTime()>now.getTime()) t.setDate(t.getDate()-1); // 若指定時間在未來，視為昨天
+    return t.getTime();
+  }
+
   function bindModals(){
     const close=(id)=>{ const b=document.getElementById(id); if(b) b.classList.remove('active'); };
     // 補報
@@ -6552,7 +6600,10 @@ const SKILLS = {
       if(mode==='ago'){ const m=parseInt(document.getElementById('baFixAgoInput').value,10);
         if(isNaN(m)||m<0){ baAlert('格式錯誤','請輸入有效分鐘數。'); return; } ts=Date.now()-m*60000; }
       else { const v=document.getElementById('baFixEtInput').value.trim();
-        if(!/^\d{4}$/.test(v)){ baAlert('格式錯誤','請輸入 4 位數 ET 時間，例如 2130。'); return; } ts=etHHMMToPastRealMs(v); }
+        if(!/^\d{4}$/.test(v)){ baAlert('格式錯誤','請輸入 4 位數時間，例如 1100＝11:00 出現。'); return; }
+        const hh=parseInt(v.slice(0,2),10), mm=parseInt(v.slice(2),10);
+        if(hh>23||mm>59){ baAlert('格式錯誤','時間超出範圍（00:00–23:59）。'); return; }
+        ts=tstHHMMToPastRealMs(v); }
       close('baFixBackdrop'); jellyFix(ts);
     };
     // 新島
@@ -7472,10 +7523,53 @@ async function processAuthCallback() {
     volume: 50,
     perNm: {},
     baShow: {},         // 兵武塔顯示開關 {jelly:bool, desk:bool}，預設關
-    effect: 'duduDu',   // 'duduDu' | 'quack' | 'custom'
-    customUrl: null,    // URL to user's uploaded sound (Firebase Storage)
-    customName: null,   // Original file name
+    // 三情境各自選音效：'duduDu' | 'quack' | 'custom1' | 'custom2'
+    effectGeneral: 'duduDu',  // 一般 NM
+    effectJelly: 'duduDu',    // 水母
+    effectDesk: 'duduDu',     // 服務台
+    // 兩個自訂音效槽
+    custom1Url: null, custom1Name: null,
+    custom2Url: null, custom2Name: null,
+    // 向後相容（舊欄位，載入時會 migrate 到上面）
+    effect: 'duduDu', customUrl: null, customName: null,
   };
+  // 從任意來源（Firebase/localStorage）正規化 soundPrefs，並 migrate 舊欄位
+  function normalizeSoundPrefs(v) {
+    v = (v && typeof v === 'object') ? v : {};
+    const oldEffect = (typeof v.effect === 'string') ? v.effect : 'duduDu';
+    // 舊版只有單一 custom → 視為 custom1
+    const oldCustomToSlot = (e)=> e === 'custom' ? 'custom1' : e;
+    return {
+      enabled: v.enabled !== undefined ? !!v.enabled : true,
+      volume: typeof v.volume === 'number' ? v.volume : 50,
+      perNm: (v.perNm && typeof v.perNm === 'object') ? v.perNm : {},
+      baShow: (v.baShow && typeof v.baShow === 'object') ? v.baShow : {},
+      effectGeneral: typeof v.effectGeneral === 'string' ? v.effectGeneral : oldCustomToSlot(oldEffect),
+      effectJelly: typeof v.effectJelly === 'string' ? v.effectJelly : 'duduDu',
+      effectDesk: typeof v.effectDesk === 'string' ? v.effectDesk : 'duduDu',
+      custom1Url: typeof v.custom1Url === 'string' ? v.custom1Url : (typeof v.customUrl === 'string' ? v.customUrl : null),
+      custom1Name: typeof v.custom1Name === 'string' ? v.custom1Name : (typeof v.customName === 'string' ? v.customName : null),
+      custom2Url: typeof v.custom2Url === 'string' ? v.custom2Url : null,
+      custom2Name: typeof v.custom2Name === 'string' ? v.custom2Name : null,
+      // 保留舊欄位相容（不再使用，但避免覆寫遺失）
+      effect: oldEffect, customUrl: (typeof v.customUrl==='string'?v.customUrl:null), customName: (typeof v.customName==='string'?v.customName:null),
+    };
+  }
+  function sanitizeSoundForSave() {
+    return {
+      enabled: !!soundPrefs.enabled,
+      volume: soundPrefs.volume ?? 50,
+      perNm: soundPrefs.perNm || {},
+      baShow: soundPrefs.baShow || {},
+      effectGeneral: soundPrefs.effectGeneral || 'duduDu',
+      effectJelly: soundPrefs.effectJelly || 'duduDu',
+      effectDesk: soundPrefs.effectDesk || 'duduDu',
+      custom1Url: soundPrefs.custom1Url || null,
+      custom1Name: soundPrefs.custom1Name || null,
+      custom2Url: soundPrefs.custom2Url || null,
+      custom2Name: soundPrefs.custom2Name || null,
+    };
+  }
   // Constants for upload validation
   const SOUND_UPLOAD_MAX_BYTES = 50 * 1024; // 50KB
   const SOUND_UPLOAD_MAX_SEC = 2;
@@ -7595,8 +7689,20 @@ async function processAuthCallback() {
     src.start();
   }
 
-  // Main play function — dispatches to the right sound based on effect setting
-  async function playAlertSound() {
+  // 解析某情境要用的音效 id（'duduDu'|'quack'|'custom1'|'custom2'）
+  function effectForScenario(scenario){
+    if (scenario === 'jelly') return soundPrefs.effectJelly || 'duduDu';
+    if (scenario === 'desk') return soundPrefs.effectDesk || 'duduDu';
+    return soundPrefs.effectGeneral || soundPrefs.effect || 'duduDu';
+  }
+  // 取自訂槽的 url/name
+  function customSlot(which){
+    if (which === 'custom2') return { url: soundPrefs.custom2Url, name: soundPrefs.custom2Name };
+    return { url: soundPrefs.custom1Url, name: soundPrefs.custom1Name };
+  }
+
+  // Main play function — scenario: 'general' | 'jelly' | 'desk'
+  async function playAlertSound(scenario) {
     const ctx = getAudioCtx();
     if (!ctx) return;
     if (ctx.state === 'suspended') return;
@@ -7605,17 +7711,20 @@ async function processAuthCallback() {
     if (volPct <= 0) return;
     const volScale = Math.pow(volPct / 100, 2.2);
 
-    const effect = soundPrefs.effect || 'duduDu';
+    const effect = effectForScenario(scenario || 'general');
     if (effect === 'duduDu') {
       playSynthDuduDu(volScale);
     } else if (effect === 'quack') {
       const buf = await getSoundBuffer('quack', BUILT_IN_SOUNDS.quack);
-      if (buf) playBuffer(buf, volScale);
-      else playSynthDuduDu(volScale); // fallback
-    } else if (effect === 'custom' && soundPrefs.customUrl) {
-      const buf = await getSoundBuffer('custom_' + soundPrefs.customUrl, soundPrefs.customUrl);
-      if (buf) playBuffer(buf, volScale);
-      else playSynthDuduDu(volScale);
+      if (buf) playBuffer(buf, volScale); else playSynthDuduDu(volScale);
+    } else if (effect === 'custom1' || effect === 'custom2') {
+      const slot = customSlot(effect);
+      if (slot.url) {
+        const buf = await getSoundBuffer('custom_' + slot.url, slot.url);
+        if (buf) playBuffer(buf, volScale); else playSynthDuduDu(volScale);
+      } else {
+        playSynthDuduDu(volScale); // 槽未上傳 → fallback
+      }
     } else {
       playSynthDuduDu(volScale);
     }
@@ -7656,7 +7765,7 @@ async function processAuthCallback() {
       // new spawn detected: ts is newer than what we had AND happened within last 30s
       if (prevTs !== ts && (now - ts) <= SOUND_SNAPSHOT_AGE_LIMIT_MS) {
         if (isSoundEnabledForNm(nmId)) {
-          playAlertSound();
+          playAlertSound('general');
         }
       }
     });
@@ -7665,33 +7774,16 @@ async function processAuthCallback() {
 
   // Persistence
   async function saveSoundPrefs() {
+    const sanitized = sanitizeSoundForSave();
     if (isLoggedIn() && currentUser) {
       try {
-        // Sanitize for Firebase: replace undefined with null (Firebase doesn't allow undefined)
-        const sanitized = {
-          enabled: !!soundPrefs.enabled,
-          volume: soundPrefs.volume ?? 50,
-          perNm: soundPrefs.perNm || {},
-          baShow: soundPrefs.baShow || {},
-          effect: soundPrefs.effect || 'duduDu',
-          customUrl: soundPrefs.customUrl || null,
-          customName: soundPrefs.customName || null,
-        };
         await userMetaRef.child(currentUser.id).child('soundPrefs').set(sanitized);
       } catch (e) {
         console.warn('[sound] save prefs failed', e);
       }
     } else {
       try {
-        localStorage.setItem(LS_SOUND_PREFS_KEY, JSON.stringify({
-          enabled: soundPrefs.enabled,
-          volume: soundPrefs.volume,
-          perNm: soundPrefs.perNm || {},
-          baShow: soundPrefs.baShow || {},
-          effect: soundPrefs.effect || 'duduDu',
-          customUrl: soundPrefs.customUrl || null,
-          customName: soundPrefs.customName || null,
-        }));
+        localStorage.setItem(LS_SOUND_PREFS_KEY, JSON.stringify(sanitized));
       } catch (e) {}
     }
   }
@@ -7702,16 +7794,7 @@ async function processAuthCallback() {
     try {
       const raw = localStorage.getItem(LS_SOUND_PREFS_KEY);
       if (raw) {
-        const parsed = JSON.parse(raw);
-        soundPrefs = {
-          enabled: parsed.enabled !== undefined ? !!parsed.enabled : true,
-          volume: typeof parsed.volume === 'number' ? parsed.volume : 50,
-          perNm: parsed.perNm && typeof parsed.perNm === 'object' ? parsed.perNm : {},
-          baShow: parsed.baShow && typeof parsed.baShow === 'object' ? parsed.baShow : {},
-          effect: typeof parsed.effect === 'string' ? parsed.effect : 'duduDu',
-          customUrl: typeof parsed.customUrl === 'string' ? parsed.customUrl : null,
-          customName: typeof parsed.customName === 'string' ? parsed.customName : null,
-        };
+        soundPrefs = normalizeSoundPrefs(JSON.parse(raw));
       }
     } catch (e) {}
   }
@@ -7724,15 +7807,7 @@ async function processAuthCallback() {
     ref.on('value', (snap) => {
       const v = snap.val();
       if (v && typeof v === 'object') {
-        soundPrefs = {
-          enabled: v.enabled !== undefined ? !!v.enabled : true,
-          volume: typeof v.volume === 'number' ? v.volume : 50,
-          perNm: v.perNm && typeof v.perNm === 'object' ? v.perNm : {},
-          baShow: v.baShow && typeof v.baShow === 'object' ? v.baShow : {},
-          effect: typeof v.effect === 'string' ? v.effect : 'duduDu',
-          customUrl: typeof v.customUrl === 'string' ? v.customUrl : null,
-          customName: typeof v.customName === 'string' ? v.customName : null,
-        };
+        soundPrefs = normalizeSoundPrefs(v);
       } else {
         soundPrefs = { ...SOUND_DEFAULTS };
       }
@@ -7769,15 +7844,7 @@ async function processAuthCallback() {
       const snap = await userMetaRef.child(currentUser.id).child('soundPrefs').get();
       const v = snap.val();
       if (v && typeof v === 'object') {
-        soundPrefs = {
-          enabled: v.enabled !== undefined ? !!v.enabled : true,
-          volume: typeof v.volume === 'number' ? v.volume : 50,
-          perNm: v.perNm && typeof v.perNm === 'object' ? v.perNm : {},
-          baShow: v.baShow && typeof v.baShow === 'object' ? v.baShow : {},
-          effect: typeof v.effect === 'string' ? v.effect : 'duduDu',
-          customUrl: typeof v.customUrl === 'string' ? v.customUrl : null,
-          customName: typeof v.customName === 'string' ? v.customName : null,
-        };
+        soundPrefs = normalizeSoundPrefs(v);
         renderSoundSettingsModal(); // re-render with fresh data
       }
     } catch (e) {
@@ -7792,9 +7859,6 @@ async function processAuthCallback() {
     const guestNotice = document.getElementById('soundGuestNotice');
     const perNmContainer = document.getElementById('soundPerNmContainer');
     const effectSelect = document.getElementById('soundEffectSelect');
-    const customInfo = document.getElementById('soundCustomInfo');
-    const customName = document.getElementById('soundCustomName');
-    const uploadBtn = document.getElementById('soundUploadBtn');
     if (!masterToggle) return;
 
     masterToggle.checked = !!soundPrefs.enabled;
@@ -7802,38 +7866,32 @@ async function processAuthCallback() {
     volumeSlider.value = curVol;
     volumeLabel.textContent = `${curVol}%`;
 
-    // Effect select — rebuild options so custom can be inserted/removed dynamically
-    if (effectSelect) {
-      const hasCustom = !!soundPrefs.customUrl;
-      let opts = `
-        <option value="duduDu">嘟嘟嘟（預設）</option>
-        <option value="quack">呱呱</option>
-      `;
-      if (hasCustom) {
-        const label = (soundPrefs.customName || '自訂音效').replace(/</g, '&lt;');
-        opts += `<option value="custom">自訂：${label}</option>`;
-      }
-      effectSelect.innerHTML = opts;
-      effectSelect.value = soundPrefs.effect || 'duduDu';
-    }
+    // 三情境音效下拉：選項依自訂槽是否存在動態調整
+    const c1 = !!soundPrefs.custom1Url, c2 = !!soundPrefs.custom2Url;
+    const optsHtml = ()=>{
+      let o = `<option value="duduDu">嘟嘟嘟（預設）</option><option value="quack">呱呱</option>`;
+      o += `<option value="custom1"${c1?'':' disabled'}>自訂音效 1${c1?'':'（未上傳）'}</option>`;
+      o += `<option value="custom2"${c2?'':' disabled'}>自訂音效 2${c2?'':'（未上傳）'}</option>`;
+      return o;
+    };
+    const setSel = (id, val)=>{ const el=document.getElementById(id); if(el){ el.innerHTML=optsHtml(); el.value=val||'duduDu'; if(el.selectedIndex<0) el.value='duduDu'; } };
+    setSel('soundEffectSelect', soundPrefs.effectGeneral);
+    setSel('baJellyEffect', soundPrefs.effectJelly);
+    setSel('baDeskEffect', soundPrefs.effectDesk);
 
-    // Custom info card — shows uploaded sound name + remove link
-    if (customInfo && customName) {
-      if (soundPrefs.customUrl) {
-        customInfo.style.display = '';
-        customName.textContent = `已上傳：${soundPrefs.customName || '自訂音效'}`;
-      } else {
-        customInfo.style.display = 'none';
-      }
-    }
-
-    // Upload button: only available to logged-in users (storage rules require auth)
-    if (uploadBtn) {
-      uploadBtn.disabled = !isLoggedIn();
-      uploadBtn.title = isLoggedIn()
-        ? '上傳自訂音效 (mp3/ogg/wav, ≤50KB, ≤2 秒)'
-        : '上傳功能需要登入後使用';
-    }
+    // 自訂槽名稱顯示 + 移除鈕
+    const slotName = (slot, nameId)=>{
+      const el=document.getElementById(nameId); if(!el) return;
+      const url = slot==='custom1'?soundPrefs.custom1Url:soundPrefs.custom2Url;
+      const nm = slot==='custom1'?soundPrefs.custom1Name:soundPrefs.custom2Name;
+      el.textContent = url ? ('已上傳：'+(nm||'自訂音效')) : '尚未上傳';
+      const delBtn = document.querySelector(`[data-sound-del-slot="${slot}"]`);
+      if (delBtn) delBtn.style.display = url ? '' : 'none';
+      const upBtn = document.querySelector(`[data-sound-upload-slot="${slot}"]`);
+      if (upBtn) { upBtn.disabled = !isLoggedIn(); upBtn.title = isLoggedIn()?'上傳 (mp3/ogg/wav, ≤50KB, ≤2 秒)':'上傳需登入'; }
+    };
+    slotName('custom1','soundCustom1Name');
+    slotName('custom2','soundCustom2Name');
 
     if (guestNotice) {
       if (isLoggedIn()) {
@@ -7970,7 +8028,7 @@ async function processAuthCallback() {
       // Play once regardless of master toggle for testing — but respect volume
       const oldEnabled = soundPrefs.enabled;
       soundPrefs.enabled = true;
-      try { await playAlertSound(); } catch (e) { console.warn('[sound] test play failed', e); }
+      try { await playAlertSound('general'); } catch (e) { console.warn('[sound] test play failed', e); }
       soundPrefs.enabled = oldEnabled;
     });
 
@@ -8007,40 +8065,46 @@ async function processAuthCallback() {
       });
     }
 
-    // Effect selection — switches sound type
-    const effectSelect = document.getElementById('soundEffectSelect');
-    if (effectSelect) {
-      effectSelect.addEventListener('change', () => {
-        soundPrefs.effect = effectSelect.value;
-        saveSoundPrefs();
-      });
-    }
+    // 三情境音效下拉
+    const wireEffect = (id, key)=>{ const el=document.getElementById(id); if(el) el.addEventListener('change', ()=>{ soundPrefs[key]=el.value; saveSoundPrefs(); }); };
+    wireEffect('soundEffectSelect', 'effectGeneral');
+    wireEffect('baJellyEffect', 'effectJelly');
+    wireEffect('baDeskEffect', 'effectDesk');
 
-    // Upload button → trigger hidden file input
-    const uploadBtn = document.getElementById('soundUploadBtn');
-    const uploadInput = document.getElementById('soundUploadInput');
-    if (uploadBtn && uploadInput) {
-      uploadBtn.addEventListener('click', () => {
-        if (!isLoggedIn()) {
-          showSoundUploadStatus('warn', '請先登入後再上傳自訂音效');
-          return;
-        }
-        uploadInput.click();
+    // 自訂槽上傳（custom1 / custom2）
+    document.querySelectorAll('[data-sound-upload-slot]').forEach(btn=>{
+      const slot = btn.dataset.soundUploadSlot;
+      const fileInput = document.querySelector(`[data-sound-file-slot="${slot}"]`);
+      btn.addEventListener('click', ()=>{
+        if (!isLoggedIn()) { showSoundUploadStatus('warn','請先登入後再上傳自訂音效'); return; }
+        if (fileInput) fileInput.click();
       });
-      uploadInput.addEventListener('change', async () => {
-        const file = uploadInput.files && uploadInput.files[0];
-        if (file) {
-          await handleSoundUpload(file);
-          uploadInput.value = ''; // reset for next time
-        }
+      if (fileInput) fileInput.addEventListener('change', async ()=>{
+        const file = fileInput.files && fileInput.files[0];
+        if (file) { await handleSoundUpload(file, slot); fileInput.value=''; }
       });
-    }
-
-    // Delete custom sound
-    const deleteBtn = document.getElementById('soundDeleteCustomBtn');
-    if (deleteBtn) {
-      deleteBtn.addEventListener('click', handleDeleteCustomSound);
-    }
+    });
+    // 自訂槽刪除
+    document.querySelectorAll('[data-sound-del-slot]').forEach(btn=>{
+      btn.addEventListener('click', ()=>handleDeleteCustomSound(btn.dataset.soundDelSlot));
+    });
+    // 自訂槽試聽
+    document.querySelectorAll('[data-sound-test-slot]').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const slot=btn.dataset.soundTestSlot;
+        const url = slot==='custom2'?soundPrefs.custom2Url:soundPrefs.custom1Url;
+        if(!url){ showSoundUploadStatus('warn','此槽尚未上傳音效'); return; }
+        try{ const ctx=getAudioCtx(); if(ctx&&ctx.state==='suspended') await ctx.resume();
+          const buf=await getSoundBuffer('custom_'+url,url); if(buf) playBuffer(buf, Math.pow(((soundPrefs.volume??50)/100),2.2)); }catch(e){}
+      });
+    });
+    // 兵武塔水母/服務台試聽
+    document.querySelectorAll('[data-ba-test]').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const ctx=getAudioCtx(); if(ctx&&ctx.state==='suspended') await ctx.resume();
+        playAlertSound(btn.dataset.baTest==='jelly'?'jelly':'desk');
+      });
+    });
   }
 
   // Show inline status under the upload row
@@ -8076,113 +8140,90 @@ async function processAuthCallback() {
   }
 
   // Main upload handler — validates + uploads to Firebase Storage
-  async function handleSoundUpload(file) {
+  async function handleSoundUpload(file, slot) {
+    slot = (slot === 'custom2') ? 'custom2' : 'custom1';
     if (!isLoggedIn() || !currentUser) {
       showSoundUploadStatus('err', '請先登入後再上傳');
       return;
     }
-
-    // ① Validate type
     if (file.size > SOUND_UPLOAD_MAX_BYTES) {
       showSoundUploadStatus('err', `檔案大小 ${(file.size / 1024).toFixed(1)} KB 超過 50 KB 限制`);
       return;
     }
-    const okType = SOUND_UPLOAD_ACCEPT_TYPES.some(t => file.type === t)
-                || /\.(mp3|ogg|wav)$/i.test(file.name);
-    if (!okType) {
-      showSoundUploadStatus('err', '格式不支援，僅接受 mp3 / ogg / wav');
-      return;
-    }
+    const okType = SOUND_UPLOAD_ACCEPT_TYPES.some(t => file.type === t) || /\.(mp3|ogg|wav)$/i.test(file.name);
+    if (!okType) { showSoundUploadStatus('err', '格式不支援，僅接受 mp3 / ogg / wav'); return; }
 
-    // ② Validate duration via decode
     showSoundUploadStatus('info', '檢查檔案中…');
     let duration;
-    try {
-      duration = await validateAudioDuration(file);
-    } catch (e) {
-      showSoundUploadStatus('err', '檔案損毀或無法解碼');
-      return;
-    }
-    if (duration > SOUND_UPLOAD_MAX_SEC) {
-      showSoundUploadStatus('err', `長度 ${duration.toFixed(1)}s 超過 2 秒限制`);
-      return;
-    }
+    try { duration = await validateAudioDuration(file); }
+    catch (e) { showSoundUploadStatus('err', '檔案損毀或無法解碼'); return; }
+    if (duration > SOUND_UPLOAD_MAX_SEC) { showSoundUploadStatus('err', `長度 ${duration.toFixed(1)}s 超過 2 秒限制`); return; }
 
-    // ③ Upload to Firebase Storage at sounds/<uid>/custom.<ext>
+    // 上傳到 sounds/<uid>/<slot>.<ext>（兩槽位各自獨立路徑）
     const ext = (file.name.match(/\.(mp3|ogg|wav)$/i) || ['', 'mp3'])[1].toLowerCase();
-    const path = `sounds/${currentUser.id}/custom.${ext}`;
+    const path = `sounds/${currentUser.id}/${slot}.${ext}`;
     const ref = storage.ref(path);
     showSoundUploadStatus('info', '上傳中…');
     try {
-      // Delete any previous upload (other extensions) first
+      // 刪除此槽位先前其他副檔名的檔
       try {
         const dirRef = storage.ref(`sounds/${currentUser.id}`);
         const list = await dirRef.listAll();
         for (const item of list.items) {
-          if (item.fullPath !== path) {
+          if (item.name.startsWith(slot + '.') && item.fullPath !== path) {
             try { await item.delete(); } catch (e) {}
           }
         }
-      } catch (e) { /* listing might fail; non-fatal */ }
+      } catch (e) {}
 
       const snap = await ref.put(file, { contentType: file.type || `audio/${ext}` });
       const url = await snap.ref.getDownloadURL();
 
-      // ④ Pre-decode the uploaded file directly (avoid fetch+CORS roundtrip for the first play)
+      // 預先解碼快取
       try {
         const ctx = getAudioCtx();
         if (ctx) {
           const arr = await file.arrayBuffer();
-          const buf = await new Promise((resolve, reject) => {
-            ctx.decodeAudioData(arr.slice(0), resolve, reject);
-          });
+          const buf = await new Promise((resolve, reject) => { ctx.decodeAudioData(arr.slice(0), resolve, reject); });
           soundBuffers['custom_' + url] = buf;
-          console.log('[sound] pre-cached custom buffer, duration=', buf.duration);
         }
-      } catch (e) {
-        console.warn('[sound] pre-decode failed (will retry via URL on play)', e);
-      }
+      } catch (e) {}
 
-      // ⑤ Update prefs: set custom URL + auto-switch to it
-      soundPrefs.customUrl = url;
-      soundPrefs.customName = file.name;
-      soundPrefs.effect = 'custom';
-      // Clear any stale custom buffers from previous uploads (other URLs)
-      Object.keys(soundBuffers).forEach(k => {
-        if (k.startsWith('custom_') && k !== 'custom_' + url) delete soundBuffers[k];
-      });
+      // 更新對應槽位
+      if (slot === 'custom2') { soundPrefs.custom2Url = url; soundPrefs.custom2Name = file.name; }
+      else { soundPrefs.custom1Url = url; soundPrefs.custom1Name = file.name; }
       await saveSoundPrefs();
       renderSoundSettingsModal();
-      showSoundUploadStatus('ok', `已上傳「${file.name}」並切換為自訂音效`);
+      showSoundUploadStatus('ok', `已上傳「${file.name}」至自訂音效 ${slot==='custom2'?'2':'1'}`);
     } catch (e) {
       console.warn('[sound] upload failed', e);
       showSoundUploadStatus('err', '上傳失敗：' + (e.message || '未知錯誤'));
     }
   }
 
-  // Remove the user's custom sound (file + prefs)
-  async function handleDeleteCustomSound() {
+  // Remove a custom sound slot (file + prefs)
+  async function handleDeleteCustomSound(slot) {
+    slot = (slot === 'custom2') ? 'custom2' : 'custom1';
     if (!isLoggedIn() || !currentUser) return;
     showSoundUploadStatus('info', '移除中…');
     try {
-      // Delete every file under sounds/<uid>/ (covers any extension)
-      const dirRef = storage.ref(`sounds/${currentUser.id}`);
+      // 只刪該槽位的檔
       try {
+        const dirRef = storage.ref(`sounds/${currentUser.id}`);
         const list = await dirRef.listAll();
         for (const item of list.items) {
-          try { await item.delete(); } catch (e) {}
+          if (item.name.startsWith(slot + '.')) { try { await item.delete(); } catch (e) {} }
         }
-      } catch (e) { /* non-fatal */ }
-      // Reset prefs
-      soundPrefs.customUrl = null;
-      soundPrefs.customName = null;
-      if (soundPrefs.effect === 'custom') soundPrefs.effect = 'duduDu';
-      Object.keys(soundBuffers).forEach(k => {
-        if (k.startsWith('custom_')) delete soundBuffers[k];
-      });
+      } catch (e) {}
+      const oldUrl = slot==='custom2'?soundPrefs.custom2Url:soundPrefs.custom1Url;
+      if (slot==='custom2'){ soundPrefs.custom2Url=null; soundPrefs.custom2Name=null; }
+      else { soundPrefs.custom1Url=null; soundPrefs.custom1Name=null; }
+      // 任何情境若正用此槽 → 改回預設
+      ['effectGeneral','effectJelly','effectDesk'].forEach(k=>{ if(soundPrefs[k]===slot) soundPrefs[k]='duduDu'; });
+      if (oldUrl) delete soundBuffers['custom_'+oldUrl];
       await saveSoundPrefs();
       renderSoundSettingsModal();
-      showSoundUploadStatus('ok', '已移除自訂音效');
+      showSoundUploadStatus('ok', `已移除自訂音效 ${slot==='custom2'?'2':'1'}`);
     } catch (e) {
       showSoundUploadStatus('err', '移除失敗：' + (e.message || '未知錯誤'));
     }
@@ -9999,6 +10040,7 @@ async function checkAndRecordAction(actionType) {
     return out;
   }
 
+  let _upcomingSig = '';
   function updateUpcomingPanel() {
     const body = document.getElementById('stripUpcomingBody');
     const countEl = document.getElementById('stripUpcomingCount');
@@ -10006,30 +10048,48 @@ async function checkAndRecordAction(actionType) {
     const list = getUpcomingTriggers();
     countEl.textContent = String(list.length);
     if (list.length === 0) {
-      body.innerHTML = '<div class="strip-empty">無即將可觸發 NM</div>';
+      if (_upcomingSig !== 'EMPTY') { body.innerHTML = '<div class="strip-empty">無即將可觸發 NM</div>'; _upcomingSig='EMPTY'; }
       return;
     }
-    const myTriggering = triggeringMyChoice; // nmId or null
+    const myTriggering = triggeringMyChoice;
+    // 簽章：列的組成 + 每列的觸發狀態類別 + 我是否選擇 + 觸發人數（變了才重建結構）
+    const sig = list.map(item=>{
+      const tc = countTriggering(item.nmId);
+      const cls = tc>0?'t':(item.isReadyNow?'r':'s');
+      return `${item.nmId}:${cls}:${tc}:${myTriggering===item.nmId?1:0}`;
+    }).join('|');
+
+    if (sig === _upcomingSig) {
+      // 結構不變 → 只更新會變動的文字（時間、條件剩餘），不碰 DOM 結構/class → 呼吸動畫不中斷
+      list.forEach(item=>{
+        const row = body.querySelector(`.upcoming-row[data-nm="${item.nmId}"]`);
+        if (!row) return;
+        const timeEl = row.querySelector('.up-time');
+        if (timeEl) timeEl.textContent = item.isReadyNow ? '現在' : formatUpcomingTime(item.triggerInMs);
+        const condEl = row.querySelector('.up-cond-rem');
+        if (item.conditionRemainingSec != null && item.conditionRemainingSec > 0) {
+          if (condEl) condEl.textContent = `⏳ 剩 ${formatCondRemaining(item.conditionRemainingSec)}`;
+        }
+      });
+      return;
+    }
+    // 結構有變 → 完整重建
+    _upcomingSig = sig;
     let html = '';
     list.forEach(item => {
       const timeText = item.isReadyNow ? '現在' : formatUpcomingTime(item.triggerInMs);
       const triggerCount = countTriggering(item.nmId);
       const meChosen = myTriggering === item.nmId;
-      // Border color priority: triggering > ready > upcoming
       let rowClass = 'upcoming-row';
       if (triggerCount > 0) rowClass += ' triggering';
       else if (item.isReadyNow) rowClass += ' ready';
       else rowClass += ' soon';
-
       const btnLabel = meChosen ? '取消觸發' : '觸發++';
       const btnClass = meChosen ? 'up-trigger-btn chosen' : 'up-trigger-btn';
-
-      // Condition remaining tag — only show if currently triggerable + has condition
       let condRemainingHtml = '';
       if (item.conditionRemainingSec != null && item.conditionRemainingSec > 0) {
         condRemainingHtml = `<span class="up-cond-rem" title="條件還能維持的時間">⏳ 剩 ${formatCondRemaining(item.conditionRemainingSec)}</span>`;
       }
-
       html += `
         <div class="${rowClass}" data-nm="${item.nmId}">
           <div class="up-main">
@@ -10488,7 +10548,7 @@ async function checkAndRecordAction(actionType) {
         <button class="manual-opt alive" id="moAlive"><span class="mo-ico">🟢</span><span><span class="mo-t">補報存活（修正時間）</span><span class="mo-d">怪還活著，但要修正出現／開戰時間</span></span></button>
         <button class="manual-opt dead" id="moDead"><span class="mo-ico">🔴</span><span><span class="mo-t">補報死亡</span><span class="mo-d">怪已經死了，補登或修正出現時間</span></span></button>
       </div>
-      <p class="lb-note" style="margin-top:14px;">分兩種是為了避免「其實死了卻被報活」（出現後需滿 8 分鐘才安全）。<br>＊第二階段接上後會自動帶入時間判斷。</p>
+      <p class="lb-note" style="margin-top:14px;">分兩種是為了避免「其實死了卻被報活」（出現後需滿 8 分鐘才安全）。
     `;
     showModal(`手動補報「${nm.name}」`, '', null, { extraHtml, hideConfirm: true, cancelText: '取消' });
     // 綁定兩鈕（showModal 後 DOM 已就緒）
@@ -12278,10 +12338,12 @@ async function checkAndRecordAction(actionType) {
         const opts=(vO.value||'').split('\n').map(s=>s.trim()).filter(Boolean);
         if(!q || opts.length<2){ if(vStatus){vStatus.style.display='';vStatus.style.color='#ff6b6b';vStatus.textContent='請填問題與至少兩個選項';} return; }
         if(!voteRef){ if(vStatus){vStatus.style.display='';vStatus.textContent='（DEMO）已模擬發佈';} return; }
-        // 發佈新投票 → 清空舊 ballots
-        voteRef.set({ current:{ question:q, options:opts, allowOther:!!vOther.checked, active:true, createdAt:Date.now() }, ballots:null })
-          .then(()=>{ if(vStatus){vStatus.style.display='';vStatus.style.color='var(--ready)';vStatus.textContent='投票已發佈！';setTimeout(()=>vStatus.style.display='none',2500);} renderVoteResults(); })
-          .catch(e=>{ if(vStatus){vStatus.style.display='';vStatus.style.color='#ff6b6b';vStatus.textContent='發佈失敗：'+e.message;} });
+        // 發佈新投票：先清空舊 ballots，再寫 current（兩個路徑分開寫，符合規則）
+        voteRef.child('ballots').remove().catch(()=>{}).finally(()=>{
+          voteRef.child('current').set({ question:q, options:opts, allowOther:!!vOther.checked, active:true, createdAt:Date.now() })
+            .then(()=>{ if(vStatus){vStatus.style.display='';vStatus.style.color='var(--ready)';vStatus.textContent='投票已發佈！';setTimeout(()=>vStatus.style.display='none',2500);} renderVoteResults(); })
+            .catch(e=>{ if(vStatus){vStatus.style.display='';vStatus.style.color='#ff6b6b';vStatus.textContent='發佈失敗：'+e.message;} });
+        });
       };
       const vClose=document.getElementById('voteCloseBtn');
       if(vClose) vClose.onclick=async ()=>{
@@ -12369,7 +12431,7 @@ async function checkAndRecordAction(actionType) {
         } else {
           grid.dataset.customSig = sig;
           grid.innerHTML='';
-          list.forEach(({nm,zid})=>{ const card=document.createElement('article'); card.className='nm-card'; card.id=`nm-${nm.id}`; card.dataset.nm=nm.id; card.dataset.zone=zid; card.innerHTML=renderCardInner(nm); grid.appendChild(card); });
+          list.forEach(({nm,zid})=>{ const card=document.createElement('article'); card.className='nm-card'; card.id=`cnm-${nm.id}`; card.dataset.nm=nm.id; card.dataset.zone=zid; card.innerHTML=renderCardInner(nm); grid.appendChild(card); });
           updateCustomCards(list);
         }
         note.style.display = list.length? 'none':'block';
@@ -12377,8 +12439,10 @@ async function checkAndRecordAction(actionType) {
     };
     // 自定義追蹤：依各 NM 所屬島更新卡片狀態與時間（鏡像 updateCards 的填值邏輯）
     function updateCustomCards(list){
+      const grid=document.getElementById('customGrid');
+      if(!grid) return;
       list.forEach(({nm,zid})=>{
-        const card=document.getElementById(`nm-${nm.id}`);
+        const card=grid.querySelector(`.nm-card[data-nm="${nm.id}"]`);
         if(!card) return;
         const info=getNmStatus(zid,nm);
         card.dataset.status=info.status;
@@ -12690,6 +12754,35 @@ async function checkAndRecordAction(actionType) {
 
     // First-time-on-this-version: auto-show changelog modal
     maybeShowFirstTimeChangelog();
+    migrateBaSettingsOnceV270();
+  }
+
+  // 一次性：使用者首次載入 v2.7.0 時，把兵武塔四項設定強制關閉一次（僅執行一次）
+  function migrateBaSettingsOnceV270() {
+    const FLAG = 'ba_reset_v270';
+    try {
+      if (localStorage.getItem(FLAG)) return; // 已執行過
+    } catch (e) { return; }
+    // 等 soundPrefs 載入後再套用（登入者為非同步）
+    const apply = () => {
+      try {
+        if (typeof soundPrefs !== 'object' || !soundPrefs) return false;
+        if (!soundPrefs.perNm) soundPrefs.perNm = {};
+        if (!soundPrefs.baShow) soundPrefs.baShow = {};
+        soundPrefs.perNm['ba_jellyfish'] = false;
+        soundPrefs.perNm['ba_desk'] = false;
+        soundPrefs.baShow.jelly = false;
+        soundPrefs.baShow.desk = false;
+        if (typeof saveSoundPrefs === 'function') saveSoundPrefs();
+        if (window.BA && window.BA.renderAll) { try { window.BA.renderAll(); } catch(e){} }
+        try { localStorage.setItem(FLAG, '1'); } catch(e){}
+        return true;
+      } catch (e) { return false; }
+    };
+    // 立即試一次；若 soundPrefs 還沒好（登入者），延遲重試幾次
+    if (apply()) return;
+    let tries = 0;
+    const iv = setInterval(() => { tries++; if (apply() || tries > 10) clearInterval(iv); }, 600);
   }
 
   // Show changelog automatically the first time a user lands on a new version
@@ -12769,7 +12862,7 @@ async function checkAndRecordAction(actionType) {
     <h3>📖 新手教學</h3>
     <p class="donate-intro"><b>這是什麼？</b><br>讓全伺服器玩家共同回報菁英怪（NM）的出現與死亡，即時同步給所有人，方便組隊討伐。</p>
     <p class="donate-intro"><b>怎麼用？</b><br>① Discord 登入　② 看到怪出現按「出現回報」　③ 怪死了按「已死亡」　④ 系統自動倒數下次可觸發。</p>
-    <p class="donate-intro"><b>顏色？</b><br>🔴 冷卻中　🟡 等待條件　🟢 可以觸發　🔵 進行中</p>
+    <p class="donate-intro"><b>顏色？</b><br>🔴 冷卻中　🟡 等待條件　🟢 可以觸發</p>
     <div class="modal-actions"><button class="modal-btn" data-close>關閉</button></div>
   </div>
 </div>
@@ -12803,23 +12896,23 @@ async function checkAndRecordAction(actionType) {
     const S = [];
     const forceAnemos = ()=>{ try{ const t=document.querySelector('.zone-tab[data-zone="anemos"]'); if(t && !t.classList.contains('active')) t.click(); }catch(e){} };
     S.push({ sel:null, title:'歡迎使用優雷卡 NM 追蹤站 👋',
-      body:'這個小導覽會帶你認識主要功能，大約 1 分鐘。隨時可按「略過導覽」結束。隨時可以從「選單 → 新手教學」再次開啟本導覽。' });
+      body:'這個小導覽會帶你認識主要功能，大約 3 分鐘。隨時可按「略過導覽」結束。也隨時可以從「選單 → 新手教學」再次開啟本導覽。' });
     S.push({ sel:'.zone-tabs, .zone-nav, nav', title:'區域分頁',
       body:'這裡切換四個優雷卡區域（常風／恆冰／湧火／豐水）、自定義追蹤，以及兵武塔 BA。每區有自己的 NM 清單。' });
     S.push({ sel:'#islandLife, .island-life', title:'島嶼存活時間',
-      body:'顯示各區「實例島」的存活倒數。重置後會開新島，時間到提醒你留意新島生成。' });
+      body:'顯示四大島嶼的存活時間，讓你知道距離上次刷新過了多久。最右方為兵武塔的傳送倒數計時。' });
     S.push({ sel:'#eorzeaClock, .et-clock, .clock', title:'艾歐澤亞時間（ET）',
       body:'遊戲內時間與天氣會影響部分 NM 觸發。這裡即時顯示 ET 與天氣狀態。' });
     S.push({ sel:'#stripActiveBody, #stripActive, .strip-active', title:'進行中',
-      body:'目前正在進行（已被回報出現、組隊討伐中）的 NM 會列在這裡，附存活倒數。' });
+      body:'目前正在進行（已被回報出現、組隊討伐中）的 NM 會列在這裡，附存活倒數、開戰時間與開打時間調整。' });
     S.push({ sel:'#stripUpcomingBody, #stripUpcoming, .strip-upcoming', title:'即將可觸發',
-      body:'已滿足或即將滿足觸發條件的 NM。觸發人數、預估時間都看得到，方便揪人。' });
+      body:'已滿足或即將滿足觸發條件的 NM。可以看到還有多久能觸發，或是條件還持續多久。可以點選觸發++來告訴別人你正在觸發某個NM' });
     S.push({ sel:'.nm-card, .nm-row', title:'NM 卡片', before:forceAnemos,
-      body:'每隻 NM 一張卡，顯示等級、名稱、狀態與冷卻倒數。顏色：🔴冷卻中　🟡等待條件　🟢可觸發　🔵進行中。' });
+      body:'每隻 NM 一張卡，顯示等級、名稱、狀態、條件與冷卻倒數。顏色：🔴冷卻中　🟡等待條件　🟢可觸發。' });
     S.push({ sel:'.nm-card .report-btn, .nm-card button, .report-btn', title:'回報出現 / 死亡', before:forceAnemos,
-      body:'看到怪出現按「出現回報」、被打死按「死亡回報」。你的回報會即時同步給全站玩家——這就是本站的核心！' });
+      body:'看到怪出現按「出現回報」、被打死按「死亡回報」，如果非當下回報可以按下方的手動輸入時間。你的回報會即時同步給全站玩家！' });
     S.push({ sel:'#authBox', title:'Discord 登入',
-      body:'回報功能需要登入（防濫用）。用 Discord 一鍵登入即可，免註冊。登入後設定也會跨裝置同步。' });
+      body:'回報相關功能都需要登入才能使用。用 Discord 一鍵登入即可。登入後使用者設定也會跨裝置同步。' });
     // 先教使用者設定、再教選單（由左到右）
     S.push({ sel:'#soundSettingsBtn', title:'使用者設定',
       body:'點這裡可設定提示音、追蹤的 NM、兵武塔、二段確認等。接下來帶你看設定裡的四個分頁。' });
@@ -12834,7 +12927,7 @@ async function checkAndRecordAction(actionType) {
     S.push({ sel:'.settings-tab[data-pane="sound"]', title:'設定 · 提示音', before:settingsTab('sound'),
       body:'這裡可開關提示音、調整音量、上傳自訂音效，也能逐隻 NM 個別設定要不要響。' });
     S.push({ sel:'.settings-tab[data-pane="track"]', title:'設定 · 自定義追蹤NM', before:settingsTab('track'),
-      body:'勾選想追蹤的 NM。提醒：八寶、島主以外的 NM（其它類）要切到「緊湊模式」才會顯示。' });
+      body:'勾選想追蹤的 NM。提醒：八寶、島主以外的 NM（其它類）記得要切到「緊湊模式」才會顯示。' });
     S.push({ sel:'.settings-tab[data-pane="ba"]', title:'設定 · 兵武塔', before:settingsTab('ba'),
       body:'兵武塔的水母／服務台提示音與「是否顯示在進行中區域」都在這裡，四項皆預設關閉。想收到提示、看到資訊，記得自行打開！' });
     S.push({ sel:'.settings-tab[data-pane="other"]', title:'設定 · 其它', before:settingsTab('other'),
@@ -12856,7 +12949,7 @@ async function checkAndRecordAction(actionType) {
     S.push({ sel:'#zoneTabBa', title:'兵武塔 BA（即將開放）', before:closeDrawerFn,
       body:'這是新區，目前上鎖測試中。未來開放後可即時追蹤水母、服務台，查文理技能合成表，還有主催開團排班表。敬請期待！' });
     S.push({ sel:null, title:'開始使用吧 🎉',
-      body:'就這些！記得回報你看到的 NM，幫助全伺服器一起討伐。隨時可從「選單 → 新手教學」再看一次。祝旅途愉快！' });
+      body:'就這些！記得回報你看到的 NM，幫助全伺服器一起討伐。隨時可從「選單 → 新手教學」再看一次。歡迎來到優雷卡！' });
     // 過濾掉找不到目標的中間步驟（保留 sel:null 的歡迎/結束）
     return S.filter(st=> st.sel===null || st.before || document.querySelector(st.sel));
   }
