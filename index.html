@@ -13043,9 +13043,9 @@ async function checkAndRecordAction(actionType) {
 })();
 </script>
 <script>
-/* ===== v2.7.1 階段二：解鎖兵武塔 + 關閉更新日誌後自動教學 ===== */
+/* ===== v2.7.1 階段二：解鎖兵武塔 + 自動教學（穩健版）===== */
 (function(){
-  // 1) 解鎖並修復兵武塔分頁切換（不依賴現有 applyLock）
+  // 1) 解鎖並修復兵武塔分頁切換
   function fixBaTab(){
     var tab = document.getElementById('zoneTabBa');
     if (!tab){ setTimeout(fixBaTab, 400); return; }
@@ -13060,23 +13060,43 @@ async function checkAndRecordAction(actionType) {
     });
   }
 
-  // 2) 關閉更新日誌後，自動跑一次新手教學（每人僅一次）
-  function autoTourOnce(){
-    var FLAG = 'auto_tour_v271';
-    var closeBtn = document.getElementById('changelogClose');
-    if (closeBtn){
-      closeBtn.addEventListener('click', function(){
-        try{
-          if (localStorage.getItem(FLAG)) return;
-          localStorage.setItem(FLAG, '1');
-          setTimeout(function(){ if (typeof window.startTour === 'function') window.startTour(); }, 400);
-        }catch(e){}
-      });
-    }
+  // 2) 初次進站/初次載入此版本 → 自動彈更新日誌，關閉後跑一次教學
+  var TOUR_FLAG = 'auto_tour_v271';
+  function startTourOnce(){
+    try{
+      if (localStorage.getItem(TOUR_FLAG)) return;
+      localStorage.setItem(TOUR_FLAG, '1');
+    }catch(e){ return; }
+    setTimeout(function(){ if (typeof window.startTour === 'function') window.startTour(); }, 400);
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ fixBaTab(); autoTourOnce(); });
-  else { fixBaTab(); autoTourOnce(); }
+  function setupAutoTour(){
+    var bd = document.getElementById('changelogBackdrop');
+    var closeBtn = document.getElementById('changelogClose');
+    if (!bd || !closeBtn){ setTimeout(setupAutoTour, 400); return; }
+
+    // 任何方式關閉更新日誌（按關閉鈕、點背景）都觸發一次教學
+    var fired = false;
+    function onClose(){
+      if (fired) return;
+      // 只有在「這次有自動彈出過」時才跑（避免使用者手動翻舊日誌也被教學）
+      if (bd.dataset.autoShown === '1'){ fired = true; startTourOnce(); }
+    }
+    closeBtn.addEventListener('click', onClose);
+    bd.addEventListener('click', function(e){ if (e.target === bd) onClose(); });
+
+    // 若尚未跑過教學，主動彈出更新日誌（標記為自動彈出）
+    try{
+      if (!localStorage.getItem(TOUR_FLAG)){
+        bd.dataset.autoShown = '1';
+        bd.classList.add('active');
+      }
+    }catch(e){}
+  }
+
+  function init(){ fixBaTab(); setupAutoTour(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })();
 </script>
 </body>
