@@ -11840,6 +11840,7 @@ async function checkAndRecordAction(actionType) {
     // === v2.6 新 UI 函數 ===
     window.openDrawer = function(){ document.getElementById('appDrawer').classList.add('open'); document.getElementById('drawerBackdrop').classList.add('open'); };
     function closeDrawer(){ document.getElementById('appDrawer').classList.remove('open'); document.getElementById('drawerBackdrop').classList.remove('open'); }
+    window.closeDrawer = closeDrawer;
     function openV26Modal(id){ const m=document.getElementById(id); if(m) m.classList.add('active'); }
     function renderLbRows(el, arr, unit){
       if(!arr.length){ el.innerHTML='<div style="text-align:center;color:var(--ink-faded);padding:14px;">尚無資料</div>'; return; }
@@ -12875,6 +12876,7 @@ async function checkAndRecordAction(actionType) {
     <div class="tt-step" id="tourStepNo"></div>
     <div class="tt-title" id="tourTitle"></div>
     <div class="tt-body" id="tourBody"></div>
+    <div class="tt-hint" style="font-size:11px;color:var(--ink-faded);margin-top:8px;opacity:0.85;">💡 點擊畫面任意處，或按「下一步」繼續</div>
     <div class="tt-actions">
       <button class="tt-btn skip" id="tourSkip">略過導覽</button>
       <div class="tt-nav">
@@ -12945,7 +12947,7 @@ async function checkAndRecordAction(actionType) {
       body:'發現 bug、有建議，或想申請主催身份組，都可以從「問題回報」告訴站長。' });
     S.push({ sel:'#drawerKnownIssues, .drawer-item', title:'已知問題', before:openDrawerFn,
       body:'站長已知、處理中的問題會列在這裡，回報前可以先看看是不是已知狀況。' });
-    const closeDrawerFn = ()=>{ try{ if(typeof closeDrawer==='function') closeDrawer(); }catch(e){} };
+    const closeDrawerFn = ()=>{ try{ if(typeof window.closeDrawer==='function') window.closeDrawer(); }catch(e){} };
     S.push({ sel:'#zoneTabBa', title:'兵武塔 BA', before:closeDrawerFn,
       body:'這是本次更新的新區域。可即時追蹤水母、服務台，查文理技能合成表，還有主催開團排班表。' });
     S.push({ sel:null, title:'開始使用吧 🎉',
@@ -13032,7 +13034,12 @@ async function checkAndRecordAction(actionType) {
     if(prev) prev.onclick=()=>{ if(idx>0){ idx--; show(); } };
     if(skip) skip.onclick=end;
     const ov=document.getElementById('tourOverlay');
-    if(ov) ov.addEventListener('click',e=>{ if(e.target===ov) end(); });
+    if(ov) ov.addEventListener('click',e=>{
+      // 點擊遮罩任意處（不是提示框內、不是按鈕）→ 自動下一步，不關閉教學
+      if(e.target===ov || e.target.id==='tourSpot'){
+        if(idx>=steps.length-1) end(); else { idx++; show(); }
+      }
+    });
     document.addEventListener('keydown',e=>{
       if(!document.getElementById('tourOverlay').classList.contains('active')) return;
       if(e.key==='Escape') end();
