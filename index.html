@@ -663,11 +663,11 @@ const WX_ICON = {
   .lg-filter-btn[data-lg-filter="近戰"].active, .lg-filter-btn[data-lg-filter="遠敏"].active, .lg-filter-btn[data-lg-filter="遠法"].active { background: rgba(204,91,87,0.22); color: #ffd9d7; border-color: #cc5b57; }
   /* 圖鑑格：固定一排 10 個（與遊戲內排列一致，最後一排 6 個）*/
   .lg-grid {
-    display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; align-self: start;
+    display: grid; grid-template-columns: repeat(10, 1fr); gap: 7px; align-self: start;
   }
   @media (max-width: 900px) { .lg-grid { grid-template-columns: repeat(10, 1fr); } }
   .lg-cell {
-    position: relative; aspect-ratio: 1; border: 1px solid var(--border-light);
+    position: relative; aspect-ratio: 1; border: 2px solid var(--border-light);
     background: var(--bg-deep); cursor: pointer; border-radius: 3px; overflow: hidden;
     transition: all .12s; display: flex; align-items: center; justify-content: center;
   }
@@ -3426,6 +3426,19 @@ const WX_ICON = {
   .announce-banner .ab-text{flex:1;}.announce-banner .ab-text b{color:#fff;}
   .announce-banner .ab-close{background:none;border:none;color:var(--ink-faded);font-size:20px;cursor:pointer;line-height:1;padding:2px 6px;}
   .announce-banner .ab-close:hover{color:var(--ink-bright);}
+  .vote-banner{max-width:1200px;margin:0 auto 16px;padding:13px 16px;background:linear-gradient(90deg,rgba(168,120,255,0.12),rgba(168,120,255,0.02));border:1px solid rgba(168,120,255,0.3);border-left:3px solid #a878ff;border-radius:3px;}
+  .vote-banner.hidden{display:none;}
+  .vote-banner .vb-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .vote-banner .vb-tag{background:#a878ff;color:#1a0f2e;font-size:11px;font-weight:900;padding:3px 9px;flex:none;border-radius:2px;}
+  .vote-banner .vb-q{font-size:15px;font-weight:700;color:var(--ink-bright);}
+  .vote-banner .vb-options{display:flex;flex-wrap:wrap;gap:8px;}
+  .vote-banner .vb-opt{padding:7px 16px;border:1px solid var(--border-light);background:var(--bg-deep);color:var(--ink-bright);cursor:pointer;font-family:var(--font-cjk);font-size:14px;border-radius:16px;transition:all .15s;}
+  .vote-banner .vb-opt:hover{border-color:#a878ff;color:#c9a3ff;}
+  .vote-banner .vb-other{display:flex;gap:8px;margin-top:8px;}
+  .vote-banner .vb-other.hidden{display:none;}
+  .vote-banner .vb-other input{flex:1;background:var(--bg-deep);border:1px solid var(--border-light);color:var(--ink-bright);padding:7px 10px;font-family:var(--font-cjk);font-size:14px;border-radius:3px;}
+  .vote-banner .vb-done{color:#8fd18f;font-weight:700;font-size:14px;}
+  .vote-banner .vb-done.hidden{display:none;}
 
   /* 抽屜選單 */
   .drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:998;display:none;}
@@ -3487,6 +3500,7 @@ const WX_ICON = {
 
   /* 二段確認開關警語 */
   .confirm-warn{background:rgba(232,105,74,0.08);border:1px solid rgba(232,105,74,0.3);padding:10px 13px;font-size:12px;color:#e8a08a;margin-top:8px;line-height:1.6;}
+  .ba-set-note{background:rgba(168,120,255,0.08);border:1px solid rgba(168,120,255,0.3);padding:10px 13px;font-size:12px;color:#c9b3e8;margin-bottom:12px;line-height:1.6;border-radius:3px;}
   /* 設定分頁 */
   .settings-tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:16px;}
   .settings-tab{background:none;border:none;color:var(--ink-faded);cursor:pointer;padding:10px 18px;font-size:14px;font-weight:700;font-family:var(--font-cjk);position:relative;}
@@ -3613,6 +3627,17 @@ const WX_ICON = {
     <button class="ab-close" id="announceClose" title="關閉公告">×</button>
   </div>
 
+  <!-- 投票 / 想法蒐集 banner（玩家端）-->
+  <div class="vote-banner hidden" id="voteBanner">
+    <div class="vb-head"><span class="vb-tag">📊 投票</span><span class="vb-q" id="voteBannerQ"></span></div>
+    <div class="vb-options" id="voteBannerOptions"></div>
+    <div class="vb-other hidden" id="voteBannerOtherWrap">
+      <input type="text" id="voteBannerOtherInput" placeholder="輸入你的想法…" maxlength="60">
+      <button class="modal-btn small" id="voteBannerOtherBtn">送出</button>
+    </div>
+    <div class="vb-done hidden" id="voteBannerDone">✓ 已投票，感謝參與！</div>
+  </div>
+
   <!-- 島嶼存活時間 -->
   <div class="island-life" id="islandLife"></div>
 
@@ -3720,6 +3745,23 @@ const WX_ICON = {
     <h3>📜 更新日誌</h3>
 	  
 	<div class="changelog-entry changelog-feature">
+      <div class="changelog-version">v2.7.0 <span class="changelog-date">— 2026/06/01</span></div>
+      <div class="changelog-tagline">🗼 兵武塔 BA 正式登場</div>
+      <ul class="changelog-list">
+        <li>✦ <strong>水母（未確認飛行物體）追蹤</strong>：時間到會自己出現的 NM，可回報出現、協調開打時間（ET）、回報死亡，生命週期 15 分鐘</li>
+        <li>✦ <strong>服務台（兵武塔調查支援）追蹤</strong>：踩塔預告、ET 踩塔時間倒數、戰鬥計時、死亡回報</li>
+        <li>✦ <strong>文理攜帶標記</strong>：服務台可標記「我已攜帶文理驅魔／虛槍」，讓大家知道目前有誰帶了，避免重複浪費</li>
+        <li>✦ <strong>塔內狀況、傳送準備倒數、下一隻預估出現時刻</strong>都會即時顯示</li>
+        <li>✦ <strong>文理技能查表</strong>：56 種文理合成表與職業篩選，點圖看取得方式、合成材料與效果</li>
+        <li>✦ <strong>主催開團排班表</strong>：未來七天開團行事曆、最終狀態、永久保存場次</li>
+        <li>✦ <strong>使用者設定改版</strong>：分為提示音／自定義追蹤／兵武塔／其它四個分頁；兵武塔的提示音與顯示可各自獨立開關（預設關閉，需自行開啟）</li>
+        <li>✦ <strong>公告投票</strong>：公告區可進行投票與想法蒐集</li>
+        <li>✦ 新手教學擴充，涵蓋使用者設定各分頁</li>
+        <li>感謝大家一路以來的支持與回饋 💛</li>
+      </ul>
+    </div>
+	  
+	<div class="changelog-entry">
       <div class="changelog-version">v2.6.1 <span class="changelog-date">— 2026/05/29</span></div>
       <div class="changelog-tagline">🛠 Bug Fix & 體驗優化</div>
       <ul class="changelog-list">
@@ -3981,7 +4023,9 @@ const WX_ICON = {
     <!-- 設定分頁 -->
     <div class="settings-tabs" id="settingsTabs">
       <button class="settings-tab active" data-pane="sound">🔔 提示音</button>
-      <button class="settings-tab" data-pane="other">⚙ 自定義追蹤NM</button>
+      <button class="settings-tab" data-pane="track">⚙ 自定義追蹤NM</button>
+      <button class="settings-tab" data-pane="ba">🗼 兵武塔</button>
+      <button class="settings-tab" data-pane="other">🔧 其它</button>
     </div>
 
     <!-- 提示音分頁 -->
@@ -4035,7 +4079,6 @@ const WX_ICON = {
         <button class="sound-nm-tab" data-zone="pagos">恆冰</button>
         <button class="sound-nm-tab" data-zone="pyros">湧火</button>
         <button class="sound-nm-tab" data-zone="hydatos">豐水</button>
-        <button class="sound-nm-tab" data-zone="ba">兵武塔</button>
       </div>
       <div class="sound-cat-filter" id="soundCatFilter">
         <span class="scf-label">篩選：</span>
@@ -4048,8 +4091,8 @@ const WX_ICON = {
     </div>
     </div>
 
-    <!-- 其它分頁 -->
-    <div class="settings-pane" data-pane="other" style="display:none;">
+    <!-- 自定義追蹤分頁 -->
+    <div class="settings-pane" data-pane="track" style="display:none;">
       <div class="sound-settings-section">
         <div class="settings-subtitle">追蹤的 NM（勾選才會顯示）</div>
         <div class="track-quick">
@@ -4075,7 +4118,29 @@ const WX_ICON = {
         <div id="trackNmList"></div>
         <div class="track-note">💡「其它」分類的 NM 只會在<b>緊湊模式</b>或<b>自定義追蹤</b>分頁顯示。</div>
       </div>
-      <div class="sound-settings-section" style="margin-top:14px;">
+    </div>
+
+    <!-- 兵武塔分頁（水母/服務台 提示音 + 顯示，各自獨立，預設關）-->
+    <div class="settings-pane" data-pane="ba" style="display:none;">
+      <div class="sound-settings-section">
+        <div class="settings-subtitle">兵武塔 BA 提示音與顯示</div>
+        <div class="ba-set-note">水母與服務台的提示音、是否顯示在「進行中」區域，都在此設定。<b>四項皆預設關閉</b>，想收到提示音／看到資訊請自行開啟。</div>
+        <label class="sound-row"><span class="sound-label">🪼 水母 — 出現提示音</span>
+          <label class="switch"><input type="checkbox" id="baToggleJellySound"><span class="slider"></span></label></label>
+        <label class="sound-row"><span class="sound-label">🪼 水母 — 顯示於「進行中」</span>
+          <label class="switch"><input type="checkbox" id="baToggleJellyShow"><span class="slider"></span></label></label>
+        <hr style="border:none;border-top:1px dashed var(--border);margin:10px 0;">
+        <label class="sound-row"><span class="sound-label">🛎 服務台 — 出現提示音</span>
+          <label class="switch"><input type="checkbox" id="baToggleDeskSound"><span class="slider"></span></label></label>
+        <label class="sound-row"><span class="sound-label">🛎 服務台 — 顯示於「進行中」</span>
+          <label class="switch"><input type="checkbox" id="baToggleDeskShow"><span class="slider"></span></label></label>
+      </div>
+    </div>
+
+    <!-- 其它分頁 -->
+    <div class="settings-pane" data-pane="other" style="display:none;">
+      <div class="sound-settings-section">
+        <div class="settings-subtitle">其它設定</div>
         <label class="sound-row">
           <span class="sound-label">回報二段確認</span>
           <label class="switch">
@@ -4304,7 +4369,6 @@ const WX_ICON = {
       <button class="admin-tab" data-tab="reports">💬 問題回報</button>
       <button class="admin-tab" data-tab="flags">🚫 標籤管理</button>
       <button class="admin-tab" data-tab="issues">⚠ 已知問題</button>
-      <button class="admin-tab" data-tab="sponsorrank">🗼 開團次數榜</button>
       <button class="admin-tab" data-tab="announce">📢 公告</button>
       <button class="admin-tab" data-tab="memo">📝 備忘錄</button>
     </div>
@@ -4369,13 +4433,7 @@ const WX_ICON = {
       <div id="adminIssuesList" class="admin-issues-list"></div>
     </div>
 
-    <!-- 開團次數榜 -->
-    <div class="admin-tab-content" data-content="sponsorrank">
-      <p style="color: var(--ink-faded); font-size: 12px; margin-bottom: 12px;">統計各主催「成功開團」次數（最終狀態為「達成目標」或「道中團滅」者計入；取消／改期不計）。此統計永久保留，不隨排程七天後刪除而歸零。</p>
-      <div id="adminSponsorRankList" class="sponsor-rank-list"></div>
-    </div>
-
-    <!-- Announcement editor -->
+    <!-- 投票 / 想法蒐集（管理）-->
     <div class="admin-tab-content" data-content="announce">
       <p style="color: var(--ink-faded); font-size: 12px; margin-bottom: 12px;">編輯首頁頂部的公告橫幅。留空則不顯示公告。修改後立即同步給所有人。</p>
       <label style="display:block;color:var(--ink-faded);font-size:12px;margin-bottom:6px;">公告內容（支援簡單文字）</label>
@@ -4388,6 +4446,22 @@ const WX_ICON = {
         <button class="modal-btn" id="announcePreviewBtn">預覽</button>
       </div>
       <div id="announceSaveStatus" style="margin-top:10px;font-size:12px;color:var(--ready);display:none;">已發佈！</div>
+
+      <hr style="border:none;border-top:1px dashed var(--border);margin:20px 0;">
+      <div class="settings-subtitle">📊 投票 / 想法蒐集</div>
+      <p style="color: var(--ink-faded); font-size: 12px; margin-bottom: 12px;">建立一個投票，玩家在首頁公告區可點選。只有您（管理員）看得到投票比例，玩家投完只會看到「已投票」。</p>
+      <label style="display:block;color:var(--ink-faded);font-size:12px;margin-bottom:6px;">問題</label>
+      <input type="text" id="voteQuestion" placeholder="例如：下次活動辦哪個？" style="width:100%;background:var(--bg-deep);border:1px solid var(--border-light);color:var(--ink-bright);padding:9px 10px;font-family:var(--font-cjk);font-size:14px;box-sizing:border-box;margin-bottom:10px;">
+      <label style="display:block;color:var(--ink-faded);font-size:12px;margin-bottom:6px;">選項（每行一個）</label>
+      <textarea id="voteOptions" rows="4" placeholder="選項A&#10;選項B&#10;選項C" style="width:100%;background:var(--bg-deep);border:1px solid var(--border-light);color:var(--ink-bright);padding:10px;font-family:var(--font-cjk);font-size:14px;box-sizing:border-box;resize:vertical;margin-bottom:10px;"></textarea>
+      <label style="display:flex;align-items:center;gap:6px;color:var(--ink);font-size:13px;cursor:pointer;margin-bottom:12px;"><input type="checkbox" id="voteAllowOther" style="width:16px;height:16px;accent-color:var(--gold);"> 允許玩家自行輸入選項（開放式想法蒐集）</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="modal-btn primary" id="voteSaveBtn">發佈投票</button>
+        <button class="modal-btn" id="voteCloseBtn">結束並關閉投票</button>
+        <button class="modal-btn" id="voteRefreshBtn">重新整理結果</button>
+      </div>
+      <div id="voteSaveStatus" style="margin-top:10px;font-size:12px;color:var(--ready);display:none;"></div>
+      <div id="voteResults" style="margin-top:16px;"></div>
     </div>
 
     <!-- Memo tab -->
@@ -4491,6 +4565,8 @@ const WX_ICON = {
         <label class="track-row" style="font-size:15px;"><input type="checkbox" value="通關團"> 通關團</label>
         <label class="track-row" style="font-size:15px;"><input type="checkbox" value="斷片團"> 斷片團</label>
         <label class="track-row" style="font-size:15px;"><input type="checkbox" value="馬戲團"> 馬戲團</label>
+        <label class="track-row" style="font-size:15px;"><input type="checkbox" value="VC團"> VC團</label>
+        <label class="track-row" style="font-size:15px;"><input type="checkbox" value="眼神團"> 眼神團</label>
         <label class="track-row" style="font-size:15px;"><input type="checkbox" value="其它"> 其它</label>
       </div>
       <div id="baSchedTypeOtherWrap" style="display:none; margin-top:8px;">
@@ -4828,6 +4904,24 @@ const SKILLS = {
     try { const u=(typeof currentUser!=='undefined')?currentUser:null; return u ? (u.uid||u.id||null) : null; }
     catch(e){ return null; }
   }
+  function myAvatar(){
+    try { const u=(typeof currentUser!=='undefined')?currentUser:null; return (u&&u.avatar)?u.avatar:''; }
+    catch(e){ return ''; }
+  }
+  // 用名字反查頭像（從 adminUsersCache）
+  function avatarByName(name){
+    try {
+      if (typeof adminUsersCache==='undefined' || !name) return '';
+      for (const uid in adminUsersCache){ const u=adminUsersCache[uid]; if(u && u.name===name && u.avatar) return u.avatar; }
+    } catch(e){}
+    return '';
+  }
+  // BA 回報者頭像 HTML（有頭像顯示頭像、否則名字首字）
+  function baReporterHtml(name, avatar){
+    const av = avatar || avatarByName(name) || '';
+    if (typeof avatarImgHtml==='function' && av) return `${avatarImgHtml(av, name, 'reporter-avatar')} ${esc(name||'?')}`;
+    return esc(name||'?');
+  }
   function myRoles(){
     try {
       if (typeof currentUser === 'undefined' || !currentUser) return [];
@@ -4960,9 +5054,17 @@ const SKILLS = {
   // 塔內最後一次「有人→無人」切換時間（用於 +20 分刷新計算）
   // 只有當這筆無人回報的「前一筆是有人」時，才算「最後一人剛離開」→ 觸發點。
   // 若前一筆本來就是無人（或無前一筆），不應把這次當成新的觸發點。
+  // 點10-1：若這次無人與前一次有人回報相差 >30 分，代表人早就出來了（沒及時回報），
+  //         則改用「前一次有人回報的時間」當作離開時間（更接近真實），避免硬壓 20 分。
+  const TOWER_STALE_MS = 30 * 60 * 1000;
   function towerEmptySince(){
     const ts = baState.towerState;
-    if (ts && ts.hasPeople === false && ts.prevHasPeople === true && typeof ts.at === 'number') return ts.at;
+    if (ts && ts.hasPeople === false && ts.prevHasPeople === true && typeof ts.at === 'number') {
+      if (typeof ts.prevAt === 'number' && (ts.at - ts.prevAt) > TOWER_STALE_MS) {
+        return ts.prevAt; // 早就無人，用前一次有人的時間
+      }
+      return ts.at;
+    }
     return null;
   }
 
@@ -4978,10 +5080,11 @@ const SKILLS = {
       if (!ok) return;
     }
     towerCooldownUntil = Date.now() + TOWER_COOLDOWN_MS;
-    // 記錄「前一筆是否有人」，供 towerEmptySince 判斷是否為真正的「最後一人離開」
+    // 記錄「前一筆是否有人」與其時間戳，供 towerEmptySince 判斷
     const prevTs = baState.towerState;
     const prevHasPeople = (prevTs && typeof prevTs.hasPeople === 'boolean') ? prevTs.hasPeople : null;
-    await baWrite('towerState', { hasPeople: !!hasPeople, prevHasPeople: prevHasPeople, by: myName(), at: Date.now() });
+    const prevAt = (prevTs && typeof prevTs.at === 'number') ? prevTs.at : null;
+    await baWrite('towerState', { hasPeople: !!hasPeople, prevHasPeople: prevHasPeople, prevAt: prevAt, by: myName(), at: Date.now() });
     if (typeof logUserAction === 'function') logUserAction('ba_tower', { hasPeople });
     renderAll();
   }
@@ -5001,15 +5104,18 @@ const SKILLS = {
       return { blocked:true, reason:'塔內有人，水母不會刷新', etaMs:null, ready:false };
     }
     const candidates = [];
-    // 1) 新島開始 +20 分（override 優先，否則 fallback instanceResets.hydatos）
     const niStart = newIslandStart();
+    // 點10-2：若有新島，捨棄所有「早於新島開始」的舊資料（舊島的回報/淨空/擊殺都不算），
+    //         僅以新島時間為基準。
+    const floor = niStart || 0;
+    // 1) 新島開始 +15 分
     if (niStart) candidates.push(niStart + REFRESH_AFTER_NEWISLAND_MS);
-    // 2) 塔內淨空 +20 分
+    // 2) 塔內淨空 +15 分（須晚於新島）
     const emptySince = towerEmptySince();
-    if (emptySince) candidates.push(emptySince + REFRESH_AFTER_EMPTY_MS);
-    // 3+4) 上次水母 & 服務台的 自然消失 +20 / 擊殺 +30（兩邊都納入，取 max 影響）
+    if (emptySince && emptySince >= floor) candidates.push(emptySince + REFRESH_AFTER_EMPTY_MS);
+    // 3+4) 上次水母 & 服務台 自然消失 +15 / 擊殺 +15（須晚於新島）
     [baState.jellyfish, baState.desk].forEach(o=>{
-      if (o && typeof o.killedAt === 'number') {
+      if (o && typeof o.killedAt === 'number' && o.killedAt >= floor) {
         candidates.push(o.killedAt + (o.isNatural ? REFRESH_AFTER_NATURAL_MS : REFRESH_AFTER_KILL_MS));
       }
     });
@@ -5037,7 +5143,7 @@ const SKILLS = {
     const now = Date.now();
     const active = inActiveEventPeriod();
     await baWrite('jellyfish', {
-      spawnedAt: now, spawnedBy: myName(),
+      spawnedAt: now, spawnedBy: myName(), spawnedByAvatar: myAvatar(),
       killedAt: null, killedBy: null, isNatural: false,
       inActiveEvent: active,
     });
@@ -5060,12 +5166,29 @@ const SKILLS = {
   // 補報：手動指定出現時間
   async function jellyFix(spawnedAtMs){
     if (!(await guard('ba_jelly_fix'))) return;
-    await baWrite('jellyfish', {
-      spawnedAt: spawnedAtMs, spawnedBy: myName(),
-      killedAt: null, killedBy: null, isNatural: false,
-      inActiveEvent: inActiveEventPeriod(),
+    await baUpdate({
+      'jellyfish/spawnedAt': spawnedAtMs, 'jellyfish/spawnedBy': myName(), 'jellyfish/spawnedByAvatar': myAvatar(),
+      'jellyfish/killedAt': null, 'jellyfish/killedBy': null, 'jellyfish/isNatural': false,
+      'jellyfish/inActiveEvent': inActiveEventPeriod(),
     });
     if (typeof logUserAction === 'function') logUserAction('ba_jelly_fix', {});
+    renderAll();
+  }
+  // 水母開打時間（ET）：與一般 NM / 服務台相同，協調幾點開打
+  async function jellySetPull(hhmm){
+    if (!/^\d{4}$/.test(hhmm)) { baAlert('格式錯誤', '請輸入 4 位數 ET 時間，例如 2100。'); return; }
+    const hh = parseInt(hhmm.slice(0,2),10), mm = parseInt(hhmm.slice(2),10);
+    if (hh>23 || mm>59) { baAlert('格式錯誤', 'ET 時間超出範圍（00:00–23:59）。'); return; }
+    if (!(await guard('ba_jelly_pull'))) return;
+    const etTargetMs = parseEtPullToMs(hhmm);
+    const realTargetMs = Date.now() + etTargetToRealRemainingMs(etTargetMs);
+    await baUpdate({ 'jellyfish/pullEt':hhmm, 'jellyfish/pullTargetMs': realTargetMs, 'jellyfish/pullSetBy':myName() });
+    if (typeof logUserAction === 'function') logUserAction('ba_jelly_pull', { hhmm });
+    renderAll();
+  }
+  async function jellyCancelPull(){
+    if (!(await guard('ba_jelly_pull_cancel'))) return;
+    await baUpdate({ 'jellyfish/pullEt':null, 'jellyfish/pullTargetMs':null, 'jellyfish/pullSetBy':null });
     renderAll();
   }
 
@@ -5074,7 +5197,7 @@ const SKILLS = {
     if (!(await guard('ba_desk_announce'))) return;
     const now = Date.now();
     await baWrite('desk', {
-      status:'announced', announcedAt: now, announcedBy: myName(),
+      status:'announced', announcedAt: now, announcedBy: myName(), announcedByAvatar: myAvatar(),
       etPullTime:null, etPullTargetMs:null, etPullSetAt:null, etPullSetBy:null,
       spawnedAt:null, killedAt:null, killedBy:null, isNatural:false,
     });
@@ -5140,14 +5263,14 @@ const SKILLS = {
     if (typeof logUserAction === 'function') logUserAction('ba_desk_carry', { kind });
     renderAll();
   }
-  // 服務台 踩塔倒數結束 → 戰鬥中（用鎖定的絕對時間戳；無 5 秒延遲）
+  // 服務台 踩塔倒數結束 → 戰鬥中
   function deskAutoActivate(){
     const d = baState.desk;
     if (!d || d.status!=='announced' || !d.etPullTargetMs) return;
-    // 到達踩塔目標時間 → 戰鬥中；spawnedAt 用「目標時間與現在取較大者」，
-    // 確保存活倒數從 15:00 開始、不會出現 15:10 之類超出值
+    // 到達踩塔目標時間 → 戰鬥中。spawnedAt 一律設為「實際觸發的當下」（Date.now()），
+    // 不用 etPullTargetMs（其為換算值、可能有浮點/時鐘漂移），以杜絕存活顯示超過 15:00（如 15:15）。
     if (Date.now() >= d.etPullTargetMs) {
-      baUpdate({ 'desk/status':'active', 'desk/spawnedAt': Math.min(d.etPullTargetMs, Date.now()) });
+      baUpdate({ 'desk/status':'active', 'desk/spawnedAt': Date.now() });
     }
   }
 
@@ -5358,9 +5481,22 @@ const SKILLS = {
     const breathing = alive && j.inActiveEvent;
     let statusHtml = '';
     if (alive) {
-      const left = BA_LIFETIME_MS - (now - j.spawnedAt);
-      statusHtml = `<div class="ba-card-status"><span class="hot">● 進行中</span> · 存活倒數 <span class="countdown" data-ba-cd="jelly">${fmtMS(left)}</span></div>`;
-      statusHtml += `<div class="ba-card-status" style="font-size:12px;">出現時間 ${typeof fmtHM==='function'?fmtHM(new Date(j.spawnedAt)):''}${j.spawnedBy?(' · 由 '+esc(j.spawnedBy)):''}　<a data-ba="jelly-fix" style="color:#c9a3ff;cursor:pointer;">調整</a></div>`;
+      // 比照一般 NM：有設開打時間(ET)→開打前倒數/開打後計時；存活上限 15 分
+      const elapsed = now - j.spawnedAt;
+      const lifeLeft = BA_LIFETIME_MS - elapsed;
+      if (j.pullTargetMs) {
+        const pullRem = j.pullTargetMs - now;
+        if (pullRem > 0) {
+          statusHtml = `<div class="ba-card-status"><span class="hot">● 已出現</span> · 距開打 <span class="countdown" data-ba-cd="jelly-pull">${fmtMS(pullRem)}</span></div>`;
+        } else {
+          statusHtml = `<div class="ba-card-status"><span class="hot">● 開打中</span> · 已開打 <span class="countdown" data-ba-cd="jelly-since-pull">${fmtMS(-pullRem)}</span></div>`;
+        }
+      } else {
+        statusHtml = `<div class="ba-card-status"><span class="hot">● 已出現</span> · 剩 <span class="countdown" data-ba-cd="jelly">${fmtMS(lifeLeft)}</span> 自然消失</div>`;
+      }
+      // 出現時間（TST）+ 調整；開打時間（ET）輸入框
+      statusHtml += `<div class="ba-card-status" style="font-size:12px;">出現時間 ${typeof fmtHM==='function'?fmtHM(new Date(j.spawnedAt)):''}${j.spawnedBy?(' · 由 '+esc(j.spawnedBy)):''}　<a data-ba="jelly-fix" style="color:#c9a3ff;cursor:pointer;">調整出現</a></div>`;
+      statusHtml += `<div class="ba-card-status" style="font-size:12px;"><span class="ba-desk-etline">開打時間 ET <input class="ba-et-input" id="baJellyPull" inputmode="numeric" maxlength="4" placeholder="HHMM" value="${j.pullEt||''}"></span>${j.pullTargetMs?' <a data-ba="jelly-pull-cancel" style="color:#c9a3ff;cursor:pointer;">取消</a>':''}</div>`;
       if (!j.inActiveEvent) statusHtml += `<div class="ba-card-status">目前無主催開團</div>`;
     } else if (j && j.killedAt) {
       const tag = j.isNatural ? '自然消失' : '擊殺';
@@ -5368,20 +5504,22 @@ const SKILLS = {
     } else {
       statusHtml = `<div class="ba-card-status">尚無紀錄</div>`;
     }
-    // 刷新預估
-    const fc = jellyForecast();
+    // 刷新預估（僅未出現時顯示）
     let fcHtml = '';
-    if (fc.blocked) fcHtml = `<div class="ba-card-forecast blocked">🔒 ${esc(fc.reason)}</div>`;
-    else if (fc.ready) fcHtml = `<div class="ba-card-forecast ready">⚡ 可能已出現，請確認</div>`;
-    else if (fc.etaMs) {
-      const at = new Date(fc.etaMs);
-      const atHM = typeof fmtHM==='function'?fmtHM(at):`${String(at.getHours()).padStart(2,'0')}:${String(at.getMinutes()).padStart(2,'0')}`;
-      fcHtml = `<div class="ba-card-forecast forecast-big">
-        <div class="fc-at">預估 <b class="fc-clock">${atHM}</b> 出現</div>
-        <div class="fc-in">約 <b data-ba-eta="${fc.etaMs}">${fmtMS(fc.etaMs-now)}</b> 後</div>
-      </div>`;
+    if (!alive) {
+      const fc = jellyForecast();
+      if (fc.blocked) fcHtml = `<div class="ba-card-forecast blocked">🔒 ${esc(fc.reason)}</div>`;
+      else if (fc.ready) fcHtml = `<div class="ba-card-forecast ready">⚡ 可能已出現，請確認</div>`;
+      else if (fc.etaMs) {
+        const at = new Date(fc.etaMs);
+        const atHM = typeof fmtHM==='function'?fmtHM(at):`${String(at.getHours()).padStart(2,'0')}:${String(at.getMinutes()).padStart(2,'0')}`;
+        fcHtml = `<div class="ba-card-forecast forecast-big">
+          <div class="fc-at">預估 <b class="fc-clock">${atHM}</b> 出現</div>
+          <div class="fc-in">約 <b data-ba-eta="${fc.etaMs}">${fmtMS(fc.etaMs-now)}</b> 後</div>
+        </div>`;
+      }
+      else fcHtml = `<div class="ba-card-forecast">${esc(fc.reason)}</div>`;
     }
-    else fcHtml = `<div class="ba-card-forecast">${esc(fc.reason)}</div>`;
     // 新島起算 + disclaimer 併一排
     const niStart = newIslandStart();
     const niTxt = niStart ? `依據新島時間：${relTime(now-niStart)}` : '尚無新島時間';
@@ -5518,6 +5656,11 @@ const SKILLS = {
     injectActiveTop();
     injectUpcomingTop();
   }
+  // 顯示開關（呼叫主程式全域；預設關）
+  function baShowEnabled(kind){
+    try { return (typeof window.isBaShowEnabled==='function') ? window.isBaShowEnabled(kind) : false; }
+    catch(e){ return false; }
+  }
   // 文理攜帶按鈕 HTML（仿觸發++模式：按鈕 + 人數 + 名字）
   function carryBtnsHtml(d){
     const mkBtn = (kind, label)=>{
@@ -5538,55 +5681,64 @@ const SKILLS = {
     const body = document.getElementById('stripActiveBody');
     const countEl = document.getElementById('stripActiveCount');
     if (!body) return;
+    // 焦點保護：若使用者正在輸入 BA 的 ET 框，跳過這次重建（避免一點擊就被重建而取消）
+    const ae = document.activeElement;
+    if (ae && (ae.id==='baDeskEtTop' || ae.id==='baJellyPullTop')) return;
     body.querySelectorAll('.ba-injected').forEach(n=>n.remove());
     const rows = [];
     const now = Date.now();
-    // ── 水母（進行中）──
+    // ── 水母（進行中）── 顯示開關控制
     const j = baState.jellyfish;
-    if (j && j.spawnedAt && !j.killedAt && j.inActiveEvent) {
-      const left = BA_LIFETIME_MS - (now - j.spawnedAt);
+    if (j && j.spawnedAt && !j.killedAt && j.inActiveEvent && baShowEnabled('jelly')) {
       const spawnHM = typeof fmtHM==='function'?fmtHM(new Date(j.spawnedAt)):'';
+      // 開打倒數 / 開打後計時（比照一般 NM）
+      let cd, etRow;
+      if (j.pullTargetMs) {
+        const pr = j.pullTargetMs - now;
+        cd = pr>0
+          ? `距開打 <span data-ba-jelly-pull="${j.pullTargetMs}">${fmtMS(pr)}</span>`
+          : `已開打 <span data-ba-jelly-sincepull="${j.pullTargetMs}">${fmtMS(-pr)}</span>`;
+      } else {
+        cd = `剩 <span data-ba-active="${j.spawnedAt}">${fmtMS(BA_LIFETIME_MS-(now-j.spawnedAt))}</span> 自然消失`;
+      }
+      etRow = `<span class="ae-pull-mini">開打時間 ET<input class="ae-pull-input" id="baJellyPullTop" inputmode="numeric" maxlength="4" placeholder="HHMM" value="${j.pullEt||''}" /></span>`;
       rows.push(`<div class="active-event-card ba-injected" data-ba-row="jelly" style="border-left:3px solid #a878ff;">
         <div class="ae-r1">
           <span class="ae-name">未確認飛行物體<span class="ae-nick" style="color:#c9a3ff;">· 兵武塔 BA · 水母</span></span>
-          <span class="ae-countdown"><span data-ba-active="${j.spawnedAt}">存活 ${fmtMS(left)}</span></span>
+          <span class="ae-countdown">${cd}</span>
         </div>
         <div class="ae-r2">
-          <span class="ae-reporter">${esc(j.spawnedBy||'?')} 回報 · 出現 ${spawnHM}</span>
+          <span class="ae-reporter">${baReporterHtml(j.spawnedBy, j.spawnedByAvatar)} 回報 · 出現 ${spawnHM}</span>
           <span class="ae-r2-right">
-            <button class="ae-mini-btn" data-ba="jelly-fix">調整出現時間</button>
+            ${etRow}
+            <button class="ae-mini-btn" data-ba="jelly-fix">調整出現</button>
             <button class="ae-kill-btn" data-ba="jelly-kill">死亡回報</button>
           </span>
         </div>
       </div>`);
     }
-    // ── 服務台 ──
+    // ── 服務台 ── 顯示開關控制
     const d = baState.desk;
-    if (d && d.status==='active' && d.spawnedAt && !d.killedAt) {
-      // 戰鬥中
+    if (baShowEnabled('desk') && d && d.status==='active' && d.spawnedAt && !d.killedAt) {
       const left = BA_LIFETIME_MS - (now - d.spawnedAt);
       rows.push(`<div class="active-event-card ba-injected" data-ba-row="desk" style="border-left:3px solid #d9534f;">
         <div class="ae-r1">
           <span class="ae-name">兵武塔調查支援<span class="ae-nick" style="color:#c9a3ff;">· 兵武塔 BA · 服務台</span></span>
-          <span class="ae-countdown"><span class="hot">● 戰鬥中</span> <span data-ba-active="${d.spawnedAt}">存活 ${fmtMS(left)}</span></span>
+          <span class="ae-countdown"><span class="hot">● 戰鬥中</span> <span data-ba-active="${d.spawnedAt}">剩 ${fmtMS(left)}</span></span>
         </div>
         ${carryBtnsHtml(d)}
         <div class="ae-r2">
-          <span class="ae-reporter">${esc(d.announcedBy||'?')} 預告</span>
+          <span class="ae-reporter">${baReporterHtml(d.announcedBy, d.announcedByAvatar)} 預告</span>
           <span class="ae-r2-right"><button class="ae-kill-btn" data-ba="desk-kill">死亡回報</button></span>
         </div>
       </div>`);
-    } else if (d && d.status==='announced') {
+    } else if (baShowEnabled('desk') && d && d.status==='announced') {
       const hasEt = !!d.etPullTargetMs;
-      let cdHtml, etRow;
-      if (hasEt) {
-        cdHtml = `<span class="hot">● 踩塔倒數中</span> <span data-ba-desk-et="${d.etPullTargetMs}">踩塔倒數 ${fmtMS(d.etPullTargetMs-now)}</span>`;
-        etRow = `<span class="ae-pull-mini">踩塔時間<input class="ae-pull-input" id="baDeskEtTop" inputmode="numeric" maxlength="4" value="${d.etPullTime||''}" data-ba-deskinput="1" />ET
-          <button class="ae-mini-btn" data-ba="desk-cancel-et">ET取消</button></span>`;
-      } else {
-        cdHtml = `<span class="hot">● 等待踩塔時間</span>`;
-        etRow = `<span class="ae-pull-mini">踩塔時間<input class="ae-pull-input" id="baDeskEtTop" inputmode="numeric" maxlength="4" placeholder="HHMM" value="" data-ba-deskinput="1" />ET（按 Enter 套用）</span>`;
-      }
+      let cdHtml;
+      // 踩塔時間文本順序：踩塔時間 ET [輸入框]
+      const etRow = `<span class="ae-pull-mini">踩塔時間 ET<input class="ae-pull-input" id="baDeskEtTop" inputmode="numeric" maxlength="4" placeholder="HHMM" value="${d.etPullTime||''}" />${hasEt?'<button class="ae-mini-btn" data-ba="desk-cancel-et">ET取消</button>':''}</span>`;
+      if (hasEt) cdHtml = `<span class="hot">● 踩塔倒數中</span> <span data-ba-desk-et="${d.etPullTargetMs}">踩塔倒數 ${fmtMS(d.etPullTargetMs-now)}</span>`;
+      else cdHtml = `<span class="hot">● 等待踩塔時間</span>`;
       rows.push(`<div class="active-event-card ba-injected" data-ba-row="desk" style="border-left:3px solid #a878ff;">
         <div class="ae-r1">
           <span class="ae-name">兵武塔調查支援<span class="ae-nick" style="color:#c9a3ff;">· 兵武塔 BA · 服務台</span></span>
@@ -5594,7 +5746,7 @@ const SKILLS = {
         </div>
         ${carryBtnsHtml(d)}
         <div class="ae-r2">
-          <span class="ae-reporter">${esc(d.announcedBy||'?')} 預告</span>
+          <span class="ae-reporter">${baReporterHtml(d.announcedBy, d.announcedByAvatar)} 預告</span>
           <span class="ae-r2-right">
             ${etRow}
             <button class="ae-kill-btn" data-ba="desk-cancel">取消預告</button>
@@ -5710,7 +5862,7 @@ const SKILLS = {
   }
 
   // ════════ 主催排班表 ════════
-  const TYPE_OPTIONS = ['通關團','斷片團','馬戲團','其它'];
+  const TYPE_OPTIONS = ['通關團','斷片團','馬戲團','VC團','眼神團','其它'];
   const DOW = ['日','一','二','三','四','五','六'];
   const FINAL_STATUSES = ['達成目標','道中團滅/返回','場次取消','場次延後/改期','其它'];
   const COUNTABLE = ['達成目標','道中團滅/返回'];   // 計入開團次數的狀態
@@ -6148,6 +6300,8 @@ const SKILLS = {
     document.querySelectorAll('[data-ba-cd]').forEach(el=>{
       const type = el.dataset.baCd;
       if (type==='jelly') { const j=baState.jellyfish; if(j&&j.spawnedAt&&!j.killedAt) el.textContent=fmtMS(BA_LIFETIME_MS-(now-j.spawnedAt)); }
+      else if (type==='jelly-pull') { const j=baState.jellyfish; if(j&&j.pullTargetMs){ const r=j.pullTargetMs-now; if(r>0) el.textContent=fmtMS(r); else renderAll(); } }
+      else if (type==='jelly-since-pull') { const j=baState.jellyfish; if(j&&j.pullTargetMs){ el.textContent=fmtMS(now-j.pullTargetMs); } }
       else if (type==='desk-life') { const d=baState.desk; if(d&&d.spawnedAt&&!d.killedAt) el.textContent=fmtMS(BA_LIFETIME_MS-(now-d.spawnedAt)); }
       else if (type==='desk-et') { const d=baState.desk; if(d&&d.etPullTargetMs){ el.textContent=fmtMS(d.etPullTargetMs-now); } }
     });
@@ -6163,15 +6317,21 @@ const SKILLS = {
       if(eta<=now){ const fc=el.closest('.ba-card-forecast'); if(fc){fc.className='ba-card-forecast ready';fc.innerHTML='⚡ 可能已出現，請確認';} }
       else el.textContent=fmtMS(eta-now);
     });
-    // 置頂注入列：存活倒數
+    // 置頂注入列：存活倒數（剩 / 戰鬥中）
     document.querySelectorAll('[data-ba-active]').forEach(el=>{
       const sp=parseInt(el.dataset.baActive,10);
-      const label = el.textContent.indexOf('戰鬥中')>=0 ? '戰鬥中 ' : '存活 ';
-      el.textContent=label+fmtMS(BA_LIFETIME_MS-(now-sp));
+      el.textContent='剩 '+fmtMS(BA_LIFETIME_MS-(now-sp));
     });
     // 置頂注入列：服務台踩塔倒數
     document.querySelectorAll('[data-ba-desk-et]').forEach(el=>{
       const t=parseInt(el.dataset.baDeskEt,10); if(t) el.textContent='踩塔倒數 '+fmtMS(t-now);
+    });
+    // 置頂注入列：水母開打倒數 / 開打後計時
+    document.querySelectorAll('[data-ba-jelly-pull]').forEach(el=>{
+      const t=parseInt(el.dataset.baJellyPull,10); if(t){ const r=t-now; if(r>0) el.textContent=fmtMS(r); else renderAll(); }
+    });
+    document.querySelectorAll('[data-ba-jelly-sincepull]').forEach(el=>{
+      const t=parseInt(el.dataset.baJellySincepull,10); if(t) el.textContent=fmtMS(now-t);
     });
     // 塔內 meta「N 秒前」每秒刷新
     document.querySelectorAll('[data-ba-tower-since]').forEach(el=>{
@@ -6195,6 +6355,10 @@ const SKILLS = {
         e.preventDefault();
         deskSetEt((e.target.value||'').trim());
       }
+      if (e.target && (e.target.id==='baJellyPull' || e.target.id==='baJellyPullTop') && e.key==='Enter') {
+        e.preventDefault();
+        jellySetPull((e.target.value||'').trim());
+      }
     });
 
     // 分頁點擊（BA tab 上鎖判定）— 用捕獲階段攔截
@@ -6217,6 +6381,7 @@ const SKILLS = {
         case 'jelly-kill':
           baConfirm('死亡回報','確認「未確認飛行物體」已被擊殺？').then(ok=>{ if(ok) jellyKill(); }); break;
         case 'jelly-fix': openFixModal(); break;
+        case 'jelly-pull-cancel': jellyCancelPull(); break;
         case 'edit-newisland': openNewIslandModal(); break;
         case 'desk-announce': deskAnnounce(); break;
         case 'desk-set-et': { const v=(document.getElementById('baDeskEt')||{}).value||''; deskSetEt(v.trim()); break; }
@@ -6400,7 +6565,11 @@ const SKILLS = {
       else { const v=document.getElementById('baNiEtInput').value.trim();
         if(!/^\d{4}$/.test(v)){ baAlert('格式錯誤','請輸入 4 位數 ET 時間。'); return; } ts=etHHMMToPastRealMs(v); }
       if(!(await guard('ba_newisland'))) return;
-      await baWrite('newIslandStartOverride',{ timestamp:ts, by:myName(), at:Date.now() });
+      // 點16：出現新島 → 直接清掉當前塔內狀況（新島重新開始）
+      await baUpdate({
+        'newIslandStartOverride': { timestamp:ts, by:myName(), at:Date.now() },
+        'towerState': null,
+      });
       close('baNewIslandBackdrop'); renderAll();
     };
     // 排程
@@ -6618,7 +6787,7 @@ const SKILLS = {
   const AUTH_STORAGE_KEY = 'eureka_user_info';
 	
 　// Current build version — must match Firebase eureka/meta/currentVersion
-  const APP_VERSION = 'v2.6.1';
+  const APP_VERSION = 'v2.7.0';
   const metaRef = db.ref('eureka/meta');
 
   // Watch for version updates: if Firebase has a newer version, prompt reload
@@ -7302,6 +7471,7 @@ async function processAuthCallback() {
     enabled: true,
     volume: 50,
     perNm: {},
+    baShow: {},         // 兵武塔顯示開關 {jelly:bool, desk:bool}，預設關
     effect: 'duduDu',   // 'duduDu' | 'quack' | 'custom'
     customUrl: null,    // URL to user's uploaded sound (Firebase Storage)
     customName: null,   // Original file name
@@ -7454,12 +7624,23 @@ async function processAuthCallback() {
   function isSoundEnabledForNm(nmId) {
     if (!soundPrefs.enabled) return false;
     const per = soundPrefs.perNm || {};
+    // 兵武塔水母/服務台：預設關閉
+    if (nmId === 'ba_jellyfish' || nmId === 'ba_desk') {
+      return per[nmId] === true;
+    }
     const nm = (typeof findNm === 'function') ? findNm(nmId) : null;
     const cat = nm ? (nm.category || 'bao') : 'bao';
     const defaultOn = (cat !== 'other');  // 其它預設關
     if (per[nmId] === undefined) return defaultOn;
     return per[nmId] !== false;
   }
+  // 兵武塔水母/服務台「顯示」開關（預設關閉）；kind = 'jelly' | 'desk'
+  // 關閉時，進行中區域不顯示該項。供 BA 模組透過 window 呼叫。
+  window.isBaShowEnabled = function(kind){
+    const per = soundPrefs.baShow || {};
+    const key = (kind==='jelly') ? 'jelly' : 'desk';
+    return per[key] === true;  // 預設關
+  };
 
   // Called whenever a new snapshot arrives — diffs against last spawns to detect new reports
   function handleSpawnsDiffForSound(newSpawns) {
@@ -7491,6 +7672,7 @@ async function processAuthCallback() {
           enabled: !!soundPrefs.enabled,
           volume: soundPrefs.volume ?? 50,
           perNm: soundPrefs.perNm || {},
+          baShow: soundPrefs.baShow || {},
           effect: soundPrefs.effect || 'duduDu',
           customUrl: soundPrefs.customUrl || null,
           customName: soundPrefs.customName || null,
@@ -7505,6 +7687,7 @@ async function processAuthCallback() {
           enabled: soundPrefs.enabled,
           volume: soundPrefs.volume,
           perNm: soundPrefs.perNm || {},
+          baShow: soundPrefs.baShow || {},
           effect: soundPrefs.effect || 'duduDu',
           customUrl: soundPrefs.customUrl || null,
           customName: soundPrefs.customName || null,
@@ -7524,6 +7707,7 @@ async function processAuthCallback() {
           enabled: parsed.enabled !== undefined ? !!parsed.enabled : true,
           volume: typeof parsed.volume === 'number' ? parsed.volume : 50,
           perNm: parsed.perNm && typeof parsed.perNm === 'object' ? parsed.perNm : {},
+          baShow: parsed.baShow && typeof parsed.baShow === 'object' ? parsed.baShow : {},
           effect: typeof parsed.effect === 'string' ? parsed.effect : 'duduDu',
           customUrl: typeof parsed.customUrl === 'string' ? parsed.customUrl : null,
           customName: typeof parsed.customName === 'string' ? parsed.customName : null,
@@ -7544,6 +7728,7 @@ async function processAuthCallback() {
           enabled: v.enabled !== undefined ? !!v.enabled : true,
           volume: typeof v.volume === 'number' ? v.volume : 50,
           perNm: v.perNm && typeof v.perNm === 'object' ? v.perNm : {},
+          baShow: v.baShow && typeof v.baShow === 'object' ? v.baShow : {},
           effect: typeof v.effect === 'string' ? v.effect : 'duduDu',
           customUrl: typeof v.customUrl === 'string' ? v.customUrl : null,
           customName: typeof v.customName === 'string' ? v.customName : null,
@@ -7551,6 +7736,8 @@ async function processAuthCallback() {
       } else {
         soundPrefs = { ...SOUND_DEFAULTS };
       }
+      // baShow 變更會影響進行中區域是否顯示水母/服務台
+      if (window.BA && window.BA.renderAll) { try{ window.BA.renderAll(); }catch(e){} }
       // refresh modal if open
       if (document.getElementById('soundSettingsBackdrop')?.classList.contains('active')) {
         renderSoundSettingsModal();
@@ -7586,6 +7773,7 @@ async function processAuthCallback() {
           enabled: v.enabled !== undefined ? !!v.enabled : true,
           volume: typeof v.volume === 'number' ? v.volume : 50,
           perNm: v.perNm && typeof v.perNm === 'object' ? v.perNm : {},
+          baShow: v.baShow && typeof v.baShow === 'object' ? v.baShow : {},
           effect: typeof v.effect === 'string' ? v.effect : 'duduDu',
           customUrl: typeof v.customUrl === 'string' ? v.customUrl : null,
           customName: typeof v.customName === 'string' ? v.customName : null,
@@ -7657,13 +7845,20 @@ async function processAuthCallback() {
     }
     if (perNmContainer) perNmContainer.style.display = '';
     renderSoundNmList();
+    // 兵武塔分頁四個開關（預設關）
+    const per = soundPrefs.perNm || {};
+    const baShow = soundPrefs.baShow || {};
+    const setChk = (id,val)=>{ const el=document.getElementById(id); if(el) el.checked=!!val; };
+    setChk('baToggleJellySound', per['ba_jellyfish']===true);
+    setChk('baToggleDeskSound', per['ba_desk']===true);
+    setChk('baToggleJellyShow', baShow.jelly===true);
+    setChk('baToggleDeskShow', baShow.desk===true);
   }
-
-  let soundNmCatFilter = 'all'; // all|bao|lord|other
   const BA_SOUND_ENTRIES = [
     { id:'ba_jellyfish', level:60, name:'未確認飛行物體', nickname:'水母' },
     { id:'ba_desk', level:60, name:'兵武塔調查支援', nickname:'服務台' },
   ];
+  let soundNmCatFilter = 'all'; // all|bao|lord|other
   function renderSoundNmList() {
     const list = document.getElementById('soundNmList');
     if (!list) return;
@@ -7752,6 +7947,13 @@ async function processAuthCallback() {
       soundPrefs.enabled = masterToggle.checked;
       saveSoundPrefs();
     });
+
+    // 兵武塔四開關
+    const baToggle = (id, fn)=>{ const el=document.getElementById(id); if(el) el.addEventListener('change', ()=>{ fn(el.checked); saveSoundPrefs(); if(window.BA&&window.BA.renderAll) window.BA.renderAll(); }); };
+    baToggle('baToggleJellySound', v=>{ if(!soundPrefs.perNm) soundPrefs.perNm={}; soundPrefs.perNm['ba_jellyfish']=v; });
+    baToggle('baToggleDeskSound', v=>{ if(!soundPrefs.perNm) soundPrefs.perNm={}; soundPrefs.perNm['ba_desk']=v; });
+    baToggle('baToggleJellyShow', v=>{ if(!soundPrefs.baShow) soundPrefs.baShow={}; soundPrefs.baShow.jelly=v; });
+    baToggle('baToggleDeskShow', v=>{ if(!soundPrefs.baShow) soundPrefs.baShow={}; soundPrefs.baShow.desk=v; });
 
     if (volumeSlider) {
       volumeSlider.addEventListener('input', () => {
@@ -8371,10 +8573,9 @@ async function checkAndRecordAction(actionType) {
       adminMemoCache = snap.val() || {};
       refreshAdminTab('memo');
     });
-    // v2.6.2：開團次數榜資料
+    // sponsorStats：仍需快取供公開開團排行（後台分頁已移除）
     db.ref('eureka/ba/sponsorStats').on('value', (snap) => {
       adminSponsorStatsCache = snap.val() || {};
-      refreshAdminTab('sponsorrank');
     });
   }
 
@@ -8422,7 +8623,7 @@ async function checkAndRecordAction(actionType) {
     if (tab === 'reports') renderReportsList();
     if (tab === 'flags') renderFlagsList();
     if (tab === 'issues') renderIssuesList();
-    if (tab === 'sponsorrank') renderSponsorRank();
+    if (tab === 'announce') { if(typeof renderVoteResults==='function') renderVoteResults(); }
     if (tab === 'memo') renderMemoList();
   }
 
@@ -10478,8 +10679,8 @@ async function checkAndRecordAction(actionType) {
 
   const CANCEL_RESET_WINDOW_MS = 5 * 60 * 1000; // 5 minutes — within this window, the reset can be undone
 
-  const OLD_ISLAND_KEEP_MS = 5 * 60 * 1000;   // 5 min — old-island data lifetime
-  const NEW_ISLAND_BADGE_MS = 10 * 60 * 1000; // 10 min — New badge lifetime on zone tab
+  const OLD_ISLAND_KEEP_MS = 15 * 60 * 1000;   // 15 min — old-island data lifetime
+  const NEW_ISLAND_BADGE_MS = 15 * 60 * 1000; // 15 min — New badge lifetime on zone tab
 
   async function handleNewInstance(zone) {
     if (!requireLogin()) return;
@@ -11627,9 +11828,19 @@ async function checkAndRecordAction(actionType) {
       if(sp) sp.innerHTML='<div style="text-align:center;color:var(--ink-faded);padding:14px;">載入中…</div>';
       db.ref('eureka/ba/sponsorStats').once('value').then(snap=>{
         const all=snap.val()||{};
+        const cache=(typeof adminUsersCache!=='undefined')?adminUsersCache:{};
+        // 建立 sanitizedUid → avatar 對照（從使用者快取）
+        const avById={};
+        Object.entries(cache).forEach(([uid,u])=>{ if(u&&u.avatar) avById[uid.replace(/[.#$\[\]\/]/g,'_')]=u.avatar; });
+        const avByName={};
+        Object.values(cache).forEach(u=>{ if(u&&u.name&&u.avatar) avByName[u.name]=u.avatar; });
         const full=Object.entries(all)
           .filter(([uid])=>uid!==ADMIN_UID && uid!==ADMIN_UID.replace(/[.#$\[\]\/]/g,'_'))
-          .map(([uid,v])=>({uid,name:(v&&v.name)||'?',avatar:'',score:(v&&v.count)||0}))
+          .map(([uid,v])=>{
+            const nm=(v&&v.name)||'?';
+            const av = avById[uid] || avByName[nm] || '';
+            return {uid,name:nm,avatar:av,score:(v&&v.count)||0};
+          })
           .filter(x=>x.score>0)
           .sort((a,b)=>b.score-a.score);
         renderLbRows(sp, full.slice(0,5), '次');
@@ -12020,6 +12231,107 @@ async function checkAndRecordAction(actionType) {
           if(preview) preview.textContent='預覽';
         }).catch(e=>{ if(status){status.style.display='';status.style.color='#ff6b6b';status.textContent='發佈失敗：'+e.message;} });
       };
+
+      // ===== 投票 / 想法蒐集 =====
+      const voteRef = (!window.__DEMO__ && typeof db!=='undefined' && db) ? db.ref('eureka/vote') : null;
+      const vQ=document.getElementById('voteQuestion'), vO=document.getElementById('voteOptions'),
+            vOther=document.getElementById('voteAllowOther'), vStatus=document.getElementById('voteSaveStatus'),
+            vResults=document.getElementById('voteResults');
+      // 載入現有投票設定到管理欄位
+      if (voteRef) {
+        voteRef.child('current').once('value').then(s=>{
+          const v=s.val(); if(!v) return;
+          if(vQ) vQ.value=v.question||'';
+          if(vO) vO.value=(v.options||[]).join('\n');
+          if(vOther) vOther.checked=!!v.allowOther;
+        }).catch(()=>{});
+      }
+      window.renderVoteResults = function(){
+        if(!vResults) return;
+        if(!voteRef){ vResults.innerHTML='<div style="color:var(--ink-faded);font-size:12px;">DEMO 模式無投票資料</div>'; return; }
+        voteRef.once('value').then(s=>{
+          const data=s.val()||{}; const cur=data.current; const ballots=data.ballots||{};
+          if(!cur || !cur.active){ vResults.innerHTML='<div style="color:var(--ink-faded);font-size:12px;">目前沒有進行中的投票。</div>'; return; }
+          // 統計
+          const tally={}; (cur.options||[]).forEach(o=>tally[o]=0); let other=[];
+          let total=0;
+          Object.values(ballots).forEach(b=>{
+            if(!b) return;
+            if(b.choice!=null){ tally[b.choice]=(tally[b.choice]||0)+1; total++; }
+            if(b.other){ other.push(b.other); tally[b.other]=(tally[b.other]||0)+1; total++; }
+          });
+          const entries=Object.entries(tally).sort((a,b)=>b[1]-a[1]);
+          let html=`<div style="font-weight:700;color:var(--ink-bright);margin-bottom:8px;">${escapeHtml(cur.question||'')} <span style="color:var(--ink-faded);font-weight:400;font-size:12px;">· 共 ${total} 票</span></div>`;
+          html+=entries.map(([opt,n])=>{
+            const pct=total?Math.round(n/total*100):0;
+            return `<div style="margin-bottom:7px;">
+              <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--ink-bright);"><span>${escapeHtml(opt)}</span><span>${pct}% (${n})</span></div>
+              <div style="height:8px;background:var(--bg-deep);border-radius:4px;overflow:hidden;margin-top:2px;"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#a878ff,#c9a3ff);"></div></div>
+            </div>`;
+          }).join('');
+          vResults.innerHTML=html;
+        }).catch(e=>{ vResults.innerHTML='<div style="color:#ff6b6b;font-size:12px;">讀取失敗</div>'; });
+      };
+      const vSave=document.getElementById('voteSaveBtn');
+      if(vSave) vSave.onclick=()=>{
+        const q=(vQ.value||'').trim();
+        const opts=(vO.value||'').split('\n').map(s=>s.trim()).filter(Boolean);
+        if(!q || opts.length<2){ if(vStatus){vStatus.style.display='';vStatus.style.color='#ff6b6b';vStatus.textContent='請填問題與至少兩個選項';} return; }
+        if(!voteRef){ if(vStatus){vStatus.style.display='';vStatus.textContent='（DEMO）已模擬發佈';} return; }
+        // 發佈新投票 → 清空舊 ballots
+        voteRef.set({ current:{ question:q, options:opts, allowOther:!!vOther.checked, active:true, createdAt:Date.now() }, ballots:null })
+          .then(()=>{ if(vStatus){vStatus.style.display='';vStatus.style.color='var(--ready)';vStatus.textContent='投票已發佈！';setTimeout(()=>vStatus.style.display='none',2500);} renderVoteResults(); })
+          .catch(e=>{ if(vStatus){vStatus.style.display='';vStatus.style.color='#ff6b6b';vStatus.textContent='發佈失敗：'+e.message;} });
+      };
+      const vClose=document.getElementById('voteCloseBtn');
+      if(vClose) vClose.onclick=async ()=>{
+        if(!voteRef) return;
+        const ok=await appConfirm('結束投票','確定結束並關閉目前投票？玩家將不再看到投票。','結束投票');
+        if(!ok) return;
+        voteRef.child('current/active').set(false).then(()=>{ renderVoteResults(); if(window.renderVoteBannerForUser) window.renderVoteBannerForUser(); });
+      };
+      const vRefresh=document.getElementById('voteRefreshBtn');
+      if(vRefresh) vRefresh.onclick=()=>renderVoteResults();
+
+      // ===== 玩家端投票 banner =====
+      const vBanner=document.getElementById('voteBanner');
+      const vbQ=document.getElementById('voteBannerQ'), vbOpts=document.getElementById('voteBannerOptions'),
+            vbOtherWrap=document.getElementById('voteBannerOtherWrap'), vbOtherInput=document.getElementById('voteBannerOtherInput'),
+            vbOtherBtn=document.getElementById('voteBannerOtherBtn'), vbDone=document.getElementById('voteBannerDone');
+      function myVoteKey(){ const u=(typeof currentUser!=='undefined')?currentUser:null; return u?(u.uid||u.id):null; }
+      window.renderVoteBannerForUser = function(){
+        if(!vBanner || !voteRef) return;
+        voteRef.child('current').once('value').then(s=>{
+          const cur=s.val();
+          if(!cur || !cur.active){ vBanner.classList.add('hidden'); return; }
+          vbQ.textContent=cur.question||'';
+          // 是否已投票
+          const uid=myVoteKey();
+          const checkDone=(voted)=>{
+            if(voted){ vbOpts.style.display='none'; vbOtherWrap.classList.add('hidden'); vbDone.classList.remove('hidden'); }
+            else {
+              vbOpts.style.display=''; vbDone.classList.add('hidden');
+              vbOpts.innerHTML=(cur.options||[]).map(o=>`<button class="vb-opt" data-vopt="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join('');
+              vbOpts.querySelectorAll('.vb-opt').forEach(b=>b.onclick=()=>castVote({choice:b.dataset.vopt}));
+              if(cur.allowOther){ vbOtherWrap.classList.remove('hidden'); } else vbOtherWrap.classList.add('hidden');
+            }
+            vBanner.classList.remove('hidden');
+          };
+          if(uid){ voteRef.child('ballots/'+uid.replace(/[.#$\[\]\/]/g,'_')).once('value').then(bs=>checkDone(!!bs.val())); }
+          else checkDone(false); // 未登入也能看，但投票需登入
+        }).catch(()=>{});
+      };
+      function castVote(payload){
+        const uid=myVoteKey();
+        if(!uid){ if(typeof appToast==='function') appToast('請先登入才能投票'); return; }
+        if(!voteRef) return;
+        voteRef.child('ballots/'+uid.replace(/[.#$\[\]\/]/g,'_')).set(Object.assign({at:Date.now()},payload))
+          .then(()=>{ vbOpts.style.display='none'; vbOtherWrap.classList.add('hidden'); vbDone.classList.remove('hidden'); })
+          .catch(e=>{ if(typeof appToast==='function') appToast('投票失敗：'+e.message); });
+      }
+      if(vbOtherBtn) vbOtherBtn.onclick=()=>{ const t=(vbOtherInput.value||'').trim(); if(!t){ if(appToast)appToast('請輸入想法'); return; } castVote({other:t}); };
+      // 即時監聽投票變化
+      if(voteRef){ voteRef.child('current').on('value',()=>{ if(window.renderVoteBannerForUser) window.renderVoteBannerForUser(); }); }
     }
     // 自定義追蹤：不分島，顯示所有勾選追蹤的 NM
     window.renderCustomTracking = function(){
@@ -12050,12 +12362,52 @@ async function checkAndRecordAction(actionType) {
         // 一般：只顯示 bao/lord 中被追蹤的（other 只在緊湊顯示）
         const list=all.filter(({nm})=>isNmTracked(nm) && (nm.category||'bao')!=='other');
         grid.classList.remove('compact');
-        grid.innerHTML='';
-        list.forEach(({nm,zid})=>{ const card=document.createElement('article'); card.className='nm-card'; card.id=`nm-${nm.id}`; card.dataset.nm=nm.id; card.dataset.zone=zid; card.innerHTML=renderCardInner(nm); grid.appendChild(card); });
+        const sig = list.map(({nm})=>nm.id).join(',');
+        if (grid.dataset.customSig === sig && grid.children.length === list.length) {
+          // 清單未變 → 只更新時間/狀態，不重建（保留動畫與避免閃爍）
+          updateCustomCards(list);
+        } else {
+          grid.dataset.customSig = sig;
+          grid.innerHTML='';
+          list.forEach(({nm,zid})=>{ const card=document.createElement('article'); card.className='nm-card'; card.id=`nm-${nm.id}`; card.dataset.nm=nm.id; card.dataset.zone=zid; card.innerHTML=renderCardInner(nm); grid.appendChild(card); });
+          updateCustomCards(list);
+        }
         note.style.display = list.length? 'none':'block';
-        updateCards();
       }
     };
+    // 自定義追蹤：依各 NM 所屬島更新卡片狀態與時間（鏡像 updateCards 的填值邏輯）
+    function updateCustomCards(list){
+      list.forEach(({nm,zid})=>{
+        const card=document.getElementById(`nm-${nm.id}`);
+        if(!card) return;
+        const info=getNmStatus(zid,nm);
+        card.dataset.status=info.status;
+        const hasActiveEvent=Object.values(state.activeEvents||{}).some(ev=>ev.nmId===nm.id);
+        if(hasActiveEvent) card.dataset.active='true'; else delete card.dataset.active;
+        const labelEl=card.querySelector('[data-role="statusLabel"]');
+        const valueEl=card.querySelector('[data-role="statusValue"]');
+        const detailEl=card.querySelector('[data-role="statusDetail"]');
+        const resetBtn=card.querySelector('[data-action="reset-single"]');
+        if(resetBtn) resetBtn.style.display = info.lastSpawn ? '' : 'none';
+        if(!labelEl||!valueEl) return;
+        if(info.status==='cooldown'){
+          labelEl.textContent='冷卻中';
+          valueEl.textContent=formatCooldown(info.cooldownMsRemaining);
+          if(detailEl) detailEl.innerHTML='';
+        } else if(info.status==='waiting'){
+          let waitSec=null;
+          if(nm.weather&&info.weatherInfo&&!info.weatherInfo.isCurrent) waitSec=info.weatherInfo.startsIn;
+          if(nm.timeReq==='夜晚'&&info.nightInfo&&!info.nightInfo.isNight) waitSec=Math.max(waitSec||0,info.nightInfo.secondsUntilTransition);
+          labelEl.textContent='等待條件';
+          valueEl.textContent=(waitSec!=null)?formatSeconds(waitSec):'—';
+          if(detailEl) detailEl.innerHTML='';
+        } else {
+          labelEl.textContent='可以觸發';
+          valueEl.textContent='✦';
+          if(detailEl) detailEl.innerHTML='';
+        }
+      });
+    }
     // 多島合併的緊湊表（自定義追蹤用，含島嶼欄）
     function compactTableHtmlMulti(list){
       const rows=list.map(({nm,zid})=>{
@@ -12306,6 +12658,7 @@ async function checkAndRecordAction(actionType) {
     setInterval(() => {
       updateClock();
       updateCards();
+      if (activeZone === 'custom' && typeof window.renderCustomTracking === 'function') window.renderCustomTracking();
       // update countdowns inside the panel WITHOUT rebuilding (preserves input focus)
       tickActivePanel();
       // refresh upcoming triggers list (small list, no focus to preserve)
@@ -12469,8 +12822,25 @@ async function checkAndRecordAction(actionType) {
       body:'回報功能需要登入（防濫用）。用 Discord 一鍵登入即可，免註冊。登入後設定也會跨裝置同步。' });
     // 先教使用者設定、再教選單（由左到右）
     S.push({ sel:'#soundSettingsBtn', title:'使用者設定',
-      body:'可開關提示音、選擇要追蹤哪些 NM、切換緊湊模式、開啟二段確認等。提示音可逐隻 NM 獨立設定，也有「兵武塔」分頁。' });
-    S.push({ sel:'#menuDrawerBtn', title:'選單',
+      body:'點這裡可設定提示音、追蹤的 NM、兵武塔、二段確認等。接下來帶你看設定裡的四個分頁。' });
+    // 開啟設定 + 切到指定分頁的 before
+    const openSettings = ()=>{ try{ const b=document.getElementById('soundSettingsBtn'); if(b) b.click(); }catch(e){} };
+    const settingsTab = (pane)=>()=>{ try{
+        const b=document.getElementById('soundSettingsBtn');
+        const bd=document.getElementById('soundSettingsBackdrop');
+        if(bd && !bd.classList.contains('active') && b) b.click();
+        const tab=document.querySelector(`.settings-tab[data-pane="${pane}"]`); if(tab) tab.click();
+      }catch(e){} };
+    S.push({ sel:'.settings-tab[data-pane="sound"]', title:'設定 · 提示音', before:settingsTab('sound'),
+      body:'這裡可開關提示音、調整音量、上傳自訂音效，也能逐隻 NM 個別設定要不要響。' });
+    S.push({ sel:'.settings-tab[data-pane="track"]', title:'設定 · 自定義追蹤NM', before:settingsTab('track'),
+      body:'勾選想追蹤的 NM。提醒：八寶、島主以外的 NM（其它類）要切到「緊湊模式」才會顯示。' });
+    S.push({ sel:'.settings-tab[data-pane="ba"]', title:'設定 · 兵武塔', before:settingsTab('ba'),
+      body:'兵武塔的水母／服務台提示音與「是否顯示在進行中區域」都在這裡，四項皆預設關閉。想收到提示、看到資訊，記得自行打開！' });
+    S.push({ sel:'.settings-tab[data-pane="other"]', title:'設定 · 其它', before:settingsTab('other'),
+      body:'回報二段確認開關在這裡。關閉後若誤觸回報會影響其他玩家，後果請自行承擔，請審慎評估。' });
+    const closeSettings = ()=>{ try{ const bd=document.getElementById('soundSettingsBackdrop'); if(bd) bd.classList.remove('active'); }catch(e){} };
+    S.push({ sel:'#menuDrawerBtn', title:'選單', before:closeSettings,
       body:'排行榜、新手教學、問題回報、已知問題、斗內、GitHub 都收在「☰ 選單」裡。' });
     // 教選單內項目（先打開選單）
     const openDrawerFn = ()=>{ try{ if(window.openDrawer) window.openDrawer(); }catch(e){} };
