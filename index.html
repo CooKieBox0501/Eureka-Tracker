@@ -3744,7 +3744,7 @@ const WX_ICON = {
 <div class="modal-backdrop" id="changelogBackdrop">
   <div class="modal" style="max-width: 520px; max-height: 70vh; overflow-y: auto;">
     <h3>📜 更新日誌</h3>
-
+	  
 	<div class="changelog-entry changelog-feature">
       <div class="changelog-version">v2.7.3 <span class="changelog-date">— 2026/06/02</span></div>
       <div class="changelog-tagline">🛠 Bug Fix & 體驗優化</div>
@@ -4561,16 +4561,13 @@ const WX_ICON = {
       新島被回報時不一定是第一個人進入的時間。修正此值會影響水母刷新預估（僅 BA 區，不影響原本的新島重置流程）。
     </p>
     <div style="margin-bottom: 14px;">
-      <label style="display:flex; align-items:center; gap:8px; margin-bottom:10px; cursor:pointer; color:var(--ink-bright); font-family:var(--font-cjk); font-size:14px;">
-        <input type="radio" name="baNiMode" value="ago" checked style="accent-color:var(--gold);"> 新島開始於幾分鐘前
-      </label>
+      <label style="display:block; margin-bottom:6px; color:var(--ink-bright); font-family:var(--font-cjk); font-size:14px;">新島開始於幾分鐘前</label>
       <input type="number" id="baNiAgoInput" min="0" max="240" placeholder="例如 15" style="width:100%; background:var(--bg-deep); border:1px solid var(--border-light); color:var(--ink-bright); padding:8px 10px; font-family:var(--font-mono); font-size:14px; box-sizing:border-box;">
     </div>
+    <div style="text-align:center; color:var(--ink-faded); font-size:12px; margin-bottom:10px;">— 或 —</div>
     <div style="margin-bottom: 16px;">
-      <label style="display:flex; align-items:center; gap:8px; margin-bottom:10px; cursor:pointer; color:var(--ink-bright); font-family:var(--font-cjk); font-size:14px;">
-        <input type="radio" name="baNiMode" value="et" style="accent-color:var(--gold);"> 指定 ET 時間 (HHMM)
-      </label>
-      <input type="text" id="baNiEtInput" inputmode="numeric" maxlength="4" placeholder="例如 0830" style="width:100%; background:var(--bg-deep); border:1px solid var(--border-light); color:var(--ink-bright); padding:8px 10px; font-family:var(--font-mono); font-size:14px; box-sizing:border-box;">
+      <label style="display:block; margin-bottom:6px; color:var(--ink-bright); font-family:var(--font-cjk); font-size:14px;">指定開始時間 (HHMM)</label>
+      <input type="text" id="baNiEtInput" inputmode="numeric" maxlength="4" placeholder="例如 0830＝08:30 開始" style="width:100%; background:var(--bg-deep); border:1px solid var(--border-light); color:var(--ink-bright); padding:8px 10px; font-family:var(--font-mono); font-size:14px; box-sizing:border-box;">
     </div>
     <div class="modal-actions">
       <button class="modal-btn" id="baNiCancel">取消</button>
@@ -5160,7 +5157,10 @@ const SKILLS = {
     const emptySince = towerEmptySince();
     if (emptySince && emptySince >= floor) candidates.push(emptySince + REFRESH_AFTER_EMPTY_MS);
     // 3+4) 上次水母 & 服務台 自然消失 +15 / 擊殺 +15（須晚於新島）
-    [baState.jellyfish, baState.desk].forEach(o=>{
+    // 服務台結束後資料移到 lastKill，故兩處都看
+    const deskKill = (baState.desk && typeof baState.desk.killedAt==='number') ? baState.desk
+                   : (baState.desk && baState.desk.lastKill && typeof baState.desk.lastKill.killedAt==='number') ? baState.desk.lastKill : null;
+    [baState.jellyfish, deskKill].forEach(o=>{
       if (o && typeof o.killedAt === 'number' && o.killedAt >= floor) {
         candidates.push(o.killedAt + (o.isNatural ? REFRESH_AFTER_NATURAL_MS : REFRESH_AFTER_KILL_MS));
       }
@@ -5347,12 +5347,18 @@ const SKILLS = {
       });
     }
     // 項目9：塔內變無人、或服務台已結束（被擊殺/自然消失）→ 服務台回到初始（清空，可重新預告）
-    if (d) {
+    if (d && d.status && d.status!=='idle') {
       const towerEmpty = towerStatus().state === 'empty';
       const deskFinished = (d.status==='active' && d.killedAt);
-      // 只有在「預告中或戰鬥中且塔內已淨空」或「已結束」時歸零；避免誤清進行中的戰鬥
       if (deskFinished || (towerEmpty && d.status!=='active')) {
-        baWrite('desk', null);
+        const lastKill = (d.killedAt) ? {
+          killedAt: d.killedAt,
+          killedBy: d.killedBy || null,
+          isNatural: !!d.isNatural,
+          announcedBy: d.announcedBy || null,
+          announcedByAvatar: d.announcedByAvatar || null,
+        } : (baState.desk && baState.desk.lastKill) ? baState.desk.lastKill : null;
+        baWrite('desk', lastKill ? { status:'idle', lastKill } : null);
       }
     }
   }
@@ -5607,11 +5613,18 @@ const SKILLS = {
     let breathing = false;
     const towerEmpty = (towerStatus().state === 'empty');
     if (!d || status==='idle') {
+      // Bug5：若有上次死亡紀錄，顯示「上次擊殺/自然消失：N分鐘前 · 由 X」+「上次預告者：Y」
+      const lk = d && d.lastKill;
+      let lkHtml = '';
+      if (lk && lk.killedAt) {
+        const tag = lk.isNatural ? '自然消失' : '擊殺';
+        lkHtml = `<div class="ba-card-status" style="font-size:12px;color:var(--ink-faded);">上次${tag}：${relTime(now-lk.killedAt)} · 由 ${esc(lk.killedBy||'?')}${lk.announcedBy?`　預告者：${esc(lk.announcedBy)}`:''}</div>`;
+      }
       if (towerEmpty) {
-        statusHtml = `<div class="ba-card-status">尚未預告</div><div class="ba-card-status" style="font-size:12px;color:var(--ink-faded);">塔內無人，無法預告（需先有人進塔）</div>`;
+        statusHtml = `<div class="ba-card-status">尚未預告</div>${lkHtml}<div class="ba-card-status" style="font-size:12px;color:var(--ink-faded);">塔內無人，無法預告（需先有人進塔）</div>`;
         btns = `<button class="ba-act-btn" data-ba="desk-announce" disabled>出現預告</button>`;
       } else {
-        statusHtml = `<div class="ba-card-status">尚未預告</div>`;
+        statusHtml = `<div class="ba-card-status">尚未預告</div>${lkHtml}`;
         btns = `<button class="ba-act-btn" data-ba="desk-announce">出現預告</button>`;
       }
     } else if (status==='announced') {
@@ -6435,6 +6448,13 @@ const SKILLS = {
         jellySetPull((e.target.value||'').trim());
       }
     });
+    // 失焦也套用（避免改完沒按 Enter；也修「第二次修改沒反應」）
+    document.addEventListener('blur', (e)=>{
+      if (!e.target || !e.target.id) return;
+      const v=(e.target.value||'').trim(); if(!v) return;
+      if (e.target.id==='baDeskEt' || e.target.id==='baDeskEtTop') deskSetEt(v);
+      else if (e.target.id==='baJellyPull' || e.target.id==='baJellyPullTop') jellySetPull(v);
+    }, true);
 
     // 分頁點擊（BA tab 上鎖判定）— 用捕獲階段攔截
     const baTab = document.getElementById('zoneTabBa');
@@ -6601,7 +6621,6 @@ const SKILLS = {
     const bd=document.getElementById('baNewIslandBackdrop');
     document.getElementById('baNiAgoInput').value='';
     document.getElementById('baNiEtInput').value='';
-    bd.querySelector('input[name="baNiMode"][value="ago"]').checked=true;
     bd.classList.add('active');
   }
   // ET HHMM → 最近的「過去」真實時間戳（用於補報「ET 時間出現」）
@@ -6651,12 +6670,20 @@ const SKILLS = {
     // 新島
     document.getElementById('baNiCancel').onclick=()=>close('baNewIslandBackdrop');
     document.getElementById('baNiSubmit').onclick=async ()=>{
-      const mode=document.querySelector('input[name="baNiMode"]:checked').value;
+      const agoRaw=document.getElementById('baNiAgoInput').value.trim();
+      const tstRaw=document.getElementById('baNiEtInput').value.trim();
       let ts;
-      if(mode==='ago'){ const m=parseInt(document.getElementById('baNiAgoInput').value,10);
-        if(isNaN(m)||m<0){ baAlert('格式錯誤','請輸入有效分鐘數。'); return; } ts=Date.now()-m*60000; }
-      else { const v=document.getElementById('baNiEtInput').value.trim();
-        if(!/^\d{4}$/.test(v)){ baAlert('格式錯誤','請輸入 4 位數 ET 時間。'); return; } ts=etHHMMToPastRealMs(v); }
+      if(tstRaw!==''){
+        if(!/^\d{4}$/.test(tstRaw)){ baAlert('格式錯誤','指定時間請輸入 4 位數，例如 0830＝08:30 開始。'); return; }
+        const hh=parseInt(tstRaw.slice(0,2),10), mm=parseInt(tstRaw.slice(2),10);
+        if(hh>23||mm>59){ baAlert('格式錯誤','時間超出範圍（00:00–23:59）。'); return; }
+        ts=tstHHMMToPastRealMs(tstRaw);
+      } else if(agoRaw!==''){
+        const m=parseInt(agoRaw,10);
+        if(isNaN(m)||m<0){ baAlert('格式錯誤','請輸入有效分鐘數。'); return; } ts=Date.now()-m*60000;
+      } else {
+        baAlert('請輸入時間','請填「幾分鐘前」或「指定開始時間」其中一個。'); return;
+      }
       if(!(await guard('ba_newisland'))) return;
       // 點16：出現新島 → 直接清掉當前塔內狀況（新島重新開始）
       await baUpdate({
@@ -10976,14 +11003,22 @@ async function checkAndRecordAction(actionType) {
     if (!target) return;
 
     const updates = {};
+    const resetTs = (state.instanceResets && state.instanceResets[zone]) || 0;
     // Restore previous instanceReset timestamp (or null)
     updates[`instanceResets/${zone}`] = target.h._snapshot.prevReset || null;
-    // Restore spawns
-    Object.entries(target.h._snapshot.spawns || {}).forEach(([nmId, ts]) => {
+    // Restore spawns —— Bug6：但「重置之後才發生的新回報」（時間戳晚於重置時間）要保留，
+    // 不可被舊快照覆寫，否則重置後死亡/回報的 NM 會被還原成重置前的舊狀態而「復活」。
+    const snapSpawns = target.h._snapshot.spawns || {};
+    Object.entries(snapSpawns).forEach(([nmId, ts]) => {
+      const cur = state.spawns ? state.spawns[nmId] : undefined;
+      // 目前的回報時間戳若晚於重置時間，代表是重置後的新事件 → 保留現況，不還原
+      if (typeof cur === 'number' && cur > resetTs) return;
       updates[`spawns/${nmId}`] = ts;
     });
-    // Restore active events
-    Object.entries(target.h._snapshot.activeEvents || {}).forEach(([evtId, ev]) => {
+    // 重置後「新出現」(快照沒有、但現在有且晚於重置時間)的 NM 也保留（不動）
+    // Restore active events（同理：重置後新建的 active event 保留）
+    const snapEvents = target.h._snapshot.activeEvents || {};
+    Object.entries(snapEvents).forEach(([evtId, ev]) => {
       updates[`activeEvents/${evtId}`] = ev;
     });
     // Delete the reset history entry
@@ -12255,8 +12290,7 @@ async function checkAndRecordAction(actionType) {
     window.renderIslandLife = function(){
       const el=document.getElementById('islandLife'); if(!el) return;
       const now=Date.now();
-      el.innerHTML=Object.keys(ZONE_EL).map(z=>{
-        // 用 instanceResets（永久保留的重置時間戳），而非 newIslandMark（10分後被清掉）
+      Object.keys(ZONE_EL).forEach(z=>{
         const mark=(typeof state!=='undefined' && state.instanceResets && state.instanceResets[z])
           ? state.instanceResets[z]
           : ((typeof state!=='undefined' && state.newIslandMark && state.newIslandMark[z]) ? state.newIslandMark[z] : null);
@@ -12265,11 +12299,21 @@ async function checkAndRecordAction(actionType) {
           const sec=Math.floor((now-mark)/1000);
           const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60);
           txt = h>0 ? `${h}小時${m}分` : `${m}分`;
-          if(sec<300) fresh='fresh'; // 5分內視為剛重置
+          if(sec<300) fresh='fresh';
         }
-        return `<div class="il-chip ${fresh}" data-el="${ZONE_EL[z]}"><span class="il-dot"></span><span class="il-label">${ZONE_SHORT2[z]}存活</span><span class="il-val">${txt}</span></div>`;
-      }).join('');
-      // 重建後補回傳送準備倒數 chip（避免被 innerHTML 清掉而閃一下消失）
+        let chip = el.querySelector('.il-chip[data-el="'+ZONE_EL[z]+'"]');
+        if(!chip){
+          chip=document.createElement('div');
+          chip.className='il-chip';
+          chip.dataset.el=ZONE_EL[z];
+          chip.innerHTML='<span class="il-dot"></span><span class="il-label">'+ZONE_SHORT2[z]+'存活</span><span class="il-val"></span>';
+          const tp=document.getElementById('baTeleportChip');
+          if(tp) el.insertBefore(chip, tp); else el.appendChild(chip);
+        }
+        chip.classList.toggle('fresh', fresh==='fresh');
+        const valEl=chip.querySelector('.il-val');
+        if(valEl) valEl.textContent=txt;
+      });
       if (window.BA && typeof window.BA.renderTeleportChip==='function') window.BA.renderTeleportChip();
     };
     // #2 公告系統
