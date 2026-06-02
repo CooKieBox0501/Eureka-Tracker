@@ -12946,10 +12946,10 @@ async function checkAndRecordAction(actionType) {
     S.push({ sel:'#drawerKnownIssues, .drawer-item', title:'已知問題', before:openDrawerFn,
       body:'站長已知、處理中的問題會列在這裡，回報前可以先看看是不是已知狀況。' });
     const closeDrawerFn = ()=>{ try{ if(typeof closeDrawer==='function') closeDrawer(); }catch(e){} };
-    S.push({ sel:'#zoneTabBa', title:'兵武塔 BA（即將開放）', before:closeDrawerFn,
-      body:'這是新區，目前上鎖測試中。未來開放後可即時追蹤水母、服務台，查文理技能合成表，還有主催開團排班表。敬請期待！' });
+    S.push({ sel:'#zoneTabBa', title:'兵武塔 BA', before:closeDrawerFn,
+      body:'這是本次更新的新區域。可即時追蹤水母、服務台，查文理技能合成表，還有主催開團排班表。' });
     S.push({ sel:null, title:'開始使用吧 🎉',
-      body:'就這些！記得回報你看到的 NM，幫助全伺服器一起討伐。隨時可從「選單 → 新手教學」再看一次。祝旅途愉快！' });
+      body:'就這些！記得回報你看到的 NM 和新島，一起建立良好的環境！隨時可從「選單 → 新手教學」再看一次。歡迎來到優雷卡！' });
     // 過濾掉找不到目標的中間步驟（保留 sel:null 的歡迎/結束）
     return S.filter(st=> st.sel===null || st.before || document.querySelector(st.sel));
   }
