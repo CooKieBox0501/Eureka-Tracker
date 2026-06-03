@@ -3586,7 +3586,7 @@ const WX_ICON = {
   <header>
     <div class="title-block">
       <h1>Eureka NM Tracker</h1>
-      <div class="subtitle">優雷卡惡名菁英追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.7.3</button></div>
+      <div class="subtitle">優雷卡惡名菁英追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.7.4</button></div>
       <div class="auth-row">
         <div class="auth-box" id="authBox">
           <span class="auth-status-text" id="authStatusText">🔒 請登入</span>
@@ -3747,16 +3747,29 @@ const WX_ICON = {
     <h3>📜 更新日誌</h3>
 
 	<div class="changelog-entry changelog-feature">
+      <div class="changelog-version">v2.7.4 <span class="changelog-date">— 2026/06/03</span></div>
+      <div class="changelog-tagline">🛠 Bug Fix & 體驗優化</div>
+      <ul class="changelog-list">
+		<li>✦ <strong>提示音上傳擴增</strong>：現在上傳的檔案最長為5秒，大小為120KB</li>
+		<li>✦ 為水母在進行中區域添加了文理驅魔與虛槍的回報</li>
+		<li>✦ 修復了水母與服務台時間調整沒有不能透過Enter完成編輯的問題</li>
+		<li>✦ 修復了水母與服務台時間調整後顯示資訊沒有更新的問題</li>
+		<li>✦ 修復了新島回報、重置與NM計時的相關問題</li>
+		<li>✦ 修復了水母卡片文本的顯示錯誤</li>
+		<li>✦ 修改了水母卡片中水島出現時間調整框的編輯模式</li>
+		<li>✦ 傳送準備倒數的圖樣改成了3:4</li>
+      </ul>
+    </div>
+
+	<div class="changelog-entry">
       <div class="changelog-version">v2.7.3 <span class="changelog-date">— 2026/06/02</span></div>
       <div class="changelog-tagline">🛠 Bug Fix & 體驗優化</div>
       <ul class="changelog-list">
         <li>✦ 修復了新手教學選單不會收回選單的問題</li>
 		<li>✦ 現在進行新手教學時，點擊視窗外也會進行下一步，而不會關閉教學</li>
       </ul>
-    </div>
-
-	  
-	<div class="changelog-entry changelog-feature">
+    </div>  
+	<div class="changelog-entry">
       <div class="changelog-version">v2.7.0 - 2.7.2<span class="changelog-date">— 2026/06/02</span></div>
       <div class="changelog-tagline">🗼 兵武塔 正式登場</div>
       <ul class="changelog-list">
@@ -3772,10 +3785,8 @@ const WX_ICON = {
         <li>✦ <strong>新手教學更新</strong>：現在有更詳細和更好的新手教學可以用！</li>
         <li>✦ <strong>公告投票</strong>：公告區將可進行投票與想法蒐集</li>
         <li>✦ 放大了「使用者設定」與「選單」的按鈕，現在將更容易點擊</li>
-        <li>感謝大家一路以來的支持與回饋 💛</li>
       </ul>
     </div>
-	  
 	<div class="changelog-entry">
       <div class="changelog-version">v2.6.1 <span class="changelog-date">— 2026/05/29</span></div>
       <div class="changelog-tagline">🛠 Bug Fix & 體驗優化</div>
@@ -6925,7 +6936,7 @@ const SKILLS = {
   const AUTH_STORAGE_KEY = 'eureka_user_info';
 	
 　// Current build version — must match Firebase eureka/meta/currentVersion
-  const APP_VERSION = 'v2.7.3';
+  const APP_VERSION = 'v2.7.4';
   const metaRef = db.ref('eureka/meta');
 
   // Watch for version updates: if Firebase has a newer version, prompt reload
