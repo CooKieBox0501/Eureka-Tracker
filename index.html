@@ -620,7 +620,7 @@ const WX_ICON = {
   .il-chip.teleport { border-color: #6b4a9a; }
   .il-chip.teleport .il-dot { background: #a878ff; box-shadow: 0 0 6px #a878ff; }
   .il-chip.teleport.active { animation: baBreath 2.2s ease-in-out infinite; }
-  .il-teleport-icon { width: 20px; height: 20px; vertical-align: middle; margin-right: 5px; image-rendering: auto; }
+  .il-teleport-icon { width: 15px; height: 20px; object-fit: contain; vertical-align: middle; margin-right: 5px; image-rendering: auto; }
 
   /* BA 三欄橫排（塔內狀況 / 文理 / 排班）*/
   .ba-top3 { display: grid; grid-template-columns: 1.1fr 1fr 1fr; gap: 14px; margin-bottom: 18px; }
@@ -3426,8 +3426,9 @@ const WX_ICON = {
   .announce-banner .ab-text{flex:1;}.announce-banner .ab-text b{color:#fff;}
   .announce-banner .ab-close{background:none;border:none;color:var(--ink-faded);font-size:20px;cursor:pointer;line-height:1;padding:2px 6px;}
   .announce-banner .ab-close:hover{color:var(--ink-bright);}
-  .vote-banner{max-width:1200px;margin:0 auto 16px;padding:13px 16px;background:linear-gradient(90deg,rgba(168,120,255,0.12),rgba(168,120,255,0.02));border:1px solid rgba(168,120,255,0.3);border-left:3px solid #a878ff;border-radius:3px;}
+  .vote-banner{max-width:1200px;margin:0 auto 16px;padding:13px 16px;background:linear-gradient(90deg,rgba(168,120,255,0.12),rgba(168,120,255,0.02));border:1px solid rgba(168,120,255,0.3);border-left:3px solid #a878ff;border-radius:3px;transition:opacity .8s ease, max-height .8s ease, margin .8s ease, padding .8s ease;overflow:hidden;}
   .vote-banner.hidden{display:none;}
+  .vote-banner.vb-fading{opacity:0;max-height:0 !important;margin-top:0;margin-bottom:0;padding-top:0;padding-bottom:0;border-width:0;}
   .vote-banner .vb-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
   .vote-banner .vb-tag{background:#a878ff;color:#1a0f2e;font-size:11px;font-weight:900;padding:3px 9px;flex:none;border-radius:2px;}
   .vote-banner .vb-q{font-size:15px;font-weight:700;color:var(--ink-bright);}
@@ -3744,7 +3745,7 @@ const WX_ICON = {
 <div class="modal-backdrop" id="changelogBackdrop">
   <div class="modal" style="max-width: 520px; max-height: 70vh; overflow-y: auto;">
     <h3>📜 更新日誌</h3>
-	  
+
 	<div class="changelog-entry changelog-feature">
       <div class="changelog-version">v2.7.3 <span class="changelog-date">— 2026/06/02</span></div>
       <div class="changelog-tagline">🛠 Bug Fix & 體驗優化</div>
@@ -4073,7 +4074,7 @@ const WX_ICON = {
       </label>
       <hr style="border:none;border-top:1px dashed var(--border);margin:12px 0;">
       <div class="settings-subtitle">自訂音效（可上傳 2 份，三種情境共用）</div>
-      <div class="ba-set-note" style="margin-bottom:10px;">支援 mp3 / ogg / wav，≤50KB、≤2 秒。上傳後可在「一般 NM 音效」「水母音效」「服務台音效」自由選用。</div>
+      <div class="ba-set-note" style="margin-bottom:10px;">支援 mp3 / ogg / wav，≤120KB、≤5 秒。上傳後可在「一般 NM 音效」「水母音效」「服務台音效」自由選用。</div>
       <!-- 自訂槽 1 -->
       <label class="sound-row">
         <span class="sound-label">自訂音效 1<br><span id="soundCustom1Name" style="font-size:11px;color:var(--ink-faded);">尚未上傳</span></span>
@@ -4561,13 +4562,16 @@ const WX_ICON = {
       新島被回報時不一定是第一個人進入的時間。修正此值會影響水母刷新預估（僅 BA 區，不影響原本的新島重置流程）。
     </p>
     <div style="margin-bottom: 14px;">
-      <label style="display:block; margin-bottom:6px; color:var(--ink-bright); font-family:var(--font-cjk); font-size:14px;">新島開始於幾分鐘前</label>
+      <label style="display:flex; align-items:center; gap:8px; margin-bottom:10px; cursor:pointer; color:var(--ink-bright); font-family:var(--font-cjk); font-size:14px;">
+        <input type="radio" name="baNiMode" value="ago" checked style="accent-color:var(--gold);"> 新島開始於幾分鐘前
+      </label>
       <input type="number" id="baNiAgoInput" min="0" max="240" placeholder="例如 15" style="width:100%; background:var(--bg-deep); border:1px solid var(--border-light); color:var(--ink-bright); padding:8px 10px; font-family:var(--font-mono); font-size:14px; box-sizing:border-box;">
     </div>
-    <div style="text-align:center; color:var(--ink-faded); font-size:12px; margin-bottom:10px;">— 或 —</div>
     <div style="margin-bottom: 16px;">
-      <label style="display:block; margin-bottom:6px; color:var(--ink-bright); font-family:var(--font-cjk); font-size:14px;">指定開始時間 (HHMM)</label>
-      <input type="text" id="baNiEtInput" inputmode="numeric" maxlength="4" placeholder="例如 0830＝08:30 開始" style="width:100%; background:var(--bg-deep); border:1px solid var(--border-light); color:var(--ink-bright); padding:8px 10px; font-family:var(--font-mono); font-size:14px; box-sizing:border-box;">
+      <label style="display:flex; align-items:center; gap:8px; margin-bottom:10px; cursor:pointer; color:var(--ink-bright); font-family:var(--font-cjk); font-size:14px;">
+        <input type="radio" name="baNiMode" value="et" style="accent-color:var(--gold);"> 指定 ET 時間 (HHMM)
+      </label>
+      <input type="text" id="baNiEtInput" inputmode="numeric" maxlength="4" placeholder="例如 0830" style="width:100%; background:var(--bg-deep); border:1px solid var(--border-light); color:var(--ink-bright); padding:8px 10px; font-family:var(--font-mono); font-size:14px; box-sizing:border-box;">
     </div>
     <div class="modal-actions">
       <button class="modal-btn" id="baNiCancel">取消</button>
@@ -5157,10 +5161,9 @@ const SKILLS = {
     const emptySince = towerEmptySince();
     if (emptySince && emptySince >= floor) candidates.push(emptySince + REFRESH_AFTER_EMPTY_MS);
     // 3+4) 上次水母 & 服務台 自然消失 +15 / 擊殺 +15（須晚於新島）
-    // 服務台結束後資料移到 lastKill，故兩處都看
-    const deskKill = (baState.desk && typeof baState.desk.killedAt==='number') ? baState.desk
-                   : (baState.desk && baState.desk.lastKill && typeof baState.desk.lastKill.killedAt==='number') ? baState.desk.lastKill : null;
-    [baState.jellyfish, deskKill].forEach(o=>{
+    const deskKillObj = (baState.desk && typeof baState.desk.killedAt==='number') ? baState.desk
+                      : (baState.desk && baState.desk.lastKill && typeof baState.desk.lastKill.killedAt==='number') ? baState.desk.lastKill : null;
+    [baState.jellyfish, deskKillObj].forEach(o=>{
       if (o && typeof o.killedAt === 'number' && o.killedAt >= floor) {
         candidates.push(o.killedAt + (o.isNatural ? REFRESH_AFTER_NATURAL_MS : REFRESH_AFTER_KILL_MS));
       }
@@ -5204,6 +5207,7 @@ const SKILLS = {
     await baUpdate({
       'jellyfish/killedAt': now, 'jellyfish/killedBy': myName(),
       'jellyfish/isNatural': false, 'jellyfish/inActiveEvent': false,
+      'jellyfish/carriers': null,
       'teleportReadyUntil': now + TELEPORT_MS,
     });
     if (typeof logUserAction === 'function') logUserAction('ba_jelly_kill', {});
@@ -5229,6 +5233,7 @@ const SKILLS = {
     const s = mmss.padStart(4,'0');
     const mm = parseInt(s.slice(0,2),10), ss = parseInt(s.slice(2),10);
     if (ss>59) { baAlert('格式錯誤', '秒數需在 00–59。'); return; }
+    if (j.pullEt === s && j.pullTargetMs) return; // 值未變，跳過（避免 Enter 後 blur 重複套用）
     let secLeft = mm*60 + ss;
     // 夾在 0 ~ 存活上限之間
     secLeft = Math.max(0, Math.min(Math.floor(BA_LIFETIME_MS/1000), secLeft));
@@ -5269,6 +5274,8 @@ const SKILLS = {
     if (!/^\d{4}$/.test(hhmm)) { baAlert('格式錯誤', '請輸入 4 位數 ET 時間，例如 2100。'); return; }
     const hh = parseInt(hhmm.slice(0,2),10), mm = parseInt(hhmm.slice(2),10);
     if (hh>23 || mm>59) { baAlert('格式錯誤', 'ET 時間超出範圍（00:00–23:59）。'); return; }
+    const dd = baState.desk;
+    if (dd && dd.etPullTime === hhmm && dd.etPullTargetMs) return; // 值未變，跳過
     if (!(await guard('ba_desk_et'))) return;
     // 關鍵修正：設定當下就把「下一次該 ET」鎖成絕對真實時間戳，避免每 tick 重算又被推到明天
     const etTargetMs = parseEtPullToMs(hhmm);                 // ET 毫秒戳（未來最近一次）
@@ -5291,6 +5298,7 @@ const SKILLS = {
     await baUpdate({
       'desk/killedAt':now, 'desk/killedBy':myName(), 'desk/isNatural':false,
       'desk/carriers':null,   // 結束清空文理攜帶紀錄
+      'desk/lastKill': { killedAt:now, killedBy:myName(), isNatural:false, announcedBy:d.announcedBy||null, announcedByAvatar:d.announcedByAvatar||null },
       'teleportReadyUntil': now + TELEPORT_MS,
     });
     if (typeof logUserAction === 'function') logUserAction('ba_desk_kill', {});
@@ -5315,6 +5323,26 @@ const SKILLS = {
     try { await ref.child('desk/carriers/'+kind+'/'+key).set(cur?null:myName()); }
     catch(e){ console.error('[BA] carry', e); }
     if (typeof logUserAction === 'function') logUserAction('ba_desk_carry', { kind });
+    renderAll();
+  }
+  async function jellyToggleCarry(kind){
+    const j = baState.jellyfish;
+    if (!j || !j.spawnedAt || j.killedAt) return;
+    if (!(await guard('ba_jelly_carry'))) return;
+    const uid = myUid() || ('anon_'+myName());
+    const key = uid.replace(/[.#$\[\]\/]/g,'_');
+    const cur = (j.carriers && j.carriers[kind] && j.carriers[kind][key]) ? true : false;
+    if (window.__DEMO__) {
+      if(!baState.jellyfish.carriers) baState.jellyfish.carriers={};
+      if(!baState.jellyfish.carriers[kind]) baState.jellyfish.carriers[kind]={};
+      if(cur) delete baState.jellyfish.carriers[kind][key];
+      else baState.jellyfish.carriers[kind][key]=myName();
+      renderAll(); return;
+    }
+    const ref=getBaRef(); if(!ref) return;
+    try { await ref.child('jellyfish/carriers/'+kind+'/'+key).set(cur?null:myName()); }
+    catch(e){ console.error('[BA] jelly carry', e); }
+    if (typeof logUserAction === 'function') logUserAction('ba_jelly_carry', { kind });
     renderAll();
   }
   // 服務台 踩塔倒數結束 → 戰鬥中
@@ -5342,22 +5370,21 @@ const SKILLS = {
     // 服務台（active 後 15 分無人擊殺）
     const d = baState.desk;
     if (d && d.status==='active' && d.spawnedAt && !d.killedAt && (now - d.spawnedAt) > BA_NATURAL_MS) {
+      const kAt = d.spawnedAt + BA_NATURAL_MS;
       baUpdate({
-        'desk/killedAt': d.spawnedAt + BA_NATURAL_MS, 'desk/isNatural': true,
+        'desk/killedAt': kAt, 'desk/isNatural': true,
+        'desk/lastKill': { killedAt:kAt, killedBy:null, isNatural:true, announcedBy:d.announcedBy||null, announcedByAvatar:d.announcedByAvatar||null },
       });
     }
-    // 項目9：塔內變無人、或服務台已結束（被擊殺/自然消失）→ 服務台回到初始（清空，可重新預告）
+    // 項目9：塔內變無人、或服務台已結束（被擊殺/自然消失）→ 服務台回到初始（保留上次死亡資訊供 idle 顯示）
     if (d && d.status && d.status!=='idle') {
       const towerEmpty = towerStatus().state === 'empty';
       const deskFinished = (d.status==='active' && d.killedAt);
       if (deskFinished || (towerEmpty && d.status!=='active')) {
-        const lastKill = (d.killedAt) ? {
-          killedAt: d.killedAt,
-          killedBy: d.killedBy || null,
-          isNatural: !!d.isNatural,
-          announcedBy: d.announcedBy || null,
-          announcedByAvatar: d.announcedByAvatar || null,
-        } : (baState.desk && baState.desk.lastKill) ? baState.desk.lastKill : null;
+        const lastKill = d.killedAt ? {
+          killedAt: d.killedAt, killedBy: d.killedBy || null, isNatural: !!d.isNatural,
+          announcedBy: d.announcedBy || null, announcedByAvatar: d.announcedByAvatar || null,
+        } : (d.lastKill || null);
         baWrite('desk', lastKill ? { status:'idle', lastKill } : null);
       }
     }
@@ -5556,7 +5583,7 @@ const SKILLS = {
       }
       // 出現時間（TST）+ 調整；開打時間（ET）輸入框
       statusHtml += `<div class="ba-card-status" style="font-size:12px;">出現時間 ${typeof fmtHM==='function'?fmtHM(new Date(j.spawnedAt)):''}${j.spawnedBy?(' · 由 '+esc(j.spawnedBy)):''}　<a data-ba="jelly-fix" style="color:#c9a3ff;cursor:pointer;">調整出現</a></div>`;
-      statusHtml += `<div class="ba-card-status" style="font-size:12px;"><span class="ba-desk-etline" title="剩餘時間 MMSS：例如 0800＝剩 8 分時開打">開打時間 <input class="ba-et-input" id="baJellyPull" inputmode="numeric" maxlength="4" placeholder="MMSS" value="${j.pullEt||''}"></span>${j.pullTargetMs?' <a data-ba="jelly-pull-cancel" style="color:#c9a3ff;cursor:pointer;">取消</a>':''}</div>`;
+      statusHtml += `<div class="ba-card-status" style="font-size:12px;"><span class="ba-desk-etline" title="剩餘時間 MMSS：例如 0800＝剩 8 分時開打">開打時間 <input class="ba-et-input" id="baJellyPull" inputmode="numeric" maxlength="4" placeholder="MMSS" value="${j.pullEt||''}" onkeydown="if(event.key==='Enter'){event.preventDefault();window.BA.jellySetPull((this.value||'').trim());this.blur();}" onblur="var v=(this.value||'').trim();if(v)window.BA.jellySetPull(v);"></span>${j.pullTargetMs?' <a data-ba="jelly-pull-cancel" style="color:#c9a3ff;cursor:pointer;">取消</a>':''}</div>`;
       if (!j.inActiveEvent) statusHtml += `<div class="ba-card-status">目前無主催開團</div>`;
     } else if (j && j.killedAt) {
       const tag = j.isNatural ? '自然消失' : '擊殺';
@@ -5613,12 +5640,11 @@ const SKILLS = {
     let breathing = false;
     const towerEmpty = (towerStatus().state === 'empty');
     if (!d || status==='idle') {
-      // Bug5：若有上次死亡紀錄，顯示「上次擊殺/自然消失：N分鐘前 · 由 X」+「上次預告者：Y」
       const lk = d && d.lastKill;
       let lkHtml = '';
       if (lk && lk.killedAt) {
         const tag = lk.isNatural ? '自然消失' : '擊殺';
-        lkHtml = `<div class="ba-card-status" style="font-size:12px;color:var(--ink-faded);">上次${tag}：${relTime(now-lk.killedAt)} · 由 ${esc(lk.killedBy||'?')}${lk.announcedBy?`　預告者：${esc(lk.announcedBy)}`:''}</div>`;
+        lkHtml = `<div class="ba-card-status" style="font-size:12px;color:var(--ink-faded);">上次${tag}：${relTime(now-lk.killedAt)}${lk.killedBy?` · 由 ${esc(lk.killedBy)}`:''}${lk.announcedBy?`　預告者：${esc(lk.announcedBy)}`:''}</div>`;
       }
       if (towerEmpty) {
         statusHtml = `<div class="ba-card-status">尚未預告</div>${lkHtml}<div class="ba-card-status" style="font-size:12px;color:var(--ink-faded);">塔內無人，無法預告（需先有人進塔）</div>`;
@@ -5638,7 +5664,7 @@ const SKILLS = {
       }
       statusHtml += carryBtnsHtml(d);
       // 踩塔時間：文字 + 設定框(Enter套用) + 取消預告
-      btns = `<span class="ba-desk-etline">踩塔時間 <input class="ba-et-input" id="baDeskEt" inputmode="numeric" maxlength="4" placeholder="HHMM" value="${d.etPullTime||''}"> ET</span>
+      btns = `<span class="ba-desk-etline">踩塔時間 <input class="ba-et-input" id="baDeskEt" inputmode="numeric" maxlength="4" placeholder="HHMM" value="${d.etPullTime||''}" onkeydown="if(event.key==='Enter'){event.preventDefault();window.BA.deskSetEt((this.value||'').trim());this.blur();}" onblur="var v=(this.value||'').trim();if(v)window.BA.deskSetEt(v);"> ET</span>
         ${hasEt?'<button class="ba-act-btn" data-ba="desk-cancel-et">ET取消</button>':''}
         <button class="ba-act-btn danger" data-ba="desk-cancel">取消預告</button>`;
     } else if (status==='active') {
@@ -5732,8 +5758,9 @@ const SKILLS = {
     try { return (typeof window.isBaShowEnabled==='function') ? window.isBaShowEnabled(kind) : false; }
     catch(e){ return false; }
   }
-  // 文理攜帶按鈕 HTML（仿觸發++模式：按鈕 + 人數 + 名字）
-  function carryBtnsHtml(d){
+  // 文理攜帶按鈕 HTML（仿觸發++模式：按鈕 + 人數 + 名字）；baAction = 'desk-carry' | 'jelly-carry'
+  function carryBtnsHtml(d, baAction){
+    baAction = baAction || 'desk-carry';
     const mkBtn = (kind, label)=>{
       const map = (d.carriers && d.carriers[kind]) ? d.carriers[kind] : {};
       const names = Object.values(map);
@@ -5741,7 +5768,7 @@ const SKILLS = {
       const mine = !!map[uid];
       const nameStr = names.length ? names.map(esc).join('、') : '尚無人攜帶';
       return `<div class="ba-carry-item">
-        <button class="ba-carry-btn ${mine?'on':''}" data-ba="desk-carry" data-kind="${kind}">${mine?'✓ ':''}我已攜帶${label}</button>
+        <button class="ba-carry-btn ${mine?'on':''}" data-ba="${baAction}" data-kind="${kind}">${mine?'✓ ':''}我已攜帶${label}</button>
         <span class="ba-carry-info"><b>${names.length}</b> 人　${nameStr}</span>
       </div>`;
     };
@@ -5762,6 +5789,7 @@ const SKILLS = {
       jShow: baShowEnabled('jelly'), dShow: baShowEnabled('desk'),
       jAlive: !!(j0 && j0.spawnedAt && !j0.killedAt && j0.inActiveEvent),
       jPull: !!(j0 && j0.pullTargetMs), jBy: j0&&j0.spawnedBy,
+      jCarriers: j0 && j0.carriers ? Object.keys(j0.carriers).map(k=>k+':'+Object.keys(j0.carriers[k]||{}).length).join(',') : '',
       dStatus: d0 && d0.status, dHasEt: !!(d0 && d0.etPullTargetMs),
       dBy: d0&&d0.announcedBy,
       carriers: d0 && d0.carriers ? Object.keys(d0.carriers).map(k=>k+':'+Object.keys(d0.carriers[k]||{}).length).join(',') : ''
@@ -5789,12 +5817,13 @@ const SKILLS = {
       } else {
         cd = `剩 <span data-ba-active="${j.spawnedAt}">${fmtMS(BA_LIFETIME_MS-(now-j.spawnedAt))}</span> 自然消失`;
       }
-      etRow = `<span class="ae-pull-mini" title="剩餘時間 MMSS：例如 0800＝剩 8 分時開打">開打時間<input class="ae-pull-input" id="baJellyPullTop" inputmode="numeric" maxlength="4" placeholder="MMSS" value="${j.pullEt||''}" /></span>`;
+      etRow = `<span class="ae-pull-mini" title="剩餘時間 MMSS：例如 0800＝剩 8 分時開打">開打時間<input class="ae-pull-input" id="baJellyPullTop" inputmode="numeric" maxlength="4" placeholder="MMSS" value="${j.pullEt||''}" onkeydown="if(event.key==='Enter'){event.preventDefault();window.BA.jellySetPull((this.value||'').trim());this.blur();}" onblur="var v=(this.value||'').trim();if(v)window.BA.jellySetPull(v);" /></span>`;
       rows.push(`<div class="active-event-card ba-injected" data-ba-row="jelly" style="border-left:3px solid #a878ff;">
         <div class="ae-r1">
           <span class="ae-name">未確認飛行物體<span class="ae-nick" style="color:#c9a3ff;">· 兵武塔 BA · 水母</span></span>
           <span class="ae-countdown">${cd}</span>
         </div>
+        ${carryBtnsHtml(j, 'jelly-carry')}
         <div class="ae-r2">
           <span class="ae-reporter">${baReporterHtml(j.spawnedBy, j.spawnedByAvatar)} 回報 · 出現 ${spawnHM}</span>
           <span class="ae-r2-right">
@@ -5824,7 +5853,7 @@ const SKILLS = {
       const hasEt = !!d.etPullTargetMs;
       let cdHtml;
       // 踩塔時間文本順序：踩塔時間 ET [輸入框]
-      const etRow = `<span class="ae-pull-mini">踩塔時間 ET<input class="ae-pull-input" id="baDeskEtTop" inputmode="numeric" maxlength="4" placeholder="HHMM" value="${d.etPullTime||''}" />${hasEt?'<button class="ae-mini-btn" data-ba="desk-cancel-et">ET取消</button>':''}</span>`;
+      const etRow = `<span class="ae-pull-mini">踩塔時間 ET<input class="ae-pull-input" id="baDeskEtTop" inputmode="numeric" maxlength="4" placeholder="HHMM" value="${d.etPullTime||''}" onkeydown="if(event.key==='Enter'){event.preventDefault();window.BA.deskSetEt((this.value||'').trim());this.blur();}" onblur="var v=(this.value||'').trim();if(v)window.BA.deskSetEt(v);" />${hasEt?'<button class="ae-mini-btn" data-ba="desk-cancel-et">ET取消</button>':''}</span>`;
       if (hasEt) cdHtml = `<span class="hot">● 踩塔倒數中</span> <span data-ba-desk-et="${d.etPullTargetMs}">踩塔倒數 ${fmtMS(d.etPullTargetMs-now)}</span>`;
       else cdHtml = `<span class="hot">● 等待踩塔時間</span>`;
       rows.push(`<div class="active-event-card ba-injected" data-ba-row="desk" style="border-left:3px solid #a878ff;">
@@ -6448,13 +6477,6 @@ const SKILLS = {
         jellySetPull((e.target.value||'').trim());
       }
     });
-    // 失焦也套用（避免改完沒按 Enter；也修「第二次修改沒反應」）
-    document.addEventListener('blur', (e)=>{
-      if (!e.target || !e.target.id) return;
-      const v=(e.target.value||'').trim(); if(!v) return;
-      if (e.target.id==='baDeskEt' || e.target.id==='baDeskEtTop') deskSetEt(v);
-      else if (e.target.id==='baJellyPull' || e.target.id==='baJellyPullTop') jellySetPull(v);
-    }, true);
 
     // 分頁點擊（BA tab 上鎖判定）— 用捕獲階段攔截
     const baTab = document.getElementById('zoneTabBa');
@@ -6487,6 +6509,7 @@ const SKILLS = {
         case 'desk-kill':
           baConfirm('死亡回報','確認「兵武塔調查支援」已被擊殺？').then(ok=>{ if(ok) deskKill(); }); break;
         case 'desk-carry': deskToggleCarry(t.dataset.kind); break;
+        case 'jelly-carry': jellyToggleCarry(t.dataset.kind); break;
         case 'go-skills': baSubView='skills'; lgSelected=null; renderAll(); break;
         case 'go-schedule': baSubView='schedule'; schView='calendar'; renderAll(); break;
         case 'back-overview': baSubView='overview'; renderAll(); break;
@@ -6621,6 +6644,7 @@ const SKILLS = {
     const bd=document.getElementById('baNewIslandBackdrop');
     document.getElementById('baNiAgoInput').value='';
     document.getElementById('baNiEtInput').value='';
+    bd.querySelector('input[name="baNiMode"][value="ago"]').checked=true;
     bd.classList.add('active');
   }
   // ET HHMM → 最近的「過去」真實時間戳（用於補報「ET 時間出現」）
@@ -6670,20 +6694,12 @@ const SKILLS = {
     // 新島
     document.getElementById('baNiCancel').onclick=()=>close('baNewIslandBackdrop');
     document.getElementById('baNiSubmit').onclick=async ()=>{
-      const agoRaw=document.getElementById('baNiAgoInput').value.trim();
-      const tstRaw=document.getElementById('baNiEtInput').value.trim();
+      const mode=document.querySelector('input[name="baNiMode"]:checked').value;
       let ts;
-      if(tstRaw!==''){
-        if(!/^\d{4}$/.test(tstRaw)){ baAlert('格式錯誤','指定時間請輸入 4 位數，例如 0830＝08:30 開始。'); return; }
-        const hh=parseInt(tstRaw.slice(0,2),10), mm=parseInt(tstRaw.slice(2),10);
-        if(hh>23||mm>59){ baAlert('格式錯誤','時間超出範圍（00:00–23:59）。'); return; }
-        ts=tstHHMMToPastRealMs(tstRaw);
-      } else if(agoRaw!==''){
-        const m=parseInt(agoRaw,10);
-        if(isNaN(m)||m<0){ baAlert('格式錯誤','請輸入有效分鐘數。'); return; } ts=Date.now()-m*60000;
-      } else {
-        baAlert('請輸入時間','請填「幾分鐘前」或「指定開始時間」其中一個。'); return;
-      }
+      if(mode==='ago'){ const m=parseInt(document.getElementById('baNiAgoInput').value,10);
+        if(isNaN(m)||m<0){ baAlert('格式錯誤','請輸入有效分鐘數。'); return; } ts=Date.now()-m*60000; }
+      else { const v=document.getElementById('baNiEtInput').value.trim();
+        if(!/^\d{4}$/.test(v)){ baAlert('格式錯誤','請輸入 4 位數 ET 時間。'); return; } ts=etHHMMToPastRealMs(v); }
       if(!(await guard('ba_newisland'))) return;
       // 點16：出現新島 → 直接清掉當前塔內狀況（新島重新開始）
       await baUpdate({
@@ -6760,6 +6776,8 @@ const SKILLS = {
     applyLock,
     renderAll,
     renderTeleportChip,
+    jellySetPull,
+    deskSetEt,
     seedDemo(s){ baState=Object.assign(baState,s); baInitedSound=true; },
     _state(){ return baState; },
   };
@@ -7640,8 +7658,8 @@ async function processAuthCallback() {
     };
   }
   // Constants for upload validation
-  const SOUND_UPLOAD_MAX_BYTES = 50 * 1024; // 50KB
-  const SOUND_UPLOAD_MAX_SEC = 2;
+  const SOUND_UPLOAD_MAX_BYTES = 120 * 1024; // 120KB（約 5 秒 128kbps mp3）
+  const SOUND_UPLOAD_MAX_SEC = 5;
   const SOUND_UPLOAD_ACCEPT_TYPES = ['audio/mpeg', 'audio/mp3', 'audio/ogg', 'audio/wav', 'audio/x-wav', 'audio/wave'];
 
   let soundPrefs = { ...SOUND_DEFAULTS };
@@ -7957,7 +7975,7 @@ async function processAuthCallback() {
       const delBtn = document.querySelector(`[data-sound-del-slot="${slot}"]`);
       if (delBtn) delBtn.style.display = url ? '' : 'none';
       const upBtn = document.querySelector(`[data-sound-upload-slot="${slot}"]`);
-      if (upBtn) { upBtn.disabled = !isLoggedIn(); upBtn.title = isLoggedIn()?'上傳 (mp3/ogg/wav, ≤50KB, ≤2 秒)':'上傳需登入'; }
+      if (upBtn) { upBtn.disabled = !isLoggedIn(); upBtn.title = isLoggedIn()?'上傳 (mp3/ogg/wav, ≤120KB, ≤5 秒)':'上傳需登入'; }
     };
     slotName('custom1','soundCustom1Name');
     slotName('custom2','soundCustom2Name');
@@ -8226,7 +8244,7 @@ async function processAuthCallback() {
     let duration;
     try { duration = await validateAudioDuration(file); }
     catch (e) { showSoundUploadStatus('err', '檔案損毀或無法解碼'); return; }
-    if (duration > SOUND_UPLOAD_MAX_SEC) { showSoundUploadStatus('err', `長度 ${duration.toFixed(1)}s 超過 2 秒限制`); return; }
+    if (duration > SOUND_UPLOAD_MAX_SEC) { showSoundUploadStatus('err', `長度 ${duration.toFixed(1)}s 超過 5 秒限制`); return; }
 
     // 上傳到 sounds/<uid>/<slot>.<ext>（兩槽位各自獨立路徑）
     const ext = (file.name.match(/\.(mp3|ogg|wav)$/i) || ['', 'mp3'])[1].toLowerCase();
@@ -10624,13 +10642,14 @@ async function checkAndRecordAction(actionType) {
     setTimeout(() => {
       const a = document.getElementById('moAlive');
       const d = document.getElementById('moDead');
-      if (a) a.onclick = () => { closeModalGeneric(); openManualTimeModal(nmId); };
-      if (d) d.onclick = () => { closeModalGeneric(); openManualTimeModal(nmId); };
+      if (a) a.onclick = () => { closeModalGeneric(); openManualTimeModal(nmId, 'alive'); };
+      if (d) d.onclick = () => { closeModalGeneric(); openManualTimeModal(nmId, 'dead'); };
     }, 0);
   }
   function closeModalGeneric(){ document.querySelectorAll('.modal-backdrop.active').forEach(m=>m.classList.remove('active')); }
 
-  function openManualTimeModal(nmId) {
+  function openManualTimeModal(nmId, intent) {
+    intent = (intent==='dead') ? 'dead' : 'alive';
     if (!requireLogin()) return;
     const nm = findNm(nmId);
     if (!nm) return;
@@ -10654,7 +10673,7 @@ async function checkAndRecordAction(actionType) {
       <div class="time-input-error" id="modalTimeError"></div>
     `;
     showModal(
-      `回報「${nm.name}」出現時間`,
+      intent==='dead' ? `補報「${nm.name}」死亡（出現時間）` : `回報「${nm.name}」出現時間`,
       '',
       () => {
         const activeTab = document.querySelector('.time-mode-tab.active');
@@ -10674,7 +10693,7 @@ async function checkAndRecordAction(actionType) {
         if (isBanned()) { showBannedModal(); return; }
         checkAndRecordAction('manual_report').then((allowed) => {
           if (!allowed) return;
-          const updates = buildManualSpawnUpdates(nmId, ts);
+          const updates = buildManualSpawnUpdates(nmId, ts, intent);
           applyUpdates(updates).then(async () => {
             // Clear triggering bucket for this NM
             try { await triggeringRef.child(nmId).remove(); } catch (e) {}
@@ -11003,24 +11022,37 @@ async function checkAndRecordAction(actionType) {
     if (!target) return;
 
     const updates = {};
+    const snap = target.h._snapshot || {};
     const resetTs = (state.instanceResets && state.instanceResets[zone]) || 0;
+    // 這次重置產生的舊島存檔（resetAt 對得上才算）
+    const archive = (state.oldIsland && state.oldIsland[zone]) || null;
+    const archiveOfThisReset = (archive && archive.resetAt === (target.h.occurredAt || resetTs)) ? archive : null;
+    const archiveEvents = (archiveOfThisReset && archiveOfThisReset.activeEvents) ? archiveOfThisReset.activeEvents : {};
+
     // Restore previous instanceReset timestamp (or null)
-    updates[`instanceResets/${zone}`] = target.h._snapshot.prevReset || null;
-    // Restore spawns —— Bug6：但「重置之後才發生的新回報」（時間戳晚於重置時間）要保留，
-    // 不可被舊快照覆寫，否則重置後死亡/回報的 NM 會被還原成重置前的舊狀態而「復活」。
-    const snapSpawns = target.h._snapshot.spawns || {};
-    Object.entries(snapSpawns).forEach(([nmId, ts]) => {
+    updates[`instanceResets/${zone}`] = snap.prevReset || null;
+    // Restore spawns —— 但「重置之後才發生的新回報」（spawn 時間晚於重置）要保留，不被舊快照覆寫
+    Object.entries(snap.spawns || {}).forEach(([nmId, ts]) => {
       const cur = state.spawns ? state.spawns[nmId] : undefined;
-      // 目前的回報時間戳若晚於重置時間，代表是重置後的新事件 → 保留現況，不還原
-      if (typeof cur === 'number' && cur > resetTs) return;
+      if (typeof cur === 'number' && cur > resetTs) return; // 重置後的新回報 → 保留現況
       updates[`spawns/${nmId}`] = ts;
     });
-    // 重置後「新出現」(快照沒有、但現在有且晚於重置時間)的 NM 也保留（不動）
-    // Restore active events（同理：重置後新建的 active event 保留）
-    const snapEvents = target.h._snapshot.activeEvents || {};
-    Object.entries(snapEvents).forEach(([evtId, ev]) => {
+    // Restore active events —— 排除已在別處處理過的，避免「已死亡的怪復活」
+    Object.entries(snap.activeEvents || {}).forEach(([evtId, ev]) => {
+      const nmId = ev && ev.nmId;
+      if (nmId) {
+        // (a) 目前已有同 NM 較新的進行中事件 → 不覆蓋
+        if (Object.values(state.activeEvents || {}).some(e => e.nmId === nmId && (e.spawnedAt || 0) >= (ev.spawnedAt || 0))) return;
+        // (b) 重置後該 NM 又被回報（spawn 晚於重置）→ 不還原舊事件
+        const curSpawn = state.spawns ? state.spawns[nmId] : undefined;
+        if (typeof curSpawn === 'number' && curSpawn > resetTs) return;
+      }
+      // (c) Bug6b：這次重置有存檔，且此事件已不在存檔中（= 重置後在舊島分頁被擊殺）→ 不還原，維持死亡
+      if (archiveOfThisReset && !archiveEvents[evtId]) return;
       updates[`activeEvents/${evtId}`] = ev;
     });
+    // Bug6c：清掉這次重置產生的舊島存檔，避免「還原的怪(無標籤)」與「存檔的怪(舊島標籤)」同時出現
+    if (archiveOfThisReset) updates[`oldIsland/${zone}`] = null;
     // Delete the reset history entry
     updates[`history/${target.id}`] = null;
     // 同時清除 NEW 標籤（既然回到重置前狀態，就不該再顯示新島提示）
@@ -11035,7 +11067,9 @@ async function checkAndRecordAction(actionType) {
 
   // Manual report (from manual time modal) — returns a partial-update object
   // that the caller should pass to applyUpdates(). Does NOT mutate state directly.
-  function buildManualSpawnUpdates(nmId, timestamp) {
+  // intent: 'alive'（建立/更新進行中事件）| 'dead'（只記出現時間→直接進冷卻，不出現在進行中）
+  function buildManualSpawnUpdates(nmId, timestamp, intent) {
+    intent = (intent==='dead') ? 'dead' : 'alive';
     const reporter = getUserStub();
     const zone = findZoneOfNm(nmId);
     const updates = {};
@@ -11048,19 +11082,24 @@ async function checkAndRecordAction(actionType) {
       updates[`instanceResets/${zone}`] = timestamp - 1;
     }
 
-    // also create active event if recent enough (< 30 min from now)
+    if (intent === 'dead') {
+      // 補報死亡：怪已死，直接進冷卻。移除任何現有的進行中事件，且不建立新的（不論距今幾分鐘）。
+      Object.entries(state.activeEvents || {}).forEach(([eid, ev]) => {
+        if (ev.nmId === nmId) updates[`activeEvents/${eid}`] = null;
+      });
+      return updates;
+    }
+
+    // intent === 'alive'：仍活著 → 建立/更新進行中事件（< 30 分才建）
     const ageMin = (Date.now() - timestamp) / 60000;
     if (zone && ageMin < 30) {
       const existing = Object.entries(state.activeEvents).find(([, ev]) => ev.nmId === nmId);
       if (!existing) {
         const evtId = `evt_${nmId}_${timestamp}`;
         updates[`activeEvents/${evtId}`] = {
-          nmId,
-          zone,
-          spawnedAt: timestamp,
+          nmId, zone, spawnedAt: timestamp,
           pullSecondsLeft: DEFAULT_PULL_SECONDS_LEFT,
-          pullSetBy: 'default',
-          reportedBy: reporter,
+          pullSetBy: 'default', reportedBy: reporter,
         };
       } else {
         const [eid] = existing;
@@ -12290,7 +12329,8 @@ async function checkAndRecordAction(actionType) {
     window.renderIslandLife = function(){
       const el=document.getElementById('islandLife'); if(!el) return;
       const now=Date.now();
-      Object.keys(ZONE_EL).forEach(z=>{
+      el.innerHTML=Object.keys(ZONE_EL).map(z=>{
+        // 用 instanceResets（永久保留的重置時間戳），而非 newIslandMark（10分後被清掉）
         const mark=(typeof state!=='undefined' && state.instanceResets && state.instanceResets[z])
           ? state.instanceResets[z]
           : ((typeof state!=='undefined' && state.newIslandMark && state.newIslandMark[z]) ? state.newIslandMark[z] : null);
@@ -12299,21 +12339,11 @@ async function checkAndRecordAction(actionType) {
           const sec=Math.floor((now-mark)/1000);
           const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60);
           txt = h>0 ? `${h}小時${m}分` : `${m}分`;
-          if(sec<300) fresh='fresh';
+          if(sec<300) fresh='fresh'; // 5分內視為剛重置
         }
-        let chip = el.querySelector('.il-chip[data-el="'+ZONE_EL[z]+'"]');
-        if(!chip){
-          chip=document.createElement('div');
-          chip.className='il-chip';
-          chip.dataset.el=ZONE_EL[z];
-          chip.innerHTML='<span class="il-dot"></span><span class="il-label">'+ZONE_SHORT2[z]+'存活</span><span class="il-val"></span>';
-          const tp=document.getElementById('baTeleportChip');
-          if(tp) el.insertBefore(chip, tp); else el.appendChild(chip);
-        }
-        chip.classList.toggle('fresh', fresh==='fresh');
-        const valEl=chip.querySelector('.il-val');
-        if(valEl) valEl.textContent=txt;
-      });
+        return `<div class="il-chip ${fresh}" data-el="${ZONE_EL[z]}"><span class="il-dot"></span><span class="il-label">${ZONE_SHORT2[z]}存活</span><span class="il-val">${txt}</span></div>`;
+      }).join('');
+      // 重建後補回傳送準備倒數 chip（避免被 innerHTML 清掉而閃一下消失）
       if (window.BA && typeof window.BA.renderTeleportChip==='function') window.BA.renderTeleportChip();
     };
     // #2 公告系統
@@ -12457,13 +12487,16 @@ async function checkAndRecordAction(actionType) {
           // 是否已投票
           const uid=myVoteKey();
           const checkDone=(voted)=>{
-            if(voted){ vbOpts.style.display='none'; vbOtherWrap.classList.add('hidden'); vbDone.classList.remove('hidden'); }
-            else {
-              vbOpts.style.display=''; vbDone.classList.add('hidden');
-              vbOpts.innerHTML=(cur.options||[]).map(o=>`<button class="vb-opt" data-vopt="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join('');
-              vbOpts.querySelectorAll('.vb-opt').forEach(b=>b.onclick=()=>castVote({choice:b.dataset.vopt}));
-              if(cur.allowOther){ vbOtherWrap.classList.remove('hidden'); } else vbOtherWrap.classList.add('hidden');
+            if(voted){
+              // 已投票過 → 不再顯示於頂端（投完當下的感謝訊息由 castVote 處理 3 秒淡出）
+              vBanner.classList.add('hidden');
+              vBanner.classList.remove('vb-fading');
+              return;
             }
+            vbOpts.style.display=''; vbDone.classList.add('hidden');
+            vbOpts.innerHTML=(cur.options||[]).map(o=>`<button class="vb-opt" data-vopt="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join('');
+            vbOpts.querySelectorAll('.vb-opt').forEach(b=>b.onclick=()=>castVote({choice:b.dataset.vopt}));
+            if(cur.allowOther){ vbOtherWrap.classList.remove('hidden'); } else vbOtherWrap.classList.add('hidden');
             vBanner.classList.remove('hidden');
           };
           if(uid){ voteRef.child('ballots/'+uid.replace(/[.#$\[\]\/]/g,'_')).once('value').then(bs=>checkDone(!!bs.val())); }
@@ -12475,7 +12508,15 @@ async function checkAndRecordAction(actionType) {
         if(!uid){ if(typeof appToast==='function') appToast('請先登入才能投票'); return; }
         if(!voteRef) return;
         voteRef.child('ballots/'+uid.replace(/[.#$\[\]\/]/g,'_')).set(Object.assign({at:Date.now()},payload))
-          .then(()=>{ vbOpts.style.display='none'; vbOtherWrap.classList.add('hidden'); vbDone.classList.remove('hidden'); })
+          .then(()=>{
+            vbOpts.style.display='none'; vbOtherWrap.classList.add('hidden'); vbDone.classList.remove('hidden');
+            vBanner.classList.remove('hidden'); vBanner.classList.remove('vb-fading');
+            // 維持 3 秒感謝訊息 → 淡出 → 完全隱藏（版面恢復成無投票狀態）
+            setTimeout(()=>{
+              vBanner.classList.add('vb-fading');
+              setTimeout(()=>{ vBanner.classList.add('hidden'); vBanner.classList.remove('vb-fading'); }, 850);
+            }, 3000);
+          })
           .catch(e=>{ if(typeof appToast==='function') appToast('投票失敗：'+e.message); });
       }
       if(vbOtherBtn) vbOtherBtn.onclick=()=>{ const t=(vbOtherInput.value||'').trim(); if(!t){ if(appToast)appToast('請輸入想法'); return; } castVote({other:t}); };
