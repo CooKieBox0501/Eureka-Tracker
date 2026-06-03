@@ -5788,9 +5788,9 @@ const SKILLS = {
     const sig = JSON.stringify({
       jShow: baShowEnabled('jelly'), dShow: baShowEnabled('desk'),
       jAlive: !!(j0 && j0.spawnedAt && !j0.killedAt && j0.inActiveEvent),
-      jPull: !!(j0 && j0.pullTargetMs), jBy: j0&&j0.spawnedBy,
+      jPull: (j0 && j0.pullTargetMs) || 0, jBy: j0&&j0.spawnedBy,
       jCarriers: j0 && j0.carriers ? Object.keys(j0.carriers).map(k=>k+':'+Object.keys(j0.carriers[k]||{}).length).join(',') : '',
-      dStatus: d0 && d0.status, dHasEt: !!(d0 && d0.etPullTargetMs),
+      dStatus: d0 && d0.status, dEt: (d0 && d0.etPullTargetMs) || 0,
       dBy: d0&&d0.announcedBy,
       carriers: d0 && d0.carriers ? Object.keys(d0.carriers).map(k=>k+':'+Object.keys(d0.carriers[k]||{}).length).join(',') : ''
     });
@@ -12329,21 +12329,32 @@ async function checkAndRecordAction(actionType) {
     window.renderIslandLife = function(){
       const el=document.getElementById('islandLife'); if(!el) return;
       const now=Date.now();
-      el.innerHTML=Object.keys(ZONE_EL).map(z=>{
-        // 用 instanceResets（永久保留的重置時間戳），而非 newIslandMark（10分後被清掉）
+      Object.keys(ZONE_EL).forEach(z=>{
         const mark=(typeof state!=='undefined' && state.instanceResets && state.instanceResets[z])
           ? state.instanceResets[z]
           : ((typeof state!=='undefined' && state.newIslandMark && state.newIslandMark[z]) ? state.newIslandMark[z] : null);
-        let txt='—', fresh='';
+        let txt='—', fresh=false;
         if(mark){
           const sec=Math.floor((now-mark)/1000);
           const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60);
           txt = h>0 ? `${h}小時${m}分` : `${m}分`;
-          if(sec<300) fresh='fresh'; // 5分內視為剛重置
+          if(sec<300) fresh=true; // 5分內視為剛重置
         }
-        return `<div class="il-chip ${fresh}" data-el="${ZONE_EL[z]}"><span class="il-dot"></span><span class="il-label">${ZONE_SHORT2[z]}存活</span><span class="il-val">${txt}</span></div>`;
-      }).join('');
-      // 重建後補回傳送準備倒數 chip（避免被 innerHTML 清掉而閃一下消失）
+        // 查既有 chip；沒有才建立一次（避免每秒 innerHTML 重建把傳送 chip 砍掉→呼吸燈重置）
+        let chip = el.querySelector('.il-chip[data-el="'+ZONE_EL[z]+'"]');
+        if(!chip){
+          chip=document.createElement('div');
+          chip.className='il-chip';
+          chip.dataset.el=ZONE_EL[z];
+          chip.innerHTML='<span class="il-dot"></span><span class="il-label">'+ZONE_SHORT2[z]+'存活</span><span class="il-val"></span>';
+          const tp=document.getElementById('baTeleportChip');
+          if(tp) el.insertBefore(chip, tp); else el.appendChild(chip);
+        }
+        chip.classList.toggle('fresh', fresh);
+        const valEl=chip.querySelector('.il-val');
+        if(valEl && valEl.textContent!==txt) valEl.textContent=txt;
+      });
+      // 確保傳送 chip 存在（只建一次，後續只更新數值，不重建）
       if (window.BA && typeof window.BA.renderTeleportChip==='function') window.BA.renderTeleportChip();
     };
     // #2 公告系統
