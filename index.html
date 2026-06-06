@@ -567,6 +567,16 @@ const WX_ICON = {
   .ba-card-forecast .fc-at { font-size: 14px; color: var(--ink-bright); }
   .ba-card-forecast .fc-clock { font-size: 24px; color: #c9a3ff; font-family: var(--font-mono); font-weight: 700; }
   .ba-card-forecast .fc-in { font-size: 12px; color: var(--ink-faded); }
+  /* 水母出現預測 modal */
+  .ba-fc-sub { font-size: 12px; color: var(--ink-faded); line-height: 1.6; margin: -4px 0 14px; }
+  .ba-fc-note { font-size: 14px; color: var(--ink); line-height: 1.8; padding: 12px 4px; }
+  .ba-fc-row { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-bottom: 1px dashed var(--border); }
+  .ba-fc-row:last-child { border-bottom: none; }
+  .ba-fc-row.next { background: var(--bg-deep); border-left: 3px solid #c9a3ff; }
+  .ba-fc-no { width: 22px; text-align: center; font-family: var(--font-mono); font-size: 13px; color: var(--ink-faded); }
+  .ba-fc-clock { font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: #c9a3ff; min-width: 64px; }
+  .ba-fc-in { flex: 1; font-size: 13px; color: var(--ink-faded); }
+  .ba-fc-tag { font-size: 11px; color: #8fd18f; border: 1px solid #3a5a3a; border-radius: 3px; padding: 1px 6px; white-space: nowrap; }
   .ba-card-metarow { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
   .ba-card-disclaimer { font-size: 11px; color: var(--ink-muted, #7a7488); font-style: italic; }
   .ba-card-newisland { font-size: 11px; color: var(--ink-faded); }
@@ -3586,7 +3596,7 @@ const WX_ICON = {
   <header>
     <div class="title-block">
       <h1>Eureka NM Tracker</h1>
-      <div class="subtitle">優雷卡惡名菁英追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.7.4</button></div>
+      <div class="subtitle">優雷卡惡名菁英追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.7.5</button></div>
       <div class="auth-row">
         <div class="auth-box" id="authBox">
           <span class="auth-status-text" id="authStatusText">🔒 請登入</span>
@@ -3747,6 +3757,17 @@ const WX_ICON = {
     <h3>📜 更新日誌</h3>
 
 	<div class="changelog-entry changelog-feature">
+      <div class="changelog-version">v2.7.5 <span class="changelog-date">— 2026/06/06</span></div>
+      <div class="changelog-tagline">🛠 Bug Fix & 體驗優化</div>
+      <ul class="changelog-list">
+		<li>✦ 新增了未來水母的預測時間</li>
+		<li>✦ 重新開放支持作者/斗內</li>
+		<li>✦ 現在新島出現時會清除一次該島NM的觸發++回報</li>
+		<li>✦ 優化了回報的穩定性</li>
+      </ul>
+    </div>
+	  
+	<div class="changelog-entry">
       <div class="changelog-version">v2.7.4 <span class="changelog-date">— 2026/06/03</span></div>
       <div class="changelog-tagline">🛠 Bug Fix & 體驗優化</div>
       <ul class="changelog-list">
@@ -3760,7 +3781,6 @@ const WX_ICON = {
 		<li>✦ 傳送準備倒數的圖樣改成了3:4</li>
       </ul>
     </div>
-
 	<div class="changelog-entry">
       <div class="changelog-version">v2.7.3 <span class="changelog-date">— 2026/06/02</span></div>
       <div class="changelog-tagline">🛠 Bug Fix & 體驗優化</div>
@@ -5197,6 +5217,83 @@ const SKILLS = {
     return null;
   }
 
+  // ════════ 水母出現預測（給主催排場次用） ════════
+  // 週期 = 存活 15 分 + 自然刷新 20 分 = 35 分。
+  // 第 1 隻＝卡面實際估算（jellyForecast().etaMs）；進行中時改以現役 spawnedAt + 35 推下一輪。
+  // 第 2 隻起＝第 1 隻 + 35 分 × k。塔內有人 / 資料不足 / 已達可出現但無錨點 → 回傳說明文字。
+  function jellyForecastCycleMs(){ return BA_LIFETIME_MS + REFRESH_AFTER_NATURAL_MS; }
+  function jellyForecastList(){
+    const CYCLE = jellyForecastCycleMs();
+    if (towerBlocking()) return { note:'塔內有人，水母不會刷新，預測暫停。' };
+    const j = baState.jellyfish;
+    const alive = j && j.spawnedAt && !j.killedAt;
+    let t0 = null, firstActual = false;
+    if (alive) {
+      // 進行中：卡面顯示的是現役倒數、無預估時間 → 以理想週期從現役 spawnedAt 推下一輪
+      t0 = j.spawnedAt + CYCLE;
+      firstActual = false;
+    } else {
+      const fc = jellyForecast();
+      if (fc.blocked) return { note:'塔內有人，水母不會刷新，預測暫停。' };
+      if (fc.ready)   return { note:'目前已達可出現時間，但尚無明確時間錨點。水母一旦出現，即可預測後續場次。' };
+      if (typeof fc.etaMs === 'number' && fc.etaMs > Date.now()) {
+        t0 = fc.etaMs;        // 卡面上的「預估 HH:MM 出現」
+        firstActual = true;   // 第 1 隻＝實際估算
+      } else {
+        return { note: '資料不足，無法預估。需要近期的水母／新島資料才能計算。' };
+      }
+    }
+    const list = [];
+    for (let k = 0; k < 10; k++) list.push({ at: t0 + k*CYCLE, actual: (k===0 && firstActual) });
+    return { list };
+  }
+
+  function ensureJellyFcModal(){
+    if (document.getElementById('baJellyFcBackdrop')) return;
+    const div = document.createElement('div');
+    div.className = 'modal-backdrop'; div.id = 'baJellyFcBackdrop';
+    div.innerHTML = `<div class="modal" style="max-width:420px;">
+        <h3>🔮 出現預測</h3>
+        <p class="ba-fc-sub">第 1 隻為實際估算；第 2 隻起以理想 35 分週期推算，實際可能因擊殺／淨空而提前，距離當前時間玥越久誤差會越大。</p>
+        <div id="baJellyFcBody"></div>
+        <div class="modal-actions"><button class="modal-btn" data-close-jellyfc>關閉</button></div>
+      </div>`;
+    document.body.appendChild(div);
+    div.addEventListener('click', (e)=>{
+      if (e.target === div || e.target.closest('[data-close-jellyfc]')) div.classList.remove('active');
+    });
+  }
+  function fmtFutureMin(ms){
+    const mins = Math.max(0, Math.round(ms/60000));
+    return mins >= 60 ? `約 ${Math.floor(mins/60)} 小時 ${mins%60} 分後` : `約 ${mins} 分後`;
+  }
+  function openJellyForecast(){
+    ensureJellyFcModal();
+    const bd = document.getElementById('baJellyFcBackdrop');
+    const body = document.getElementById('baJellyFcBody');
+    const sub = bd.querySelector('.ba-fc-sub');
+    const res = jellyForecastList();
+    if (res.note) {
+      if (sub) sub.style.display = 'none';
+      body.innerHTML = `<div class="ba-fc-note">${esc(res.note)}</div>`;
+    } else {
+      if (sub) sub.style.display = '';
+      const now = Date.now();
+      body.innerHTML = res.list.map((it, i)=>{
+        const d = new Date(it.at);
+        const hm = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+        const tag = it.actual ? '<span class="ba-fc-tag">實際估算</span>' : '';
+        return `<div class="ba-fc-row ${i===0?'next':''}">
+            <span class="ba-fc-no">${i+1}</span>
+            <span class="ba-fc-clock">${hm}</span>
+            <span class="ba-fc-in" data-ba-fc-in="${it.at}">${fmtFutureMin(it.at-now)}</span>
+            ${tag}
+          </div>`;
+      }).join('');
+    }
+    bd.classList.add('active');
+  }
+
   // ════════ 水母動作 ════════
   async function jellySpawn(){
     if (!(await guard('ba_jelly_spawn'))) return;
@@ -5638,6 +5735,7 @@ const SKILLS = {
             <button class="ba-act-btn" data-ba="jelly-spawn">出現回報</button>
             <button class="ba-act-btn danger" data-ba="jelly-kill" ${disabledKill}>死亡回報</button>
             <button class="ba-act-btn" data-ba="jelly-fix">補報</button>
+            <button class="ba-act-btn" data-ba="jelly-forecast">🔮 出現預測</button>
           </div>
         </div>
       </div>`;
@@ -6445,6 +6543,14 @@ const SKILLS = {
       if(eta<=now){ const fc=el.closest('.ba-card-forecast'); if(fc){fc.className='ba-card-forecast ready';fc.innerHTML='⚡ 可能已出現，請確認';} }
       else el.textContent=fmtMS(eta-now);
     });
+    // 水母預測 modal：開啟時每秒更新「約 N 分後」
+    const jfBd = document.getElementById('baJellyFcBackdrop');
+    if (jfBd && jfBd.classList.contains('active')) {
+      jfBd.querySelectorAll('[data-ba-fc-in]').forEach(el=>{
+        const at = parseInt(el.dataset.baFcIn,10);
+        if (at) el.textContent = fmtFutureMin(at-now);
+      });
+    }
     // 置頂注入列：存活倒數（剩 / 戰鬥中）
     document.querySelectorAll('[data-ba-active]').forEach(el=>{
       const sp=parseInt(el.dataset.baActive,10);
@@ -6509,6 +6615,7 @@ const SKILLS = {
         case 'jelly-kill':
           baConfirm('死亡回報','確認「未確認飛行物體」已被擊殺？').then(ok=>{ if(ok) jellyKill(); }); break;
         case 'jelly-fix': openFixModal(); break;
+        case 'jelly-forecast': openJellyForecast(); break;
         case 'jelly-pull-cancel': jellyCancelPull(); break;
         case 'edit-newisland': openNewIslandModal(); break;
         case 'desk-announce': deskAnnounce(); break;
@@ -6936,7 +7043,7 @@ const SKILLS = {
   const AUTH_STORAGE_KEY = 'eureka_user_info';
 	
 　// Current build version — must match Firebase eureka/meta/currentVersion
-  const APP_VERSION = 'v2.7.4';
+  const APP_VERSION = 'v2.7.5';
   const metaRef = db.ref('eureka/meta');
 
   // Watch for version updates: if Firebase has a newer version, prompt reload
@@ -9598,6 +9705,7 @@ async function checkAndRecordAction(actionType) {
       }
       firstSnapshotReceived = true;
       setSyncStatus('ok', '已同步');
+      dedupeActiveEvents();           // v2.7.5: 同 NM 重複事件收斂 + 自癒清除
       pruneStaleActiveEvents();
       pruneExpiredOldIsland();        // client-side cleanup of expired old-island data
       pruneExpiredNewIslandMark();    // client-side cleanup of expired New badges
@@ -10900,6 +11008,12 @@ async function checkAndRecordAction(actionType) {
     };
 
     await applyUpdates(updates);
+    // v2.7.5: 新島出現 → 清除該島全部 NM 的觸發意圖（舊揪團已過期，只清本島）
+    try {
+      const trigUpdates = {};
+      ((NM_DATA[zone] && NM_DATA[zone].nms) || []).forEach(nm => { trigUpdates[nm.id] = null; });
+      if (Object.keys(trigUpdates).length) await triggeringRef.update(trigUpdates);
+    } catch (e) { /* non-fatal：清觸發失敗不影響新島流程 */ }
     logUserAction('reset', { zone });
     updateCards();
     updateActivePanel();
@@ -11249,6 +11363,40 @@ async function checkAndRecordAction(actionType) {
 
   // Auto-cleanup events that are likely killed but not manually reported.
   // Logic: 5 minutes after the scheduled pull time, assume the NM is dead.
+  // v2.7.5: 同一隻 NM 若因並發回報產生多筆 activeEvent，渲染前先收斂為一筆，並（登入者）自癒清除多餘者。
+  // 保留優先序：有人設過開打時間(pullSetBy==='manual') > spawnedAt 最早 > evtId 最小。
+  function dedupeActiveEvents() {
+    const events = state.activeEvents || {};
+    const byNm = {};
+    Object.entries(events).forEach(([id, ev]) => {
+      if (!ev || !ev.nmId) return;
+      (byNm[ev.nmId] = byNm[ev.nmId] || []).push([id, ev]);
+    });
+    const removeIds = [];
+    Object.values(byNm).forEach(group => {
+      if (group.length < 2) return;
+      group.sort((a, b) => {
+        const am = a[1].pullSetBy === 'manual' ? 0 : 1;
+        const bm = b[1].pullSetBy === 'manual' ? 0 : 1;
+        if (am !== bm) return am - bm;
+        const as = a[1].spawnedAt || 0, bs = b[1].spawnedAt || 0;
+        if (as !== bs) return as - bs;
+        return a[0] < b[0] ? -1 : 1;
+      });
+      for (let i = 1; i < group.length; i++) removeIds.push(group[i][0]);
+    });
+    if (!removeIds.length) return;
+    // 本地立即收斂：之後所有渲染都只會看到保留的那一筆
+    removeIds.forEach(id => { delete state.activeEvents[id]; });
+    console.warn('[dedupe] 偵測到重複 activeEvent，已收斂並嘗試清除：', removeIds);
+    // 自癒：僅登入者嘗試清除（寫 null 冪等；未登入者只做本地收斂，不發失敗寫入）
+    if (typeof isLoggedIn === 'function' && isLoggedIn()) {
+      const updates = {};
+      removeIds.forEach(id => { updates[`activeEvents/${id}`] = null; });
+      try { stateRef.update(updates).catch(() => {}); } catch (e) { /* non-fatal */ }
+    }
+  }
+
   async function pruneStaleActiveEvents() {
     const now = Date.now();
     const updates = {};
@@ -12148,8 +12296,7 @@ async function checkAndRecordAction(actionType) {
       loadConfirmSetting(); syncConfirmToggle();
       const ct=document.getElementById('confirmToggle');
       if(ct) ct.onchange=()=>saveConfirmSetting(ct.checked);
-      // 斗內帳號顯示
-      const as=document.getElementById('acctShow'); if(as) as.onclick=()=>{ document.getElementById('acctNum').textContent='先暫時關閉啦><'; };
+      // 斗內：歐付寶為純連結 <a>，無需 JS handler
       // 頁尾/底部入口（若存在）
       // 緊湊模式切換
       wireDensityToggle();
@@ -12997,9 +13144,10 @@ async function checkAndRecordAction(actionType) {
   <div class="modal" style="max-width:440px;">
     <h3>☕ 支持作者</h3>
     <p class="donate-intro">這個工具完全免費、無廣告。若它對您有幫助、也願意請我吃顆茶葉蛋，非常感謝！💛 贊助純屬自願，<b>不影響任何功能</b>。</p>
-    <div class="donate-card">
-      <div class="dc-row"><span class="dc-k">銀行</span><span class="dc-v"> - </span></div>
-      <div class="dc-row"><span class="dc-k">帳號</span><span class="dc-v" id="acctNum">點右側顯示 →</span><button class="donate-copy" id="acctShow">顯示</button></div>
+    <div class="donate-card" style="text-align:center;">
+      <a href="https://p.opay.tw/LvEdW" target="_blank" rel="noopener" class="donate-opay">
+        <img src="https://payment.opay.tw/Content/themes/WebStyle201404/images/allpay.png" alt="歐付寶 O'Pay 贊助" style="max-width:100%;height:auto;display:inline-block;">
+      </a>
     </div>
     <p class="donate-thanks">每一份支持都是我持續維護與更新的動力，感謝您 🙏</p>
     <div class="modal-actions"><button class="modal-btn" data-close>關閉</button></div>
