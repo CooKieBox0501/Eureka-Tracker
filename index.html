@@ -3669,7 +3669,7 @@ const WX_ICON = {
   <header>
     <div class="title-block">
       <h1>Eureka NM Tracker</h1>
-      <div class="subtitle">優雷卡惡名菁英追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.7.5</button> · <span class="sync-indicator"><span class="sync-dot" id="syncDot"></span><span id="syncText">已同步</span></span></div>
+      <div class="subtitle">優雷卡惡名菁英追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.8.0</button> · <span class="sync-indicator"><span class="sync-dot" id="syncDot"></span><span id="syncText">已同步</span></span></div>
       <div class="auth-row">
         <div class="auth-box" id="authBox">
           <span class="auth-status-text" id="authStatusText">🔒 請登入</span>
@@ -3822,6 +3822,20 @@ const WX_ICON = {
 <div class="modal-backdrop" id="changelogBackdrop">
   <div class="modal" style="max-width: 520px; max-height: 70vh; overflow-y: auto;">
     <h3>📜 更新日誌</h3>
+	
+	<div class="changelog-entry changelog-feature">
+  		<div class="changelog-version">v2.8.0 <span class="changelog-date">— 2026/06/10</span></div>
+  		<div class="changelog-tagline">🎉 新增即時聊天室 &amp; 多項體驗優化</div>
+  		<ul class="changelog-list">
+   			<li>✦ <strong>即時聊天室</strong>：左下角新增聊天室，可即時揪人、協調先打哪一隻 NM。登入 Discord 後即可發言，訊息 20 分鐘後自動清除。</li>
+    		<li>✦ <strong>提示音快速開關</strong>：標題列新增 🔊／🔇 鈕，一鍵開關提示音，不必再進設定。</li>
+    		<li>✦ <strong>排班表時區顯示</strong>：兵武塔排班表時間可選擇「跟隨裝置／固定台灣時間／手動指定時區」（設定 → 其它），海外的朋友看時間更直覺。</li>
+    		<li>✦ <strong>觸發小怪等級提示</strong>：「觸發++」按鈕新增說明，觸發小怪等級 = NM 等級 +5。</li>
+   			<li>✦ <strong>更新導覽</strong>：版本更新後首次進站，會自動帶你快速看過新功能一次。</li>
+    		<li>✦ 同步狀態指示移至標題列，讓出畫面角落空間。</li>
+    		<li>✦ 修復了緊湊模式／自定義追蹤分頁的計時與狀態，現在會即時刷新，不需再切島或重整。</li>
+  		</ul>
+	</div>
 
 	<div class="changelog-entry">
       <div class="changelog-version">v2.7.5 <span class="changelog-date">— 2026/06/06</span></div>
@@ -3833,7 +3847,6 @@ const WX_ICON = {
         <li>✦ 優化了回報的穩定性</li>
       </ul>
     </div>
-	  
 	<div class="changelog-entry">
       <div class="changelog-version">v2.7.4 <span class="changelog-date">— 2026/06/03</span></div>
       <div class="changelog-tagline">🛠 Bug Fix & 體驗優化</div>
@@ -7183,7 +7196,7 @@ const SKILLS = {
   const AUTH_STORAGE_KEY = 'eureka_user_info';
 	
 　// Current build version — must match Firebase eureka/meta/currentVersion
-  const APP_VERSION = 'v2.7.5';
+  const APP_VERSION = 'v2.8.0';
   const metaRef = db.ref('eureka/meta');
 
   // Watch for version updates: if Firebase has a newer version, prompt reload
@@ -7381,7 +7394,7 @@ async function processAuthCallback() {
     ['America/New_York','美東 (America/New_York)'],
     ['Europe/London','倫敦 (Europe/London)'],
     ['Europe/Paris','中歐 (Europe/Paris)'],
-    ['UTC','UTC'],
+    ['UTC+0','UTC+0'],
   ];
   function setupTzSetting() {
     const modeSel = document.getElementById('tzModeSelect');
@@ -13755,7 +13768,7 @@ async function checkAndRecordAction(actionType) {
       const tab=document.querySelector('.settings-tab[data-pane="other"]'); if(tab) tab.click();
     }catch(e){} };
     S.push({ sel:'#tzSettingRow', title:'排班表時區顯示', before:openOther,
-      body:'兵武塔排班表的時間可選擇「跟隨裝置／固定台灣／手動指定時區」。海外的朋友看時間更直覺。（此設定只存在這台裝置）' });
+      body:'兵武塔排班表的時間可選擇「跟隨裝置／固定台灣時間／手動指定時區」。海外的朋友看時間更直覺。（此設定只存在於當前裝置）' });
     const closeSettings = ()=>{ try{ const bd=document.getElementById('soundSettingsBackdrop'); if(bd) bd.classList.remove('active'); }catch(e){} };
     S.push({ sel:'#chatToggleBtn', title:'即時聊天室', before:closeSettings,
       body:'左下角新增了即時聊天室，可即時揪人、協調先打哪一隻。登入後就能發言，訊息 20 分鐘後自動清除。' });
