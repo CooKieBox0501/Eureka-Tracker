@@ -794,7 +794,7 @@ const WX_ICON = {
     background: var(--crimson); border: 2px solid var(--bg-card); box-shadow: 0 0 6px var(--crimson);
   }
   .chat-panel {
-    position: fixed; left: 16px; bottom: 80px; z-index: 150;
+    position: fixed; left: max(16px, calc((100vw - 1280px)/2 - 336px)); bottom: 80px; z-index: 150;
     width: 320px; max-width: calc(100vw - 32px);
     height: min(520px, calc(100vh - 160px));
     background: var(--bg-card); border: 1px solid var(--border);
@@ -831,8 +831,6 @@ const WX_ICON = {
   .chat-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   .chat-foot { padding: 6px 12px 10px; font-size: 11px; color: var(--ink-faded); flex-shrink: 0; }
   .chat-foot.warn { color: #e8a08a; }
-  /* 超寬螢幕：聊天室停靠左側留白區（不蓋住主內容） */
-  @media (min-width: 1920px) { .chat-panel { left: calc((100vw - 1280px)/2 - 332px); } }
   /* 手機：覆蓋式加寬 */
   @media (max-width: 560px) {
     .chat-panel { left: 8px; right: 8px; width: auto; bottom: 74px; height: min(68vh, 440px); }
@@ -3829,10 +3827,10 @@ const WX_ICON = {
       <div class="changelog-version">v2.7.5 <span class="changelog-date">— 2026/06/06</span></div>
       <div class="changelog-tagline">🛠 Bug Fix & 體驗優化</div>
       <ul class="changelog-list">
-		<li>✦ 新增了未來水母的預測時間</li>
-		<li>✦ 重新開放支持作者/斗內</li>
-		<li>✦ 現在新島出現時會清除一次該島NM的觸發++回報</li>
-		<li>✦ 優化了回報的穩定性</li>
+        <li>✦ 新增了未來水母的預測時間</li>
+        <li>✦ 重新開放支持作者/斗內</li>
+        <li>✦ 現在新島出現時會清除一次該島NM的觸發++回報</li>
+        <li>✦ 優化了回報的穩定性</li>
       </ul>
     </div>
 	  
@@ -5338,7 +5336,7 @@ const SKILLS = {
     const div = document.createElement('div');
     div.className = 'modal-backdrop'; div.id = 'baJellyFcBackdrop';
     div.innerHTML = `<div class="modal" style="max-width:420px;">
-        <h3>🔮 水母出現預測</h3>
+        <h3>🔮 出現預測</h3>
         <p class="ba-fc-sub">第 1 隻為實際估算；第 2 隻起以理想 35 分週期推算，實際可能因擊殺/新島而提前，距離當前時間越久誤差會越大。</p>
         <div id="baJellyFcBody"></div>
         <div class="modal-actions"><button class="modal-btn" data-close-jellyfc>關閉</button></div>
@@ -9930,6 +9928,7 @@ async function checkAndRecordAction(actionType) {
       updateCards();
       updateActivePanel();
       updateUpcomingPanel();
+      if (typeof window.reapplyDensity === 'function') window.reapplyDensity(); // v2.7.5: 緊湊/自定義表隨資料即時刷新
       updateZoneTabsNewBadge();
       updateOldIslandSubtabs();
       updateHistoryModal();
@@ -10751,6 +10750,37 @@ async function checkAndRecordAction(actionType) {
       state.activeEvents = savedState.activeEvents;
       state.instanceResets = savedState.instanceResets;
     }
+
+    // v2.7.5: 緊湊模式／自定義追蹤的倒數與染色就地即時更新（不重排、不重建按鈕）
+    updateCompactRows();
+  }
+
+  // v2.7.5: 就地更新緊湊／自定義表的計時與狀態色（每秒 tick 呼叫）
+  function updateCompactRows() {
+    const rows = document.querySelectorAll('[data-ccrow]');
+    if (!rows.length) return;
+    rows.forEach(row => {
+      const nmId = row.getAttribute('data-ccrow');
+      const zid = row.getAttribute('data-cczone');
+      const nm = (typeof findNm === 'function') ? findNm(nmId) : null;
+      if (!nm || !zid) return;
+      const info = getNmStatus(zid, nm);
+      let cls = '', tv = '—';
+      if (info.status === 'cooldown') {
+        cls = 'cd'; tv = formatCooldown(info.cooldownMsRemaining);
+      } else if (info.status === 'waiting') {
+        cls = 'waiting';
+        let s = null;
+        if (nm.weather && info.weatherInfo && !info.weatherInfo.isCurrent) s = info.weatherInfo.startsIn;
+        if (nm.timeReq === '夜晚' && info.nightInfo && !info.nightInfo.isNight) s = Math.max(s || 0, info.nightInfo.secondsUntilTransition);
+        tv = (s != null) ? formatSeconds(s) : '—';
+      } else {
+        cls = 'ready'; tv = '可觸發';
+      }
+      if (row.getAttribute('class') !== cls) row.className = cls;
+      const tcell = row.querySelector('.cc-time');
+      if (tcell && tcell.textContent !== tv) tcell.textContent = tv;
+    });
   }
 
   function updateClock() {
@@ -13023,7 +13053,7 @@ async function checkAndRecordAction(actionType) {
         }else{
           actionCell = `<button class="cc-report" data-nm="${nm.id}" data-zone="${zid}">出現</button>`;
         }
-        return `<tr class="${cls}">
+        return `<tr class="${cls}" data-ccrow="${nm.id}" data-cczone="${zid}">
           <td class="cc-lv">Lv${nm.level}</td>
           <td class="cc-nm"><b>${nm.name}</b><span class="nk">${nm.nickname||''}</span> ${roleTag}</td>
           <td class="cc-zone">${zoneShort[zid]||''}</td>
@@ -13135,7 +13165,7 @@ async function checkAndRecordAction(actionType) {
         }else{
           actionCell=`<button class="cc-report" data-nm="${nm.id}" data-zone="${zid}">出現</button>`;
         }
-        return `<tr class="${cls}">
+        return `<tr class="${cls}" data-ccrow="${nm.id}" data-cczone="${zid}">
           <td class="cc-lv">Lv${nm.level}</td>
           <td class="cc-nm"><b>${nm.name}</b><span class="nk">${nm.nickname||''}</span> ${roleTag}</td>
           <td><button class="cc-map" data-nm="${nm.id}" title="地圖位置（製作中）">🗺️</button></td>
@@ -13412,6 +13442,7 @@ async function checkAndRecordAction(actionType) {
   }
 
   function canSendChat(){
+    if ((typeof isAdmin==='function') && isAdmin()) return { ok:true }; // 站長不受限速
     const now = Date.now();
     chatSentTimes = chatSentTimes.filter(t=> now - t < 10000);
     if (chatSentTimes.length >= 5) return { ok:false, msg:'發言太快了，請稍候（10 秒最多 5 則）' };
@@ -13608,7 +13639,7 @@ async function checkAndRecordAction(actionType) {
     <input type="text" id="chatInput" maxlength="200" placeholder="登入後即可發言…" disabled>
     <button class="chat-send-btn" id="chatSendBtn" type="button" disabled>送出</button>
   </div>
-  <div class="chat-foot" id="chatFoot">訊息 20 分鐘後自動清除 · 連結以純文字顯示</div>
+  <div class="chat-foot" id="chatFoot">訊息 20 分鐘後自動清除 · 僅保留近50則訊息</div>
 </div>
 
 <!-- 新手教學（簡版，互動導覽於最後一波）-->
