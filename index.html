@@ -772,6 +772,72 @@ const WX_ICON = {
   .sch-tooltip .st-time { font-family: var(--font-mono); font-size: 13px; color: var(--ink-faded); }
   .sch-tooltip .st-status { font-size: 13px; color: var(--gold-bright); margin-top: 3px; }
   .sch-note-bottom { margin-top: 16px; padding: 12px 14px; font-size: 12px; color: var(--ink-faded); background: rgba(0,0,0,0.2); border-radius: 3px; border-left: 2px solid var(--gold-deep); line-height: 1.6; }
+  /* v2.7.5: 排班時區標示 */
+  .sch-tz-note { margin: 6px 0 10px; font-size: 12px; color: var(--ink-faded); }
+  .sch-tz-note a:hover { text-decoration: underline; }
+  .tz-select { background: var(--bg-card); color: var(--ink); border: 1px solid var(--border); border-radius: 3px; padding: 5px 8px; font-family: var(--font-cjk); font-size: 13px; max-width: 220px; }
+
+  /* v2.7.5: 即時聊天室 */
+  .chat-toggle {
+    position: fixed; left: 16px; bottom: 16px; z-index: 150;
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--bg-card); border: 1px solid var(--gold-deep);
+    color: var(--gold-bright); font-size: 22px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4); transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .chat-toggle:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.5); }
+  .chat-toggle.active { background: var(--gold-deep); color: #fff; }
+  .chat-unread {
+    display: none; position: absolute; top: 5px; right: 5px;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--crimson); border: 2px solid var(--bg-card); box-shadow: 0 0 6px var(--crimson);
+  }
+  .chat-panel {
+    position: fixed; left: 16px; bottom: 80px; z-index: 150;
+    width: 320px; max-width: calc(100vw - 32px);
+    height: min(520px, calc(100vh - 160px));
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 6px; box-shadow: 0 8px 28px rgba(0,0,0,0.5);
+    display: none; flex-direction: column; overflow: hidden;
+  }
+  .chat-panel.open { display: flex; animation: chatIn .16s ease; }
+  @keyframes chatIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform:none; } }
+  .chat-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.2); flex-shrink: 0; }
+  .chat-head-title { font-family: var(--font-cjk); font-weight: 600; color: var(--gold-bright); font-size: 14px; }
+  .chat-head-actions { display: flex; align-items: center; gap: 6px; }
+  .chat-clear-btn { background: transparent; border: 1px solid var(--border); color: var(--ink-faded); font-size: 12px; padding: 3px 8px; border-radius: 3px; cursor: pointer; font-family: var(--font-cjk); }
+  .chat-clear-btn:hover { color: var(--crimson); border-color: var(--crimson); }
+  .chat-close-btn { background: transparent; border: none; color: var(--ink-faded); font-size: 22px; line-height: 1; cursor: pointer; padding: 0 4px; }
+  .chat-close-btn:hover { color: var(--ink); }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 10px 12px; display: flex; flex-direction: column; gap: 10px; }
+  .chat-empty { color: var(--ink-faded); font-size: 13px; text-align: center; margin: auto 0; }
+  .chat-msg { display: flex; gap: 8px; align-items: flex-start; }
+  .chat-msg-avatar { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; object-fit: cover; background: var(--bg-deep); }
+  .chat-msg-body { flex: 1; min-width: 0; }
+  .chat-msg-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .chat-msg-name { font-size: 12px; font-weight: 600; color: var(--gold-bright); }
+  .chat-msg.mine .chat-msg-name { color: #8ec5e8; }
+  .chat-msg-title { font-size: 10px; padding: 1px 5px; border-radius: 3px; background: rgba(212,168,75,0.18); color: var(--gold-bright); }
+  .chat-msg-badges { font-size: 11px; }
+  .chat-msg-time { font-size: 10px; color: var(--ink-faded); font-family: var(--font-mono); margin-left: auto; }
+  .chat-msg-del { background: transparent; border: none; color: var(--ink-faded); cursor: pointer; font-size: 14px; line-height: 1; padding: 0 2px; }
+  .chat-msg-del:hover { color: var(--crimson); }
+  .chat-msg-text { font-size: 13px; color: var(--ink); line-height: 1.5; word-break: break-word; white-space: pre-wrap; margin-top: 2px; }
+  .chat-input-row { display: flex; gap: 6px; padding: 10px 12px; border-top: 1px solid var(--border); flex-shrink: 0; }
+  .chat-input-row input { flex: 1; min-width: 0; background: var(--bg-deep); border: 1px solid var(--border); color: var(--ink); border-radius: 3px; padding: 8px 10px; font-family: var(--font-cjk); font-size: 13px; }
+  .chat-input-row input:disabled { opacity: 0.6; cursor: not-allowed; }
+  .chat-send-btn { background: var(--gold-deep); border: none; color: #fff; padding: 0 14px; border-radius: 3px; cursor: pointer; font-family: var(--font-cjk); font-size: 13px; white-space: nowrap; }
+  .chat-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .chat-foot { padding: 6px 12px 10px; font-size: 11px; color: var(--ink-faded); flex-shrink: 0; }
+  .chat-foot.warn { color: #e8a08a; }
+  /* 超寬螢幕：聊天室停靠左側留白區（不蓋住主內容） */
+  @media (min-width: 1920px) { .chat-panel { left: calc((100vw - 1280px)/2 - 332px); } }
+  /* 手機：覆蓋式加寬 */
+  @media (max-width: 560px) {
+    .chat-panel { left: 8px; right: 8px; width: auto; bottom: 74px; height: min(68vh, 440px); }
+    .chat-toggle { width: 48px; height: 48px; font-size: 20px; }
+  }
   .sch-type-tag { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 8px; background: rgba(168,120,255,0.15); color: #c9a3ff; margin: 1px 2px; }
   .ba-color-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; border: 1px solid var(--border-light); }
   .app-toast { position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%) translateY(20px); z-index: 100050;
@@ -1440,21 +1506,19 @@ const WX_ICON = {
 
   /* sync indicator */
   .sync-indicator {
-    position: fixed;
-    bottom: 16px;
-    right: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     background: var(--bg-card);
     border: 1px solid var(--border);
-    padding: 8px 14px;
+    padding: 3px 10px;
     font-family: var(--font-mono);
     font-size: 11px;
     color: var(--ink-faded);
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    opacity: 0.7;
+    border-radius: 3px;
+    opacity: 0.85;
     transition: opacity 0.2s ease;
+    vertical-align: middle;
   }
 
   .sync-indicator:hover { opacity: 1; }
@@ -3165,6 +3229,17 @@ const WX_ICON = {
     border-color: var(--gold-deep);
   }
 
+  /* v2.7.5: 提示音主開關 */
+  .header-action-btn.sound-master {
+    padding: 9px 12px;
+    font-size: 16px;
+    line-height: 1;
+  }
+  .header-action-btn.sound-master.muted {
+    color: var(--ink-faded);
+    opacity: 0.75;
+  }
+
   .header-action-btn.admin {
     background: linear-gradient(180deg, rgba(212, 168, 75, 0.18), rgba(212, 168, 75, 0.05));
     border-color: var(--gold-deep);
@@ -3596,7 +3671,7 @@ const WX_ICON = {
   <header>
     <div class="title-block">
       <h1>Eureka NM Tracker</h1>
-      <div class="subtitle">優雷卡惡名菁英追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.7.5</button></div>
+      <div class="subtitle">優雷卡惡名菁英追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.7.4</button> · <span class="sync-indicator"><span class="sync-dot" id="syncDot"></span><span id="syncText">已同步</span></span></div>
       <div class="auth-row">
         <div class="auth-box" id="authBox">
           <span class="auth-status-text" id="authStatusText">🔒 請登入</span>
@@ -3732,12 +3807,6 @@ const WX_ICON = {
   <span>GitHub</span>
 </a>
 
-<!-- sync indicator -->
-<div class="sync-indicator">
-  <div class="sync-dot" id="syncDot"></div>
-  <span id="syncText">已同步</span>
-</div>
-
 <!-- confirm modal (also used for manual time input) -->
 <div class="modal-backdrop" id="modalBackdrop">
   <div class="modal">
@@ -3757,17 +3826,6 @@ const WX_ICON = {
     <h3>📜 更新日誌</h3>
 
 	<div class="changelog-entry changelog-feature">
-      <div class="changelog-version">v2.7.5 <span class="changelog-date">— 2026/06/06</span></div>
-      <div class="changelog-tagline">🛠 Bug Fix & 體驗優化</div>
-      <ul class="changelog-list">
-		<li>✦ 新增了未來水母的預測時間</li>
-		<li>✦ 重新開放支持作者/斗內</li>
-		<li>✦ 現在新島出現時會清除一次該島NM的觸發++回報</li>
-		<li>✦ 優化了回報的穩定性</li>
-      </ul>
-    </div>
-	  
-	<div class="changelog-entry">
       <div class="changelog-version">v2.7.4 <span class="changelog-date">— 2026/06/03</span></div>
       <div class="changelog-tagline">🛠 Bug Fix & 體驗優化</div>
       <ul class="changelog-list">
@@ -3781,6 +3839,7 @@ const WX_ICON = {
 		<li>✦ 傳送準備倒數的圖樣改成了3:4</li>
       </ul>
     </div>
+
 	<div class="changelog-entry">
       <div class="changelog-version">v2.7.3 <span class="changelog-date">— 2026/06/02</span></div>
       <div class="changelog-tagline">🛠 Bug Fix & 體驗優化</div>
@@ -4230,6 +4289,22 @@ const WX_ICON = {
           </label>
         </label>
         <div class="confirm-warn">⚠ 關閉後若誤觸回報，可能造成其他玩家困擾與厭惡，作者不負任何責任，請審慎評估。</div>
+      </div>
+      <div class="sound-settings-section">
+        <div class="settings-subtitle">時區顯示（排班表）</div>
+        <label class="sound-row" id="tzSettingRow">
+          <span class="sound-label">時間顯示時區</span>
+          <select id="tzModeSelect" class="tz-select">
+            <option value="auto">自動（跟隨裝置）</option>
+            <option value="taipei">台灣時間（固定）</option>
+            <option value="manual">手動指定…</option>
+          </select>
+        </label>
+        <label class="sound-row" id="tzManualRow" style="display:none;">
+          <span class="sound-label">指定時區</span>
+          <select id="tzManualSelect" class="tz-select"></select>
+        </label>
+        <div class="confirm-warn" style="color:var(--ink-faded);">此設定只影響「兵武塔排班表」的時間顯示，且僅儲存在這台裝置。</div>
       </div>
     </div>
 
@@ -5253,8 +5328,8 @@ const SKILLS = {
     const div = document.createElement('div');
     div.className = 'modal-backdrop'; div.id = 'baJellyFcBackdrop';
     div.innerHTML = `<div class="modal" style="max-width:420px;">
-        <h3>🔮 出現預測</h3>
-        <p class="ba-fc-sub">第 1 隻為實際估算；第 2 隻起以理想 35 分週期推算，實際可能因擊殺／淨空而提前，距離當前時間越久誤差會越大。</p>
+        <h3>🔮 水母出現預測</h3>
+        <p class="ba-fc-sub">第 1 隻為實際估算；第 2 隻起以理想 35 分週期推算，實際可能因擊殺/新島而提前，距離當前時間越久誤差會越大。</p>
         <div id="baJellyFcBody"></div>
         <div class="modal-actions"><button class="modal-btn" data-close-jellyfc>關閉</button></div>
       </div>`;
@@ -6096,8 +6171,52 @@ const SKILLS = {
   let schView = 'calendar';   // calendar | history | pinned
 
   function statusClass(st){ return 'sch-status-' + (st||'未設定').replace(/[\/]/g,''); }
+  // ════════ v2.7.5: 時區顯示（per-device，localStorage）════════
+  // mode: 'auto'(跟隨裝置) | 'taipei'(固定台灣) | 'manual'(指定 IANA 時區)
+  // 用「位移」技巧：把 epoch 加上 (目標時區 − 本地) 的差，再用本地 Date 方法取值，
+  // 即等同以目標時區的牆上時間顯示。auto 模式位移=0，完全等同舊行為（零風險）。
+  const TZ_PREF_KEY = 'eureka_tz_pref';
+  function getTzPref(){
+    try { const raw = localStorage.getItem(TZ_PREF_KEY); if (raw){ const p = JSON.parse(raw); if (p && p.mode) return p; } } catch(e){}
+    return { mode:'auto', manual:null };
+  }
+  function setTzPref(p){
+    try { localStorage.setItem(TZ_PREF_KEY, JSON.stringify(p)); } catch(e){}
+  }
+  function resolvedTz(){
+    const p = getTzPref();
+    if (p.mode === 'taipei') return 'Asia/Taipei';
+    if (p.mode === 'manual' && p.manual) return p.manual;
+    return null; // auto → 跟隨裝置
+  }
+  function tzOffsetMinutes(tz, date){
+    try {
+      const dtf = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle:'h23',
+        year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit' });
+      const parts = {}; dtf.formatToParts(date).forEach(p=>{ parts[p.type]=p.value; });
+      const asUTC = Date.UTC(+parts.year, +parts.month-1, +parts.day, +parts.hour, +parts.minute, +parts.second);
+      return Math.round((asUTC - date.getTime()) / 60000);
+    } catch(e){ return -date.getTimezoneOffset(); }
+  }
+  function tzShiftMs(atTs){
+    const tz = resolvedTz();
+    if (!tz) return 0;
+    const d = (atTs != null) ? new Date(atTs) : new Date();
+    const targetOff = tzOffsetMinutes(tz, d);       // 目標時區 vs UTC（分）@該時刻
+    const localOff = -d.getTimezoneOffset();        // 本地 vs UTC（分）@該時刻
+    return (targetOff - localOff) * 60000;
+  }
+  function tzDate(ts){ return new Date(ts + tzShiftMs(ts)); }
+  function tzHM(ts){ const d = tzDate(ts); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
+  function tzLabel(){
+    const p = getTzPref();
+    if (p.mode === 'taipei') return '台灣時間';
+    if (p.mode === 'manual' && p.manual) return p.manual;
+    try { return Intl.DateTimeFormat().resolvedOptions().timeZone || '本地時區'; } catch(e){ return '本地時區'; }
+  }
+
   function fmtDateTime(ts){
-    const d=new Date(ts);
+    const d = tzDate(ts);
     return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
   }
   // 性質顯示：把「其它」換成自填文字
@@ -6159,7 +6278,8 @@ const SKILLS = {
     if (schView === 'history') { renderScheduleHistory(wrap); return; }
     if (schView === 'pinned') { renderSchedulePinned(wrap); return; }
     const canCreate = canCreateSchedule();
-    const today = new Date(); today.setHours(0,0,0,0);
+    const TZ_SHIFT = tzShiftMs();
+    const today = new Date(Date.now() + TZ_SHIFT); today.setHours(0,0,0,0);
     const days = [];
     for (let i=0;i<7;i++){ const d=new Date(today); d.setDate(d.getDate()+i); days.push(d); }
     let heads = '<div class="sch-corner"></div>';
@@ -6172,19 +6292,19 @@ const SKILLS = {
     for (let h=0;h<24;h++) timecol += `<div class="sch-hourlabel">${String(h).padStart(2,'0')}:00</div>`;
     timecol += '</div>';
     const now = Date.now();
-    const scheds = liveSchedules().filter(s=> s.endAt >= today.getTime()); // 日曆只顯示今天起
+    const scheds = liveSchedules().filter(s=> (s.endAt + TZ_SHIFT) >= today.getTime()); // 日曆只顯示今天起（依顯示時區）
     let cols = '';
     days.forEach(d=>{
       const dayStart = d.getTime(); const dayEnd = dayStart + 24*3600*1000;
       let evHtml = '';
       scheds.forEach(s=>{
-        const segStart = Math.max(s.startAt, dayStart);
-        const segEnd = Math.min(s.endAt, dayEnd);
+        const segStart = Math.max(s.startAt + TZ_SHIFT, dayStart);
+        const segEnd = Math.min(s.endAt + TZ_SHIFT, dayEnd);
         if (segEnd <= segStart) return;
         const topPct = (segStart - dayStart) / (24*3600*1000) * 100;
         const hPct = (segEnd - segStart) / (24*3600*1000) * 100;
         const color = schColor(s);
-        const startHM = `${String(new Date(s.startAt).getHours()).padStart(2,'0')}:${String(new Date(s.startAt).getMinutes()).padStart(2,'0')}`;
+        const startHM = tzHM(s.startAt);
         const finished = !!s.finalStatus;
         const light = isLightColor(color);
         // 文字用描邊確保深淺底都看得清
@@ -6204,6 +6324,7 @@ const SKILLS = {
     wrap.innerHTML = `
       <div class="ba-subnav"><button class="ba-back-btn" data-ba="back-overview">← 返回概覽</button></div>
       ${schToolbar('📅 未來七天主催開團排班表','calendar',canCreate)}
+      <div class="sch-tz-note">🕐 時間以「${esc(tzLabel())}」顯示 · <a data-ba="open-tz" style="color:#c9a3ff;cursor:pointer;">切換時區</a></div>
       <div class="sch-calendar">${heads}${timecol}${cols}</div>
       <div class="sch-note-bottom">若有開團需求但無法建立排程，請聯絡波波露 (Discord: cookie_box)。若主催們想更改自己的顏色也一樣聯絡波波露。已結束的場次請幫忙協助標記或註記~</div>`;
   }
@@ -6618,6 +6739,16 @@ const SKILLS = {
         case 'jelly-forecast': openJellyForecast(); break;
         case 'jelly-pull-cancel': jellyCancelPull(); break;
         case 'edit-newisland': openNewIslandModal(); break;
+        case 'open-tz': {
+          try {
+            const b=document.getElementById('soundSettingsBtn');
+            const bd=document.getElementById('soundSettingsBackdrop');
+            if (bd && !bd.classList.contains('active') && b) b.click();
+            const tab=document.querySelector('.settings-tab[data-pane="other"]'); if(tab) tab.click();
+            setTimeout(()=>{ const r=document.getElementById('tzSettingRow'); if(r) r.scrollIntoView({block:'center',behavior:'smooth'}); }, 120);
+          } catch(e){}
+          break;
+        }
         case 'desk-announce': deskAnnounce(); break;
         case 'desk-set-et': { const v=(document.getElementById('baDeskEt')||{}).value||''; deskSetEt(v.trim()); break; }
         case 'desk-cancel-et':
@@ -6722,11 +6853,9 @@ const SKILLS = {
     document.addEventListener('mouseover', (e)=>{
       const ev=e.target.closest('[data-sch]'); if(!ev) return;
       const s=baState.schedule[ev.dataset.sch]; if(!s) return;
-      const f=(d)=>`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-      const sd=new Date(s.startAt),ed=new Date(s.endAt);
       const tl = typeLabels(s).join('、')||'未指定';
       const stLine = s.finalStatus ? `<div class="st-status">最終：${esc(s.finalStatus==='其它'&&s.finalStatusOther?s.finalStatusOther:s.finalStatus)}</div>` : '';
-      schTip.innerHTML=`<div class="st-name">${esc(schSponsorName(s))}${s.pinned?' 📌':''}</div><div class="st-types">${esc(tl)}</div><div class="st-time">${f(sd)} ~ ${f(ed)}</div>${stLine}`;
+      schTip.innerHTML=`<div class="st-name">${esc(schSponsorName(s))}${s.pinned?' 📌':''}</div><div class="st-types">${esc(tl)}</div><div class="st-time">${tzHM(s.startAt)} ~ ${tzHM(s.endAt)}</div>${stLine}`;
       schTip.style.display='block';
     });
     document.addEventListener('mousemove',(e)=>{ if(schTip.style.display==='block') posTip(schTip,e); });
@@ -6893,6 +7022,9 @@ const SKILLS = {
     onZoneSwitch,
     applyLock,
     renderAll,
+    getTzPref,
+    setTzPref,
+    tzLabel,
     renderTeleportChip,
     jellySetPull,
     deskSetEt,
@@ -7043,7 +7175,7 @@ const SKILLS = {
   const AUTH_STORAGE_KEY = 'eureka_user_info';
 	
 　// Current build version — must match Firebase eureka/meta/currentVersion
-  const APP_VERSION = 'v2.7.5';
+  const APP_VERSION = 'v2.7.4';
   const metaRef = db.ref('eureka/meta');
 
   // Watch for version updates: if Firebase has a newer version, prompt reload
@@ -7183,6 +7315,8 @@ async function processAuthCallback() {
     const actions = document.getElementById('headerActions');
     if (actions) {
       let html = '';
+      // v2.7.5: 提示音主開關（標題列快速切換，與設定內 enabled 綁同一值）
+      html += `<button class="header-action-btn sound-master" id="soundMasterBtn" title="提示音開關">🔊</button>`;
       // Sound settings: always visible (guests can also configure, saved to localStorage)
       html += `<button class="header-action-btn" id="soundSettingsBtn" title="使用者設定">⚙ 使用者設定</button>`;
       html += `<button class="header-action-btn" id="menuDrawerBtn" title="選單">☰ 選單</button>`;
@@ -7192,6 +7326,9 @@ async function processAuthCallback() {
       actions.innerHTML = html;
       const sBtn = document.getElementById('soundSettingsBtn');
       if (sBtn) sBtn.addEventListener('click', openSoundSettings);
+      const smBtn = document.getElementById('soundMasterBtn');
+      if (smBtn) smBtn.addEventListener('click', toggleSoundMaster);
+      updateSoundMasterBtn();
       const mBtn = document.getElementById('menuDrawerBtn');
       if (mBtn) mBtn.addEventListener('click', () => openDrawer());
       const aBtn = document.getElementById('adminPanelBtnTop');
@@ -7199,6 +7336,73 @@ async function processAuthCallback() {
     }
     // v2.6.2：登入/登出狀態改變時重新判定兵武塔 BA 分頁是否解鎖
     if (window.BA && typeof window.BA.applyLock === 'function') window.BA.applyLock();
+    if (typeof updateChatInputState === 'function') updateChatInputState();
+    if (typeof updateChatUnread === 'function') updateChatUnread();
+  }
+
+  // v2.7.5: 提示音主開關（標題列快速切換，與設定內 enabled 綁同一值）
+  function updateSoundMasterBtn() {
+    const btn = document.getElementById('soundMasterBtn');
+    if (!btn) return;
+    const on = !!soundPrefs.enabled;
+    btn.textContent = on ? '🔊' : '🔇';
+    btn.classList.toggle('muted', !on);
+    btn.title = on ? '提示音：開（點擊靜音）' : '提示音：關（點擊開啟）';
+    btn.setAttribute('aria-label', btn.title);
+  }
+  function toggleSoundMaster() {
+    soundPrefs.enabled = !soundPrefs.enabled;
+    if (typeof tryUnlockAudio === 'function') tryUnlockAudio();
+    saveSoundPrefs();
+    updateSoundMasterBtn();
+    const bd = document.getElementById('soundSettingsBackdrop');
+    if (bd && bd.classList.contains('active') && typeof renderSoundSettingsModal === 'function') renderSoundSettingsModal();
+  }
+
+  // v2.7.5: 時區顯示設定（設定>其它）
+  const TZ_COMMON = [
+    ['Asia/Taipei','台灣 (Asia/Taipei)'],
+    ['Asia/Tokyo','日本 (Asia/Tokyo)'],
+    ['Asia/Shanghai','中國 (Asia/Shanghai)'],
+    ['Asia/Hong_Kong','香港 (Asia/Hong_Kong)'],
+    ['Asia/Singapore','新加坡 (Asia/Singapore)'],
+    ['Asia/Seoul','韓國 (Asia/Seoul)'],
+    ['Asia/Bangkok','泰國 (Asia/Bangkok)'],
+    ['Australia/Sydney','雪梨 (Australia/Sydney)'],
+    ['America/Los_Angeles','美西 (America/Los_Angeles)'],
+    ['America/New_York','美東 (America/New_York)'],
+    ['Europe/London','倫敦 (Europe/London)'],
+    ['Europe/Paris','中歐 (Europe/Paris)'],
+    ['UTC','UTC'],
+  ];
+  function setupTzSetting() {
+    const modeSel = document.getElementById('tzModeSelect');
+    const manualRow = document.getElementById('tzManualRow');
+    const manualSel = document.getElementById('tzManualSelect');
+    if (!modeSel || !manualRow || !manualSel || !window.BA || !window.BA.getTzPref) return;
+    if (!manualSel.dataset.filled) {
+      let detected = '';
+      try { detected = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch(e){}
+      const list = TZ_COMMON.slice();
+      if (detected && !list.some(z => z[0] === detected)) list.unshift([detected, '裝置時區 (' + detected + ')']);
+      manualSel.innerHTML = list.map(z => `<option value="${z[0]}">${z[1]}</option>`).join('');
+      manualSel.dataset.filled = '1';
+    }
+    const p = window.BA.getTzPref();
+    modeSel.value = p.mode || 'auto';
+    manualRow.style.display = (modeSel.value === 'manual') ? '' : 'none';
+    if (p.mode === 'manual' && p.manual) manualSel.value = p.manual;
+    if (!modeSel.dataset.bound) {
+      modeSel.dataset.bound = '1';
+      const apply = () => {
+        const mode = modeSel.value;
+        manualRow.style.display = (mode === 'manual') ? '' : 'none';
+        window.BA.setTzPref({ mode, manual: (mode === 'manual' ? (manualSel.value || 'Asia/Taipei') : null) });
+        try { window.BA.renderAll(); } catch(e){}
+      };
+      modeSel.addEventListener('change', apply);
+      manualSel.addEventListener('change', apply);
+    }
   }
 
   function startLogin() {
@@ -8018,6 +8222,7 @@ async function processAuthCallback() {
       }
       // baShow 變更會影響進行中區域是否顯示水母/服務台
       if (window.BA && window.BA.renderAll) { try{ window.BA.renderAll(); }catch(e){} }
+      try { updateSoundMasterBtn(); } catch(e){}
       // refresh modal if open
       if (document.getElementById('soundSettingsBackdrop')?.classList.contains('active')) {
         renderSoundSettingsModal();
@@ -8067,6 +8272,8 @@ async function processAuthCallback() {
     if (!masterToggle) return;
 
     masterToggle.checked = !!soundPrefs.enabled;
+    try { updateSoundMasterBtn(); } catch(e){}
+    try { setupTzSetting(); } catch(e){}
     const curVol = (soundPrefs.volume == null) ? 50 : soundPrefs.volume;
     volumeSlider.value = curVol;
     volumeLabel.textContent = `${curVol}%`;
@@ -8209,6 +8416,7 @@ async function processAuthCallback() {
     if (masterToggle) masterToggle.addEventListener('change', () => {
       soundPrefs.enabled = masterToggle.checked;
       saveSoundPrefs();
+      try { updateSoundMasterBtn(); } catch(e){}
     });
 
     // 兵武塔四開關
@@ -10305,7 +10513,7 @@ async function checkAndRecordAction(actionType) {
           ${condRemainingHtml}
           <span class="up-time">${timeText}</span>
           <div class="up-trigger-count">觸發中 ${triggerCount} 人</div>
-          <button class="${btnClass}" data-action="toggle-trigger" data-nm="${item.nmId}">${btnLabel}</button>
+          <button class="${btnClass}" data-action="toggle-trigger" data-nm="${item.nmId}" title="觸發小怪等級 = NM 等級 +5（此怪需打 Lv${(item.nm.level||0)+5} 小怪）">${btnLabel}</button>
           <button class="up-spawn-btn" data-action="up-report" data-nm="${item.nmId}" title="直接回報此 NM 已出現">出現回報</button>
         </div>`;
     });
@@ -13007,6 +13215,8 @@ async function checkAndRecordAction(actionType) {
     // attach realtime listener — first snapshot will populate state and trigger updateCards
     attachRealtimeListener();
     attachVersionListener();
+    attachChatListener();   // v2.7.5: 即時聊天室
+    wireChatUI();
     updateClock();
 
     // === v2.6 新功能綁定（正式環境）===
@@ -13096,6 +13306,225 @@ async function checkAndRecordAction(actionType) {
     }, 800);
   }
 
+  // ════════════════ v2.7.5: 即時聊天室（全站單一房間）════════════════
+  const chatRef = db.ref('eureka/chat');
+  const CHAT_EXPIRY_MS = 20 * 60 * 1000;   // 訊息 20 分鐘後過期
+  const CHAT_LIMIT = 50;                     // 顯示最近 50 則
+  const CHAT_MAXLEN = 200;
+  const CHAT_LAST_READ_KEY = 'chat_last_read';
+  let chatCache = [];
+  let chatOpen = false;
+  let chatSentTimes = [];        // 近期送出時間（client 端限速）
+  let chatListenerAttached = false;
+  let _chatHintTimer = null;
+
+  function chatEsc(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+  // 未來成就系統會在此提供稱號／徽章；目前為佔位（不送出）
+  function getMyChatIdentity(){ return { title: null, badges: null }; }
+  function chatMyUid(){ return (auth.currentUser && auth.currentUser.uid) || (currentUser && currentUser.id) || null; }
+
+  function attachChatListener(){
+    if (chatListenerAttached) return;
+    chatListenerAttached = true;
+    try {
+      chatRef.orderByChild('ts').limitToLast(CHAT_LIMIT).on('value', (snap)=>{
+        const arr = [];
+        snap.forEach(ch=>{
+          const v = ch.val() || {};
+          arr.push({ id: ch.key, uid: v.uid, name: v.name, avatar: v.avatar, text: v.text,
+            ts: (typeof v.ts==='number'?v.ts:0), title: v.title||null, badges: v.badges||null });
+        });
+        arr.sort((a,b)=> a.ts - b.ts);
+        chatCache = arr;
+        renderChat();
+        updateChatUnread();
+        pruneChatExpired();
+      });
+    } catch(e){ console.warn('[chat] listener failed', e); }
+  }
+
+  function chatVisibleMessages(){
+    const cut = Date.now() - CHAT_EXPIRY_MS;
+    return chatCache.filter(m=> m.ts && m.ts >= cut);
+  }
+
+  function fmtChatTime(ts){
+    if (!ts) return '';
+    const d = new Date(ts);
+    return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  }
+
+  function renderChat(){
+    const box = document.getElementById('chatMessages');
+    if (!box) return;
+    const msgs = chatVisibleMessages();
+    const admin = (typeof isAdmin==='function') && isAdmin();
+    const myUid = chatMyUid();
+    const nearBottom = (box.scrollHeight - box.scrollTop - box.clientHeight) < 60;
+    if (!msgs.length){
+      box.innerHTML = '<div class="chat-empty">目前沒有訊息～登入後就能開始聊天！</div>';
+    } else {
+      box.innerHTML = msgs.map(m=>{
+        const canDel = admin || (myUid && m.uid === myUid);
+        const av = (typeof getAvatarUrl==='function') ? getAvatarUrl(m.avatar) : (m.avatar||'');
+        const titleTag = m.title ? `<span class="chat-msg-title">${chatEsc(m.title)}</span>` : '';
+        const badgeTag = m.badges ? `<span class="chat-msg-badges">${chatEsc(m.badges)}</span>` : '';
+        const delBtn = canDel ? `<button class="chat-msg-del" data-chat-del="${chatEsc(m.id)}" title="刪除">×</button>` : '';
+        const mine = (myUid && m.uid === myUid) ? ' mine' : '';
+        return `<div class="chat-msg${mine}" data-mid="${chatEsc(m.id)}">
+          <img class="chat-msg-avatar" src="${chatEsc(av)}" alt="" onerror="this.style.visibility='hidden'">
+          <div class="chat-msg-body">
+            <div class="chat-msg-head"><span class="chat-msg-name">${chatEsc(m.name||'匿名')}</span>${titleTag}${badgeTag}<span class="chat-msg-time">${fmtChatTime(m.ts)}</span>${delBtn}</div>
+            <div class="chat-msg-text">${chatEsc(m.text)}</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+    if (nearBottom || chatOpen) box.scrollTop = box.scrollHeight;
+  }
+
+  function updateChatInputState(){
+    const input = document.getElementById('chatInput');
+    const send = document.getElementById('chatSendBtn');
+    const clearBtn = document.getElementById('chatClearBtn');
+    const li = (typeof isLoggedIn==='function') && isLoggedIn();
+    const banned = (typeof isBanned==='function') && isBanned();
+    if (input){
+      input.disabled = !li || banned;
+      input.placeholder = !li ? '登入後即可發言…' : (banned ? '你已被禁言' : '說點什麼…（Enter 送出）');
+    }
+    if (send) send.disabled = !li || banned;
+    if (clearBtn) clearBtn.style.display = ((typeof isAdmin==='function') && isAdmin()) ? '' : 'none';
+  }
+
+  function canSendChat(){
+    const now = Date.now();
+    chatSentTimes = chatSentTimes.filter(t=> now - t < 10000);
+    if (chatSentTimes.length >= 5) return { ok:false, msg:'發言太快了，請稍候（10 秒最多 5 則）' };
+    if (chatSentTimes.length && (now - chatSentTimes[chatSentTimes.length-1] < 1000)) return { ok:false, msg:'請慢一點（1 秒最多 1 則）' };
+    return { ok:true };
+  }
+
+  function showChatHint(msg){
+    const foot = document.getElementById('chatFoot');
+    if (!foot) return;
+    if (!foot.dataset.orig) foot.dataset.orig = foot.textContent;
+    foot.textContent = '⚠ ' + msg;
+    foot.classList.add('warn');
+    if (_chatHintTimer) clearTimeout(_chatHintTimer);
+    _chatHintTimer = setTimeout(()=>{ foot.textContent = foot.dataset.orig; foot.classList.remove('warn'); }, 2600);
+  }
+
+  async function sendChatMessage(){
+    const input = document.getElementById('chatInput');
+    if (!input) return;
+    const text = input.value.trim();
+    if (!text) return;
+    if (!((typeof isLoggedIn==='function') && isLoggedIn())) { showChatHint('請先登入才能發言'); return; }
+    if ((typeof isBanned==='function') && isBanned()) { showChatHint('你已被禁言'); return; }
+    if (text.length > CHAT_MAXLEN){ showChatHint(`訊息過長（上限 ${CHAT_MAXLEN} 字）`); return; }
+    const rl = canSendChat();
+    if (!rl.ok){ showChatHint(rl.msg); return; }
+    const uid = chatMyUid();
+    if (!uid){ showChatHint('登入狀態異常，請重新整理'); return; }
+    const ident = getMyChatIdentity();
+    const payload = {
+      uid: uid,
+      name: (currentUser && currentUser.name) || '匿名',
+      avatar: (currentUser && currentUser.avatar) || '',
+      text: text,
+      ts: firebase.database.ServerValue.TIMESTAMP,
+    };
+    if (ident.title) payload.title = ident.title;
+    if (ident.badges) payload.badges = ident.badges;
+    chatSentTimes.push(Date.now());
+    input.value = '';
+    try { await chatRef.push(payload); }
+    catch(e){ console.warn('[chat] send failed', e); showChatHint('送出失敗，請稍後再試'); }
+  }
+
+  async function deleteChatMessage(id){
+    if (!id) return;
+    try { await chatRef.child(id).remove(); }
+    catch(e){ console.warn('[chat] delete failed', e); showChatHint('刪除失敗（權限不足）'); }
+  }
+
+  function clearAllChat(){
+    if (!((typeof isAdmin==='function') && isAdmin())) return;
+    showModal('清空聊天室', '確定要清空所有聊天訊息嗎？此動作無法復原。', ()=>{
+      chatRef.set(null).catch(e=>{ console.warn('[chat] clear failed', e); showChatHint('清空失敗'); });
+    });
+  }
+
+  function pruneChatExpired(){
+    // 已登入者順手刪除過期訊息（best-effort；規則允許任何登入者刪 >20 分鐘訊息）
+    if (!((typeof isLoggedIn==='function') && isLoggedIn())) return;
+    const cut = Date.now() - CHAT_EXPIRY_MS;
+    chatCache.forEach(m=>{ if (m.ts && m.ts < cut) chatRef.child(m.id).remove().catch(()=>{}); });
+  }
+
+  function getChatLastRead(){ try { return parseInt(localStorage.getItem(CHAT_LAST_READ_KEY)||'0',10)||0; } catch(e){ return 0; } }
+  function setChatLastRead(ts){ try { localStorage.setItem(CHAT_LAST_READ_KEY, String(ts)); } catch(e){} }
+
+  function updateChatUnread(){
+    const dot = document.getElementById('chatUnread');
+    if (!dot) return;
+    if (chatOpen){ dot.style.display='none'; return; }
+    const lastRead = getChatLastRead();
+    const myUid = chatMyUid();
+    const hasNew = chatVisibleMessages().some(m=> m.ts > lastRead && m.uid !== myUid);
+    dot.style.display = hasNew ? 'block' : 'none';
+  }
+
+  function openChat(){
+    const panel = document.getElementById('chatPanel');
+    if (!panel) return;
+    chatOpen = true;
+    panel.classList.add('open');
+    document.getElementById('chatToggleBtn')?.classList.add('active');
+    updateChatInputState();
+    renderChat();
+    const msgs = chatVisibleMessages();
+    if (msgs.length) setChatLastRead(msgs[msgs.length-1].ts);
+    updateChatUnread();
+    const box = document.getElementById('chatMessages');
+    if (box) box.scrollTop = box.scrollHeight;
+    setTimeout(()=>{ const i=document.getElementById('chatInput'); if(i && !i.disabled) i.focus(); }, 60);
+  }
+  function closeChat(){
+    const panel = document.getElementById('chatPanel');
+    if (!panel) return;
+    chatOpen = false;
+    panel.classList.remove('open');
+    document.getElementById('chatToggleBtn')?.classList.remove('active');
+  }
+  function toggleChat(){ chatOpen ? closeChat() : openChat(); }
+
+  function wireChatUI(){
+    const toggle = document.getElementById('chatToggleBtn');
+    if (toggle) toggle.addEventListener('click', toggleChat);
+    const closeBtn = document.getElementById('chatCloseBtn');
+    if (closeBtn) closeBtn.addEventListener('click', closeChat);
+    const sendBtn = document.getElementById('chatSendBtn');
+    if (sendBtn) sendBtn.addEventListener('click', sendChatMessage);
+    const input = document.getElementById('chatInput');
+    if (input) input.addEventListener('keydown', (e)=>{ if (e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendChatMessage(); } });
+    const clearBtn = document.getElementById('chatClearBtn');
+    if (clearBtn) clearBtn.addEventListener('click', clearAllChat);
+    const box = document.getElementById('chatMessages');
+    if (box) box.addEventListener('click', (e)=>{
+      const del = e.target.closest('[data-chat-del]');
+      if (del) deleteChatMessage(del.getAttribute('data-chat-del'));
+    });
+    updateChatInputState();
+  }
+  window.updateChatInputState = updateChatInputState;
+  window.updateChatUnread = updateChatUnread;
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', boot);
   } else {
@@ -13152,6 +13581,24 @@ async function checkAndRecordAction(actionType) {
     <p class="donate-thanks">每一份支持都是我持續維護與更新的動力，感謝您 🙏</p>
     <div class="modal-actions"><button class="modal-btn" data-close>關閉</button></div>
   </div>
+</div>
+
+<!-- v2.7.5: 即時聊天室 -->
+<button class="chat-toggle" id="chatToggleBtn" type="button" title="即時聊天室" aria-label="即時聊天室">💬<span class="chat-unread" id="chatUnread"></span></button>
+<div class="chat-panel" id="chatPanel" aria-hidden="true">
+  <div class="chat-header">
+    <span class="chat-head-title">💬 即時聊天室</span>
+    <div class="chat-head-actions">
+      <button class="chat-clear-btn" id="chatClearBtn" type="button" title="清空全部訊息" style="display:none;">🧹 清空</button>
+      <button class="chat-close-btn" id="chatCloseBtn" type="button" aria-label="收起">×</button>
+    </div>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-input-row">
+    <input type="text" id="chatInput" maxlength="200" placeholder="登入後即可發言…" disabled>
+    <button class="chat-send-btn" id="chatSendBtn" type="button" disabled>送出</button>
+  </div>
+  <div class="chat-foot" id="chatFoot">訊息 20 分鐘後自動清除 · 連結以純文字顯示</div>
 </div>
 
 <!-- 新手教學（簡版，互動導覽於最後一波）-->
@@ -13253,6 +13700,29 @@ async function checkAndRecordAction(actionType) {
     return S.filter(st=> st.sel===null || st.before || document.querySelector(st.sel));
   }
 
+  // v2.7.5: 更新導覽步驟（重用同一引擎，僅圈出本次新功能）
+  function buildUpdateSteps(){
+    const S = [];
+    S.push({ sel:null, title:'本次更新導覽 ✨',
+      body:'這次更新了幾個新功能，花約 30 秒帶你看過一次。看完就不會再出現囉～' });
+    S.push({ sel:'#soundMasterBtn', title:'提示音快速開關',
+      body:'現在標題列就能一鍵開關提示音，不必再進設定。🔊 為開、🔇 為關，點一下切換。' });
+    const openOther = ()=>{ try{
+      const b=document.getElementById('soundSettingsBtn');
+      const bd=document.getElementById('soundSettingsBackdrop');
+      if(bd && !bd.classList.contains('active') && b) b.click();
+      const tab=document.querySelector('.settings-tab[data-pane="other"]'); if(tab) tab.click();
+    }catch(e){} };
+    S.push({ sel:'#tzSettingRow', title:'排班表時區顯示', before:openOther,
+      body:'兵武塔排班表的時間可選擇「跟隨裝置／固定台灣／手動指定時區」。海外的朋友看時間更直覺。（此設定只存在這台裝置）' });
+    const closeSettings = ()=>{ try{ const bd=document.getElementById('soundSettingsBackdrop'); if(bd) bd.classList.remove('active'); }catch(e){} };
+    S.push({ sel:'#chatToggleBtn', title:'即時聊天室', before:closeSettings,
+      body:'左下角新增了即時聊天室，可即時揪人、協調先打哪一隻。登入後就能發言，訊息 20 分鐘後自動清除。' });
+    S.push({ sel:null, title:'就這些！🎉',
+      body:'祝你狩獵愉快～有任何建議都歡迎從「選單 → 問題回報」告訴波波露！' });
+    return S.filter(st=> st.sel===null || st.before || document.querySelector(st.sel));
+  }
+
   function firstEl(sel){ if(!sel) return null; for(const s of sel.split(',')){ const el=document.querySelector(s.trim()); if(el) return el; } return null; }
 
   function show(){
@@ -13320,6 +13790,14 @@ async function checkAndRecordAction(actionType) {
 
   window.startTour = function(){
     steps = buildSteps(); idx = 0;
+    if (!steps.length) return;
+    window.addEventListener('resize', onResize);
+    show();
+  };
+
+  // v2.7.5: 更新導覽（重用同一引擎）
+  window.startUpdateTour = function(){
+    steps = buildUpdateSteps(); idx = 0;
     if (!steps.length) return;
     window.addEventListener('resize', onResize);
     show();
@@ -13401,6 +13879,42 @@ async function checkAndRecordAction(actionType) {
   function init(){ fixBaTab(); setupAutoTour(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
+})();
+</script>
+<script>
+/* ===== v2.7.5: 更新導覽（每版一次，老用戶才跑，看完即關不再現）===== */
+(function(){
+  'use strict';
+  var ONBOARD_FLAG = 'auto_tour_v271'; // 已完成新手教學的旗標
+  var UPD_FLAG = 'seen_update_tour_' + (typeof APP_VERSION !== 'undefined' ? APP_VERSION : 'x');
+  function ls(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+  function setLs(k){ try { localStorage.setItem(k, '1'); } catch(e){} }
+
+  function run(){
+    // 新用戶（沒跑過新手教學）→ 由完整新手教學負責，這裡只標記避免重複
+    if (!ls(ONBOARD_FLAG)) { setLs(UPD_FLAG); return; }
+    if (ls(UPD_FLAG)) return;          // 這版已看過
+    setLs(UPD_FLAG);                   // 開始即標記（中途關閉也算看過）
+    if (typeof window.startUpdateTour === 'function') window.startUpdateTour();
+  }
+
+  function waitChangelogThenRun(){
+    var bd = document.getElementById('changelogBackdrop');
+    if (bd && bd.classList.contains('active')) {
+      // 等更新日誌關閉後再跑（避免與日誌互相蓋住）
+      var iv = setInterval(function(){
+        if (!bd.classList.contains('active')) { clearInterval(iv); setTimeout(run, 300); }
+      }, 300);
+      // 安全閥：最多等 60 秒
+      setTimeout(function(){ clearInterval(iv); }, 60000);
+    } else {
+      run();
+    }
+  }
+
+  function start(){ setTimeout(waitChangelogThenRun, 1300); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
 })();
 </script>
 </body>
