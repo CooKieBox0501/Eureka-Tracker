@@ -1440,6 +1440,13 @@ const WX_ICON = {
     color: var(--ink-bright);
     font-variant-numeric: tabular-nums;
   }
+  /* v2.8.2: 冷卻中+等待條件的「等待條件」與平常 waiting 同色同大小 */
+  .status-detail .wait-cond {
+    color: var(--waiting);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+  }
 
   /* report button */
   .report-btn {
@@ -2896,77 +2903,40 @@ const WX_ICON = {
     cursor: grabbing;
   }
 
-  .map-layer {
+  .map-image {
     position: absolute;
     top: 0;
     left: 0;
     transform-origin: 0 0;
     transition: none;
-    will-change: transform;
-  }
-  .map-image {
-    display: block;
-    width: auto;
-    height: auto;
-    max-width: none;
     user-select: none;
     -webkit-user-drag: none;
     pointer-events: none;
+    max-width: none;
   }
-  .map-pins {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
-  .map-pin {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    z-index: 5;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .map-pin-dot {
-    position: relative;
-    width: 13px;
-    height: 13px;
-    border-radius: 50%;
-    background: #e23b3b;
-    border: 2.5px solid #fff;
-    box-shadow: 0 0 4px rgba(0,0,0,0.55);
-    z-index: 2;
-  }
-  .map-pin-wave {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 13px;
-    height: 13px;
-    border-radius: 50%;
-    background: rgba(226, 59, 59, 0.55);
-    transform: translate(-50%, -50%) scale(1);
-    animation: mapPinWave 1s ease-out infinite;
-    z-index: 1;
-    pointer-events: none;
-  }
-  @keyframes mapPinWave {
-    0%   { transform: translate(-50%, -50%) scale(1);   opacity: 0.7; }
-    100% { transform: translate(-50%, -50%) scale(3.6); opacity: 0; }
-  }
-  .map-pin-label {
-    margin-top: 3px;
-    font-family: var(--font-cjk);
-    font-size: 11px;
-    font-weight: 700;
-    line-height: 1.1;
-    color: #fff;
-    white-space: nowrap;
-    text-shadow: 0 1px 2px #000, 0 0 4px #000, 0 0 6px #000;
-    pointer-events: none;
-  }
-  .map-pin.lord .map-pin-dot { background: #ffd24a; }
-  .map-pin.lord .map-pin-wave { background: rgba(255, 210, 74, 0.55); }
+
+  /* v2.8.2 單一 NM 地圖標點(cc-map) */
+  .nmmap-modal{ max-width:600px; padding:0; overflow:hidden; }
+  .nmmap-head{ display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid var(--border); font-weight:700; color:var(--ink-bright); }
+  .nmmap-x{ background:none; border:none; color:var(--ink-faded); font-size:18px; line-height:1; cursor:pointer; padding:2px 6px; }
+  .nmmap-x:hover{ color:var(--ink-bright); }
+  .nmmap-stage{ position:relative; width:100%; background:var(--bg-deep); line-height:0; }
+  .nmmap-stage > img{ width:100%; height:auto; display:block; user-select:none; -webkit-user-drag:none; }
+  .nmmap-pins{ position:absolute; inset:0; }
+  .nmmap-pin{ position:absolute; transform:translate(-50%,-50%); pointer-events:auto; cursor:pointer; }
+  .nmmap-dot{ position:absolute; top:50%; left:50%; width:13px; height:13px; margin:-6.5px 0 0 -6.5px; border-radius:50%; box-shadow:0 0 4px rgba(0,0,0,.55); }
+  .nmmap-wave{ position:absolute; top:50%; left:50%; width:13px; height:13px; margin:-6.5px 0 0 -6.5px; border-radius:50%; }
+  .nmmap-pin.sel{ z-index:6; }
+  .nmmap-pin.sel .nmmap-dot{ background:#e23b3b; border:2.5px solid #fff; }
+  .nmmap-pin.sel .nmmap-wave{ background:rgba(226,59,59,.55); animation:nmmapWave 1.3s ease-out infinite; }
+  .nmmap-pin.dim{ z-index:3; }
+  .nmmap-pin.dim .nmmap-dot{ background:rgba(165,165,170,.6); border:1.5px solid rgba(255,255,255,.45); }
+  .nmmap-pin.dim .nmmap-wave{ display:none; }
+  .nmmap-pin.dim:hover{ z-index:5; }
+  .nmmap-pin.dim:hover .nmmap-dot{ background:rgba(220,220,225,.95); border-color:#fff; }
+  @keyframes nmmapWave{ 0%{transform:scale(1);opacity:.7;} 100%{transform:scale(3.6);opacity:0;} }
+  .nmmap-tag{ position:absolute; top:50%; left:50%; transform:translate(-50%, 9px); white-space:nowrap; font-family:var(--font-cjk); font-size:12px; font-weight:700; line-height:1.1; color:#fff; text-shadow:0 1px 2px #000,0 0 4px #000,0 0 6px #000; pointer-events:none; }
+  .nmmap-tip{ position:absolute; z-index:20; background:rgba(15,15,20,.96); border:1px solid var(--border-light); border-radius:6px; padding:6px 9px; font-family:var(--font-cjk); font-size:12px; line-height:1.55; color:var(--ink-bright); white-space:nowrap; pointer-events:none; box-shadow:0 4px 12px rgba(0,0,0,.5); }
 
   .map-loading {
     position: absolute;
@@ -4987,10 +4957,7 @@ const MAP_IMG = {
     </div>
     <div class="map-canvas-wrap" id="mapCanvasWrap">
       <div class="map-loading" id="mapLoading">載入地圖中…</div>
-      <div class="map-layer" id="mapLayer">
-        <img class="map-image" id="mapImage" alt="" draggable="false" />
-        <div class="map-pins" id="mapPins"></div>
-      </div>
+      <img class="map-image" id="mapImage" alt="" draggable="false" />
       <div class="map-zoom-indicator" id="mapZoomIndicator">100%</div>
     </div>
   </div>
@@ -7260,59 +7227,59 @@ const SKILLS = {
   };
 
   // === v2.6 其它 NM（53 隻，category:'other'，資料待站長校準）===
-    NM_DATA.anemos.nms.push({ id: 'o_anemos_1_2959', name: '舞動花王', nickname: '科里多仙人刺', en: '', fate: '', level: 1, weather: null, timeReq: null, drop: '', mob: '開花仙人掌怪', category: 'other', x: 13.9, y: 21.6 });
-    NM_DATA.anemos.nms.push({ id: 'o_anemos_2_2093', name: '章魚統領', nickname: '常風領主', en: '', fate: '', level: 2, weather: null, timeReq: null, drop: '', mob: '海祭司', category: 'other', x: 29.7, y: 27.1 });
-    NM_DATA.anemos.nms.push({ id: 'o_anemos_3_5872', name: '絕命美聲', nickname: '忒勒斯', en: '', fate: '', level: 3, weather: null, timeReq: null, drop: '', mob: '常風哈佩亞鳥妖', category: 'other', x: 25.6, y: 27.4 });
-    NM_DATA.anemos.nms.push({ id: 'o_anemos_4_6031', name: '御駕親征', nickname: '常風皇帝', en: '', fate: '', level: 4, weather: null, timeReq: null, drop: '', mob: '晏蜓', category: 'other', x: 17.2, y: 22.2 });
-    NM_DATA.anemos.nms.push({ id: 'o_anemos_5_3368', name: '行屍走肉', nickname: '卡利斯托', en: '', fate: '', level: 5, weather: null, timeReq: null, drop: '', mob: '瓦爾巨熊', category: 'other', x: 25.5, y: 22.3 });
-    NM_DATA.anemos.nms.push({ id: 'o_anemos_6_5722', name: '無主傀儡', nickname: '群偶', en: '', fate: '', level: 6, weather: null, timeReq: null, drop: '', mob: '奪靈魔', category: 'other', x: 23.5, y: 22.7 });
-    NM_DATA.anemos.nms.push({ id: 'o_anemos_7_2923', name: '強風妖精', nickname: '哲罕南', en: '', fate: '', level: 7, weather: '強風', timeReq: null, drop: '', mob: '颱風元精', category: 'other', x: 17.7, y: 18.6 });
-    NM_DATA.anemos.nms.push({ id: 'o_anemos_8_2668', name: '貪食者', nickname: '阿米特', en: '', fate: '', level: 8, weather: null, timeReq: null, drop: '', mob: '阿蔔拉克薩斯', category: 'other', x: 15, y: 15.6 });
-    NM_DATA.anemos.nms.push({ id: 'o_anemos_9_6986', name: '獸腳怪人', nickname: '蓋因', en: '', fate: '', level: 9, weather: null, timeReq: null, drop: '', mob: '追蹤席茲', category: 'other', x: 13.8, y: 12.5 });
-    NM_DATA.anemos.nms.push({ id: 'o_anemos_10_7975', name: '腐臭賢者', nickname: '龐巴德', en: '', fate: '', level: 10, weather: null, timeReq: '夜晚', drop: '', mob: '古老貪吃鬼', category: 'other', x: 28.3, y: 20.4 });
-    NM_DATA.anemos.nms.push({ id: 'o_anemos_11_5228', name: '幻魔蠍', nickname: '塞爾凱特', en: '', fate: '', level: 11, weather: null, timeReq: null, drop: '', mob: '河道巨鉗蝦', category: 'other', x: 24.8, y: 17.9 });
-    NM_DATA.anemos.nms.push({ id: 'o_anemos_12_7277', name: '播種者', nickname: '武斷魔花茱莉卡', en: '', fate: '', level: 12, weather: null, timeReq: null, drop: '', mob: '天仙子', category: 'other', x: 21.9, y: 15.6 });
-    NM_DATA.anemos.nms.push({ id: 'o_anemos_13_4187', name: '勝利象徵', nickname: '白騎士', en: '', fate: '', level: 13, weather: null, timeReq: '夜晚', drop: '', mob: '黃昏無頭騎士', category: 'other', x: 20.3, y: 13 });
-    NM_DATA.anemos.nms.push({ id: 'o_anemos_14_942', name: '巨人的復仇', nickname: '波呂斐摩斯', en: '', fate: '', level: 14, weather: null, timeReq: null, drop: '', mob: '獨眼怪', category: 'other', x: 26.4, y: 14.3 });
-    NM_DATA.anemos.nms.push({ id: 'o_anemos_15_4295', name: '狂怒怪鳥', nickname: '闊步西牟鳥', en: '', fate: '', level: 15, weather: null, timeReq: null, drop: '', mob: '舊世界祖', category: 'other', x: 28.6, y: 13 });
-    NM_DATA.anemos.nms.push({ id: 'o_anemos_16_5231', name: '放火大王', nickname: '極其危險物質', en: '', fate: '', level: 16, weather: null, timeReq: null, drop: '', mob: '常風阿那羅', category: 'other', x: 35.3, y: 18.3 });
-    NM_DATA.anemos.nms.push({ id: 'o_anemos_17_4403', name: '狂亂暗龍', nickname: '法夫納', en: '', fate: '', level: 17, weather: null, timeReq: '夜晚', drop: '', mob: '龍化石', category: 'other', x: 35.5, y: 21.5 });
-    NM_DATA.anemos.nms.push({ id: 'o_anemos_18_9636', name: '異界魔犬', nickname: '阿瑪洛克', en: '', fate: '', level: 18, weather: null, timeReq: null, drop: '', mob: '虛無鱗龍', category: 'other', x: 7.6, y: 18.2 });
-    NM_DATA.anemos.nms.push({ id: 'o_anemos_19_8804', name: '魔王之后', nickname: '拉瑪什圖', en: '', fate: '', level: 19, weather: null, timeReq: '夜晚', drop: '', mob: '瓦爾妖影', category: 'other', x: 7.7, y: 23.3 });
-    NM_DATA.pagos.nms.push({ id: 'o_pagos_20_4005', name: '純白的支配者', nickname: '雪之女王', en: '', fate: '', level: 20, weather: null, timeReq: null, drop: '', mob: '雪童子', category: 'other', x: 21.9, y: 26.8 });
-    NM_DATA.pagos.nms.push({ id: 'o_pagos_21_8448', name: '腐爛的讀書家', nickname: '塔克西姆', en: '', fate: '', level: 21, weather: null, timeReq: '夜晚', drop: '', mob: '珍卷惡魔', category: 'other', x: 25.4, y: 27.4 });
-    NM_DATA.pagos.nms.push({ id: 'o_pagos_22_5316', name: '灰殼的鱗王', nickname: '灰燼龍', en: '', fate: '', level: 22, weather: null, timeReq: null, drop: '', mob: '血魔', category: 'other', x: 29, y: 30 });
+    NM_DATA.anemos.nms.push({ id: 'o_anemos_1_2959', name: '科里多仙人刺', nickname: '舞動花王', en: '', fate: '', level: 1, weather: null, timeReq: null, drop: '', mob: '開花仙人掌怪', category: 'other', x: 13.9, y: 21.6 });
+    NM_DATA.anemos.nms.push({ id: 'o_anemos_2_2093', name: '常風領主', nickname: '章魚統領', en: '', fate: '', level: 2, weather: null, timeReq: null, drop: '', mob: '海祭司', category: 'other', x: 29.7, y: 27.1 });
+    NM_DATA.anemos.nms.push({ id: 'o_anemos_3_5872', name: '忒勒斯', nickname: '絕命美聲', en: '', fate: '', level: 3, weather: null, timeReq: null, drop: '', mob: '常風哈佩亞鳥妖', category: 'other', x: 25.6, y: 27.4 });
+    NM_DATA.anemos.nms.push({ id: 'o_anemos_4_6031', name: '常風皇帝', nickname: '御駕親征', en: '', fate: '', level: 4, weather: null, timeReq: null, drop: '', mob: '晏蜓', category: 'other', x: 17.2, y: 22.2 });
+    NM_DATA.anemos.nms.push({ id: 'o_anemos_5_3368', name: '卡利斯托', nickname: '行屍走肉', en: '', fate: '', level: 5, weather: null, timeReq: null, drop: '', mob: '瓦爾巨熊', category: 'other', x: 25.5, y: 22.3 });
+    NM_DATA.anemos.nms.push({ id: 'o_anemos_6_5722', name: '群偶', nickname: '無主傀儡', en: '', fate: '', level: 6, weather: null, timeReq: null, drop: '', mob: '奪靈魔', category: 'other', x: 23.5, y: 22.7 });
+    NM_DATA.anemos.nms.push({ id: 'o_anemos_7_2923', name: '哲罕南', nickname: '強風妖精', en: '', fate: '', level: 7, weather: '強風', timeReq: null, drop: '', mob: '颱風元精', category: 'other', x: 17.7, y: 18.6 });
+    NM_DATA.anemos.nms.push({ id: 'o_anemos_8_2668', name: '阿米特', nickname: '貪食者', en: '', fate: '', level: 8, weather: null, timeReq: null, drop: '', mob: '阿蔔拉克薩斯', category: 'other', x: 15, y: 15.6 });
+    NM_DATA.anemos.nms.push({ id: 'o_anemos_9_6986', name: '蓋因', nickname: '獸腳怪人', en: '', fate: '', level: 9, weather: null, timeReq: null, drop: '', mob: '追蹤席茲', category: 'other', x: 13.8, y: 12.5 });
+    NM_DATA.anemos.nms.push({ id: 'o_anemos_10_7975', name: '龐巴德', nickname: '腐臭賢者', en: '', fate: '', level: 10, weather: null, timeReq: '夜晚', drop: '', mob: '古老貪吃鬼', category: 'other', x: 28.3, y: 20.4 });
+    NM_DATA.anemos.nms.push({ id: 'o_anemos_11_5228', name: '塞爾凱特', nickname: '幻魔蠍', en: '', fate: '', level: 11, weather: null, timeReq: null, drop: '', mob: '河道巨鉗蝦', category: 'other', x: 24.8, y: 17.9 });
+    NM_DATA.anemos.nms.push({ id: 'o_anemos_12_7277', name: '武斷魔花茱莉卡', nickname: '播種者', en: '', fate: '', level: 12, weather: null, timeReq: null, drop: '', mob: '天仙子', category: 'other', x: 21.9, y: 15.6 });
+    NM_DATA.anemos.nms.push({ id: 'o_anemos_13_4187', name: '白騎士', nickname: '勝利象徵', en: '', fate: '', level: 13, weather: null, timeReq: '夜晚', drop: '', mob: '黃昏無頭騎士', category: 'other', x: 20.3, y: 13 });
+    NM_DATA.anemos.nms.push({ id: 'o_anemos_14_942', name: '波呂斐摩斯', nickname: '巨人的復仇', en: '', fate: '', level: 14, weather: null, timeReq: null, drop: '', mob: '獨眼怪', category: 'other', x: 26.4, y: 14.3 });
+    NM_DATA.anemos.nms.push({ id: 'o_anemos_15_4295', name: '闊步西牟鳥', nickname: '狂怒怪鳥', en: '', fate: '', level: 15, weather: null, timeReq: null, drop: '', mob: '舊世界祖', category: 'other', x: 28.6, y: 13 });
+    NM_DATA.anemos.nms.push({ id: 'o_anemos_16_5231', name: '極其危險物質', nickname: '放火大王', en: '', fate: '', level: 16, weather: null, timeReq: null, drop: '', mob: '常風阿那羅', category: 'other', x: 35.3, y: 18.3 });
+    NM_DATA.anemos.nms.push({ id: 'o_anemos_17_4403', name: '法夫納', nickname: '狂亂暗龍', en: '', fate: '', level: 17, weather: null, timeReq: '夜晚', drop: '', mob: '龍化石', category: 'other', x: 35.5, y: 21.5 });
+    NM_DATA.anemos.nms.push({ id: 'o_anemos_18_9636', name: '阿瑪洛克', nickname: '異界魔犬', en: '', fate: '', level: 18, weather: null, timeReq: null, drop: '', mob: '虛無鱗龍', category: 'other', x: 7.6, y: 18.2 });
+    NM_DATA.anemos.nms.push({ id: 'o_anemos_19_8804', name: '拉瑪什圖', nickname: '魔王之后', en: '', fate: '', level: 19, weather: null, timeReq: '夜晚', drop: '', mob: '瓦爾妖影', category: 'other', x: 7.7, y: 23.3 });
+    NM_DATA.pagos.nms.push({ id: 'o_pagos_20_4005', name: '雪之女王', nickname: '純白的支配者', en: '', fate: '', level: 20, weather: null, timeReq: null, drop: '', mob: '雪童子', category: 'other', x: 21.9, y: 26.8 });
+    NM_DATA.pagos.nms.push({ id: 'o_pagos_21_8448', name: '塔克西姆', nickname: '腐爛的讀書家', en: '', fate: '', level: 21, weather: null, timeReq: '夜晚', drop: '', mob: '珍卷惡魔', category: 'other', x: 25.4, y: 27.4 });
+    NM_DATA.pagos.nms.push({ id: 'o_pagos_22_5316', name: '灰燼龍', nickname: '灰殼的鱗王', en: '', fate: '', level: 22, weather: null, timeReq: null, drop: '', mob: '血魔', category: 'other', x: 29, y: 30 });
     NM_DATA.pagos.nms.push({ id: 'o_pagos_23_7297', name: '異形魔蟲', nickname: '異形魔蟲', en: '', fate: '', level: 23, weather: null, timeReq: null, drop: '', mob: '瓦爾蠕蟲', category: 'other', x: 33, y: 27 });
-    NM_DATA.pagos.nms.push({ id: 'o_pagos_24_9984', name: '融雪的化身', nickname: '安娜波', en: '', fate: '', level: 24, weather: '薄霧', timeReq: null, drop: '', mob: '融雪元精', category: 'other', x: 33, y: 21.5 });
-    NM_DATA.pagos.nms.push({ id: 'o_pagos_25_175', name: '五行眼的主人', nickname: '白澤', en: '', fate: '', level: 25, weather: null, timeReq: null, drop: '', mob: '啜泣百目妖', category: 'other', x: 29, y: 22 });
-    NM_DATA.pagos.nms.push({ id: 'o_pagos_26_8076', name: '移動的雪洞', nickname: '雪屋王', en: '', fate: '', level: 26, weather: null, timeReq: null, drop: '', mob: '胡瓦西', category: 'other', x: 17, y: 16 });
-    NM_DATA.pagos.nms.push({ id: 'o_pagos_27_5784', name: '硬質的病魔', nickname: '阿薩格', en: '', fate: '', level: 27, weather: null, timeReq: null, drop: '', mob: '徘徊歐浦肯', category: 'other', x: 10.4, y: 11.4 });
-    NM_DATA.pagos.nms.push({ id: 'o_pagos_28_9276', name: '家畜的慈母', nickname: '蘇羅毗', en: '', fate: '', level: 28, weather: null, timeReq: null, drop: '', mob: '恆冰公山羊', category: 'other', x: 10.3, y: 19.5 });
+    NM_DATA.pagos.nms.push({ id: 'o_pagos_24_9984', name: '安娜波', nickname: '融雪的化身', en: '', fate: '', level: 24, weather: '薄霧', timeReq: null, drop: '', mob: '融雪元精', category: 'other', x: 33, y: 21.5 });
+    NM_DATA.pagos.nms.push({ id: 'o_pagos_25_175', name: '白澤', nickname: '五行眼的主人', en: '', fate: '', level: 25, weather: null, timeReq: null, drop: '', mob: '啜泣百目妖', category: 'other', x: 29, y: 22 });
+    NM_DATA.pagos.nms.push({ id: 'o_pagos_26_8076', name: '雪屋王', nickname: '移動的雪洞', en: '', fate: '', level: 26, weather: null, timeReq: null, drop: '', mob: '胡瓦西', category: 'other', x: 17, y: 16 });
+    NM_DATA.pagos.nms.push({ id: 'o_pagos_27_5784', name: '阿薩格', nickname: '硬質的病魔', en: '', fate: '', level: 27, weather: null, timeReq: null, drop: '', mob: '徘徊歐浦肯', category: 'other', x: 10.4, y: 11.4 });
+    NM_DATA.pagos.nms.push({ id: 'o_pagos_28_9276', name: '蘇羅毗', nickname: '家畜的慈母', en: '', fate: '', level: 28, weather: null, timeReq: null, drop: '', mob: '恆冰公山羊', category: 'other', x: 10.3, y: 19.5 });
     NM_DATA.pagos.nms.push({ id: 'o_pagos_30_3536', name: '牛頭魔長老／看守', nickname: '', en: '', fate: '', level: 30, weather: null, timeReq: null, drop: '', mob: '研究所米諾陶洛斯', category: 'other', x: 14, y: 19 });
-    NM_DATA.pagos.nms.push({ id: 'o_pagos_31_6136', name: '野牛的救世主', nickname: '優雷卡聖牛', en: '', fate: '', level: 31, weather: null, timeReq: null, drop: '', mob: '古老水牛', category: 'other', x: 26, y: 16 });
-    NM_DATA.pagos.nms.push({ id: 'o_pagos_32_570', name: '雷雲的魔獸', nickname: '哈達約什', en: '', fate: '', level: 32, weather: '打雷', timeReq: null, drop: '', mob: '虛無小龍', category: 'other', x: 30, y: 19 });
-    NM_DATA.pagos.nms.push({ id: 'o_pagos_33_4840', name: '太陽的使者', nickname: '荷魯斯', en: '', fate: '', level: 33, weather: '熱浪', timeReq: null, drop: '', mob: '虛無薇薇爾飛龍', category: 'other', x: 26, y: 20 });
-    NM_DATA.pagos.nms.push({ id: 'o_pagos_34_3437', name: '總領安格拉·曼紐', nickname: '總領安哥拉·曼紐', en: '', fate: '', level: 34, weather: null, timeReq: null, drop: '', mob: '瞪視之眼', category: 'other', x: 24, y: 25 });
-    NM_DATA.pyros.nms.push({ id: 'o_pyros_35_7030', name: '潔白的慘叫', nickname: '琉科西亞', en: '', fate: '', level: 35, weather: null, timeReq: '夜晚', drop: '', mob: '湧火浮靈', category: 'other', x: 26.9, y: 26.6 });
-    NM_DATA.pyros.nms.push({ id: 'o_pyros_36_3335', name: '狰獰的雷獸', nickname: '佛勞洛斯', en: '', fate: '', level: 36, weather: '打雷', timeReq: null, drop: '', mob: '雷暴元精', category: 'other', x: 30, y: 28.4 });
-    NM_DATA.pyros.nms.push({ id: 'o_pyros_37_989', name: '妖異中的辯論家', nickname: '詭辯者', en: '', fate: '', level: 37, weather: null, timeReq: null, drop: '', mob: '湧火阿班達', category: 'other', x: 31.9, y: 31.3 });
-    NM_DATA.pyros.nms.push({ id: 'o_pyros_38_1244', name: '恐怖的人偶', nickname: '格拉菲亞卡內', en: '', fate: '', level: 38, weather: null, timeReq: null, drop: '', mob: '瓦爾維京人偶', category: 'other', x: 23, y: 37.2 });
-    NM_DATA.pyros.nms.push({ id: 'o_pyros_39_2267', name: '圖書守護者', nickname: '阿斯卡拉福斯', en: '', fate: '', level: 39, weather: '靈風', timeReq: null, drop: '', mob: '過期魔導書', category: 'other', x: 19.1, y: 29.1 });
-    NM_DATA.pyros.nms.push({ id: 'o_pyros_40_6992', name: '巴欽大公爵', nickname: '巴錢大公爵', en: '', fate: '', level: 40, weather: null, timeReq: '夜晚', drop: '', mob: '暗黑行吟者', category: 'other', x: 17.7, y: 14.5 });
-    NM_DATA.pyros.nms.push({ id: 'o_pyros_41_2613', name: '艾托洛斯', nickname: '埃托洛斯', en: '', fate: '', level: 41, weather: null, timeReq: null, drop: '', mob: '瓦爾獨爪妖禽', category: 'other', x: 10, y: 14 });
-    NM_DATA.pyros.nms.push({ id: 'o_pyros_42_9107', name: '灼熱的刺劍', nickname: '來薩特', en: '', fate: '', level: 42, weather: null, timeReq: null, drop: '', mob: '食鳥者', category: 'other', x: 13.7, y: 11.5 });
-    NM_DATA.pyros.nms.push({ id: 'o_pyros_43_853', name: '火巨人艾爾德塞斯', nickname: '火巨人', en: '', fate: '', level: 43, weather: null, timeReq: null, drop: '', mob: '湧火陸蟹', category: 'other', x: 15.4, y: 7 });
-    NM_DATA.pyros.nms.push({ id: 'o_pyros_44_8032', name: '落淚的海燕', nickname: '伊麗絲', en: '', fate: '', level: 44, weather: null, timeReq: null, drop: '', mob: '北境鹽藍燕', category: 'other', x: 21.3, y: 11.8 });
-    NM_DATA.pyros.nms.push({ id: 'o_pyros_46_1074', name: '雷獸統領', nickname: '閃電督軍', en: '', fate: '', level: 46, weather: '打雷', timeReq: null, drop: '', mob: '遺棄象魔', category: 'other', x: 27.1, y: 9 });
+    NM_DATA.pagos.nms.push({ id: 'o_pagos_31_6136', name: '優雷卡聖牛', nickname: '野牛的救世主', en: '', fate: '', level: 31, weather: null, timeReq: null, drop: '', mob: '古老水牛', category: 'other', x: 26, y: 16 });
+    NM_DATA.pagos.nms.push({ id: 'o_pagos_32_570', name: '哈達約什', nickname: '雷雲的魔獸', en: '', fate: '', level: 32, weather: '打雷', timeReq: null, drop: '', mob: '虛無小龍', category: 'other', x: 30, y: 19 });
+    NM_DATA.pagos.nms.push({ id: 'o_pagos_33_4840', name: '荷魯斯', nickname: '太陽的使者', en: '', fate: '', level: 33, weather: '熱浪', timeReq: null, drop: '', mob: '虛無薇薇爾飛龍', category: 'other', x: 26, y: 20 });
+    NM_DATA.pagos.nms.push({ id: 'o_pagos_34_3437', name: '總領安哥拉·曼紐', nickname: '總領安格拉·曼紐', en: '', fate: '', level: 34, weather: null, timeReq: null, drop: '', mob: '瞪視之眼', category: 'other', x: 24, y: 25 });
+    NM_DATA.pyros.nms.push({ id: 'o_pyros_35_7030', name: '琉科西亞', nickname: '潔白的慘叫', en: '', fate: '', level: 35, weather: null, timeReq: '夜晚', drop: '', mob: '湧火浮靈', category: 'other', x: 26.9, y: 26.6 });
+    NM_DATA.pyros.nms.push({ id: 'o_pyros_36_3335', name: '佛勞洛斯', nickname: '狰獰的雷獸', en: '', fate: '', level: 36, weather: '打雷', timeReq: null, drop: '', mob: '雷暴元精', category: 'other', x: 30, y: 28.4 });
+    NM_DATA.pyros.nms.push({ id: 'o_pyros_37_989', name: '詭辯者', nickname: '妖異中的辯論家', en: '', fate: '', level: 37, weather: null, timeReq: null, drop: '', mob: '湧火阿班達', category: 'other', x: 31.9, y: 31.3 });
+    NM_DATA.pyros.nms.push({ id: 'o_pyros_38_1244', name: '格拉菲亞卡內', nickname: '恐怖的人偶', en: '', fate: '', level: 38, weather: null, timeReq: null, drop: '', mob: '瓦爾維京人偶', category: 'other', x: 23, y: 37.2 });
+    NM_DATA.pyros.nms.push({ id: 'o_pyros_39_2267', name: '阿斯卡拉福斯', nickname: '圖書守護者', en: '', fate: '', level: 39, weather: '靈風', timeReq: null, drop: '', mob: '過期魔導書', category: 'other', x: 19.1, y: 29.1 });
+    NM_DATA.pyros.nms.push({ id: 'o_pyros_40_6992', name: '巴錢大公爵', nickname: '巴欽大公爵', en: '', fate: '', level: 40, weather: null, timeReq: '夜晚', drop: '', mob: '暗黑行吟者', category: 'other', x: 17.7, y: 14.5 });
+    NM_DATA.pyros.nms.push({ id: 'o_pyros_41_2613', name: '埃托洛斯', nickname: '艾托洛斯', en: '', fate: '', level: 41, weather: null, timeReq: null, drop: '', mob: '瓦爾獨爪妖禽', category: 'other', x: 10, y: 14 });
+    NM_DATA.pyros.nms.push({ id: 'o_pyros_42_9107', name: '來薩特', nickname: '灼熱的刺劍', en: '', fate: '', level: 42, weather: null, timeReq: null, drop: '', mob: '食鳥者', category: 'other', x: 13.7, y: 11.5 });
+    NM_DATA.pyros.nms.push({ id: 'o_pyros_43_853', name: '火巨人', nickname: '火巨人艾爾德塞斯', en: '', fate: '', level: 43, weather: null, timeReq: null, drop: '', mob: '湧火陸蟹', category: 'other', x: 15.4, y: 7 });
+    NM_DATA.pyros.nms.push({ id: 'o_pyros_44_8032', name: '伊麗絲', nickname: '落淚的海燕', en: '', fate: '', level: 44, weather: null, timeReq: null, drop: '', mob: '北境鹽藍燕', category: 'other', x: 21.3, y: 11.8 });
+    NM_DATA.pyros.nms.push({ id: 'o_pyros_46_1074', name: '閃電督軍', nickname: '雷獸統領', en: '', fate: '', level: 46, weather: '打雷', timeReq: null, drop: '', mob: '遺棄象魔', category: 'other', x: 27.1, y: 9 });
     NM_DATA.pyros.nms.push({ id: 'o_pyros_47_1030', name: '樵夫傑科', nickname: '', en: '', fate: '', level: 47, weather: null, timeReq: null, drop: '', mob: '湧火樹妖', category: 'other', x: 29.9, y: 11.8 });
-    NM_DATA.pyros.nms.push({ id: 'o_pyros_48_1869', name: '智慧與戰鬥之母', nickname: '明眸', en: '', fate: '', level: 48, weather: null, timeReq: null, drop: '', mob: '瓦爾斯卡尼特', category: 'other', x: 31.8, y: 15.1 });
-    NM_DATA.hydatos.nms.push({ id: 'o_hydatos_50_8658', name: '奇怪的烏賊', nickname: '卡拉墨魚', en: '', fate: '', level: 50, weather: null, timeReq: null, drop: '', mob: '左米特', category: 'other', x: 10.8, y: 25.5 });
-    NM_DATA.hydatos.nms.push({ id: 'o_hydatos_51_7072', name: '暴虐的魔獸', nickname: '劍齒象', en: '', fate: '', level: 51, weather: null, timeReq: null, drop: '', mob: '豐水曙象', category: 'other', x: 9, y: 17 });
-    NM_DATA.hydatos.nms.push({ id: 'o_hydatos_53_2207', name: '驚鴻艷影', nickname: '皮艾薩邪鳥', en: '', fate: '', level: 53, weather: null, timeReq: null, drop: '', mob: '多彩冠恐鳥', category: 'other', x: 7, y: 14 });
-    NM_DATA.hydatos.nms.push({ id: 'o_hydatos_54_5861', name: '高傲的獵人', nickname: '霜鬃獵魔', en: '', fate: '', level: 54, weather: null, timeReq: null, drop: '', mob: '北方猛虎', category: 'other', x: 8, y: 25 });
-    NM_DATA.hydatos.nms.push({ id: 'o_hydatos_55_2653', name: '浴血的妖妃', nickname: '達佛涅', en: '', fate: '', level: 55, weather: null, timeReq: null, drop: '', mob: '暗黑虛無鬼魚', category: 'other', x: 25, y: 15 });
-    NM_DATA.hydatos.nms.push({ id: 'o_hydatos_57_4205', name: '食妖植物', nickname: '琉刻', en: '', fate: '', level: 57, weather: null, timeReq: null, drop: '', mob: '虎鷹', category: 'other', x: 37, y: 26 });
-    NM_DATA.hydatos.nms.push({ id: 'o_hydatos_58_4972', name: '業火獅子王', nickname: '巴龍', en: '', fate: '', level: 58, weather: null, timeReq: null, drop: '', mob: '研究所雄獅', category: 'other', x: 32.5, y: 24.5 });
+    NM_DATA.pyros.nms.push({ id: 'o_pyros_48_1869', name: '明眸', nickname: '智慧與戰鬥之母', en: '', fate: '', level: 48, weather: null, timeReq: null, drop: '', mob: '瓦爾斯卡尼特', category: 'other', x: 31.8, y: 15.1 });
+    NM_DATA.hydatos.nms.push({ id: 'o_hydatos_50_8658', name: '卡拉墨魚', nickname: '奇怪的烏賊', en: '', fate: '', level: 50, weather: null, timeReq: null, drop: '', mob: '左米特', category: 'other', x: 10.8, y: 25.5 });
+    NM_DATA.hydatos.nms.push({ id: 'o_hydatos_51_7072', name: '劍齒象', nickname: '暴虐的魔獸', en: '', fate: '', level: 51, weather: null, timeReq: null, drop: '', mob: '豐水曙象', category: 'other', x: 9, y: 17 });
+    NM_DATA.hydatos.nms.push({ id: 'o_hydatos_53_2207', name: '皮艾薩邪鳥', nickname: '驚鴻艷影', en: '', fate: '', level: 53, weather: null, timeReq: null, drop: '', mob: '多彩冠恐鳥', category: 'other', x: 7, y: 14 });
+    NM_DATA.hydatos.nms.push({ id: 'o_hydatos_54_5861', name: '霜鬃獵魔', nickname: '高傲的獵人', en: '', fate: '', level: 54, weather: null, timeReq: null, drop: '', mob: '北方猛虎', category: 'other', x: 8, y: 25 });
+    NM_DATA.hydatos.nms.push({ id: 'o_hydatos_55_2653', name: '達佛涅', nickname: '浴血的妖妃', en: '', fate: '', level: 55, weather: null, timeReq: null, drop: '', mob: '暗黑虛無鬼魚', category: 'other', x: 25, y: 15 });
+    NM_DATA.hydatos.nms.push({ id: 'o_hydatos_57_4205', name: '琉刻', nickname: '食妖植物', en: '', fate: '', level: 57, weather: null, timeReq: null, drop: '', mob: '虎鷹', category: 'other', x: 37, y: 26 });
+    NM_DATA.hydatos.nms.push({ id: 'o_hydatos_58_4972', name: '巴龍', nickname: '業火獅子王', en: '', fate: '', level: 58, weather: null, timeReq: null, drop: '', mob: '研究所雄獅', category: 'other', x: 32.5, y: 24.5 });
 
   /* ----------- CONSTANTS ----------- */
   const COOLDOWN_MS = 120 * 60 * 1000;          // 120 minutes
@@ -7739,7 +7706,7 @@ async function processAuthCallback() {
     switch(type){
       case 'report':   return isBaoLord ? 'baolordAppear' : (isOther ? 'otherAppear' : null);
       case 'kill':
-      case 'kill_old': return isBaoLord ? 'baolordKill'   : (isOther ? 'otherKill'   : null);
+      case 'kill_old': return isBaoLord ? 'baolordKill'   : null;
       case 'cancel':   return isBaoLord ? 'baolordCancel' : (isOther ? 'otherCancel' : null);
       case 'cancel_reset':     return 'cancelResets';
       case 'chat':             return 'chats';
@@ -9372,7 +9339,7 @@ async function checkAndRecordAction(actionType) {
           btn.textContent = showing ? `展開全部 ▾` : `收合 ▴`;
         };
       });
-    }).catch(()=>{ body.innerHTML='<div style="text-align:center;color:var(--ink-faded);padding:14px;">載入失敗</div>'; });
+    }).catch(()=>{ body.innerHTML='<div style="text-align:center;color:var(--ink-faded);padding:14px;">載入失敗。若剛部署請重開分頁；若持續失敗，請確認 Firebase 已加入 statsAgg 讀取規則。</div>'; });
   }
 
   function renderOverview() {
@@ -9550,7 +9517,6 @@ async function checkAndRecordAction(actionType) {
           <div class="ud-stat"><div class="ud-stat-label">八寶/島主死亡</div><div class="ud-stat-value">${stats.baolordKill || 0}</div></div>
           <div class="ud-stat"><div class="ud-stat-label">八寶/島主取消</div><div class="ud-stat-value">${stats.baolordCancel || 0}</div></div>
           <div class="ud-stat"><div class="ud-stat-label">一般出現</div><div class="ud-stat-value">${stats.otherAppear || 0}</div></div>
-          <div class="ud-stat"><div class="ud-stat-label">一般死亡</div><div class="ud-stat-value">${stats.otherKill || 0}</div></div>
           <div class="ud-stat"><div class="ud-stat-label">一般取消</div><div class="ud-stat-value">${stats.otherCancel || 0}</div></div>
           <div class="ud-stat"><div class="ud-stat-label">登入</div><div class="ud-stat-value">${user.loginCount || 0}</div></div>
           <div class="ud-stat"><div class="ud-stat-label">新島重置</div><div class="ud-stat-value">${stats.resets || 0}</div></div>
@@ -11047,7 +11013,7 @@ async function checkAndRecordAction(actionType) {
         // 右方倒數改算到「冷卻後第一個天氣有效時刻」，並在下排標「等待條件」。
         labelEl.textContent = '冷卻中';
         if (nm.weather && info.effectiveReadyAt > info.cooldownEndsAt) {
-          detailEl.textContent = '等待條件';
+          detailEl.innerHTML = '<span class="wait-cond">等待條件</span>';
           valueEl.textContent = formatCooldown(info.effectiveMsRemaining);
         } else {
           detailEl.innerHTML = '';
@@ -12153,206 +12119,186 @@ async function checkAndRecordAction(actionType) {
   const MapViewer = (() => {
     const MIN_SCALE = 0.2;
     const MAX_SCALE = 6;
-    let backdrop, wrap, layer, img, pins, loading, zoomInd;
+    let backdrop, wrap, img, loading, zoomInd;
     let currentZone = null;
-    let scale = 1, tx = 0, ty = 0;
+    let scale = 1;
+    let tx = 0, ty = 0;
+    let dragging = false;
+    let lastX = 0, lastY = 0;
+    let pinchDist = 0;
+    let pinchScaleStart = 1;
     let imgNaturalW = 0, imgNaturalH = 0;
     let wrapW = 0, wrapH = 0;
-    let dragging = false, lastX = 0, lastY = 0;
-    const pointers = new Map();   // pointerId -> {x,y}
-    let pinchPrev = 0;
-
-    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
 
     function init() {
       backdrop = document.getElementById('mapBackdrop');
       wrap = document.getElementById('mapCanvasWrap');
-      layer = document.getElementById('mapLayer');
       img = document.getElementById('mapImage');
-      pins = document.getElementById('mapPins');
       loading = document.getElementById('mapLoading');
       zoomInd = document.getElementById('mapZoomIndicator');
 
+      // close button
       document.getElementById('mapClose').addEventListener('click', close);
-      backdrop.addEventListener('click', (e) => { if (e.target === backdrop) close(); });
+      // close when clicking outside the window (on the dimmed backdrop area)
+      backdrop.addEventListener('click', (e) => {
+        if (e.target === backdrop) close();
+      });
 
+      // zone tabs
       document.querySelectorAll('.map-zone-tab').forEach(tab => {
         tab.addEventListener('click', () => loadZone(tab.dataset.zone));
       });
 
-      document.getElementById('mapZoomIn').addEventListener('click', () => zoomAt(scale * 1.3, wrapW / 2, wrapH / 2));
-      document.getElementById('mapZoomOut').addEventListener('click', () => zoomAt(scale / 1.3, wrapW / 2, wrapH / 2));
-      document.getElementById('mapReset').addEventListener('click', () => { if (currentZone) fitToIsland(currentZone); });
+      // controls
+      document.getElementById('mapZoomIn').addEventListener('click', () => zoomBy(1.3, wrapW/2, wrapH/2));
+      document.getElementById('mapZoomOut').addEventListener('click', () => zoomBy(1/1.3, wrapW/2, wrapH/2));
+      document.getElementById('mapReset').addEventListener('click', fitToScreen);
 
-      // ---- Pointer Events：滑鼠 / 觸控 / 雙指捏合統一處理 ----
-      wrap.addEventListener('pointerdown', (e) => {
-        try { wrap.setPointerCapture(e.pointerId); } catch (_) {}
-        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-        if (pointers.size === 1) {
-          dragging = true; lastX = e.clientX; lastY = e.clientY;
-          wrap.classList.add('grabbing');
-        } else if (pointers.size === 2) {
-          dragging = false; pinchPrev = curPinchDist();
-        }
+      // mouse drag
+      wrap.addEventListener('mousedown', (e) => {
+        dragging = true;
+        wrap.classList.add('grabbing');
+        lastX = e.clientX;
+        lastY = e.clientY;
+        e.preventDefault();
       });
-      wrap.addEventListener('pointermove', (e) => {
-        if (!pointers.has(e.pointerId)) return;
-        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-        if (pointers.size === 1 && dragging) {
-          tx += e.clientX - lastX; ty += e.clientY - lastY;
-          lastX = e.clientX; lastY = e.clientY;
-          clampPan(); applyTransform();
-        } else if (pointers.size === 2) {
-          const d = curPinchDist();
-          if (pinchPrev > 0) {
-            const c = pinchCenter();
-            zoomAt(scale * (d / pinchPrev), c.x, c.y);
-          }
-          pinchPrev = d;
-        }
+      window.addEventListener('mousemove', (e) => {
+        if (!dragging) return;
+        tx += e.clientX - lastX;
+        ty += e.clientY - lastY;
+        lastX = e.clientX;
+        lastY = e.clientY;
+        applyTransform();
       });
-      function endPointer(e) {
-        pointers.delete(e.pointerId);
-        try { wrap.releasePointerCapture(e.pointerId); } catch (_) {}
-        if (pointers.size < 2) pinchPrev = 0;
-        if (pointers.size === 0) { dragging = false; wrap.classList.remove('grabbing'); }
-        else if (pointers.size === 1) {
-          const p = [...pointers.values()][0];
-          lastX = p.x; lastY = p.y; dragging = true;
-        }
-      }
-      wrap.addEventListener('pointerup', endPointer);
-      wrap.addEventListener('pointercancel', endPointer);
-      wrap.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') endPointer(e); });
+      window.addEventListener('mouseup', () => {
+        dragging = false;
+        wrap.classList.remove('grabbing');
+      });
 
+      // wheel zoom
       wrap.addEventListener('wheel', (e) => {
         e.preventDefault();
-        const r = wrap.getBoundingClientRect();
-        const f = e.deltaY < 0 ? 1.15 : 1 / 1.15;
-        zoomAt(scale * f, e.clientX - r.left, e.clientY - r.top);
+        const rect = wrap.getBoundingClientRect();
+        const cx = e.clientX - rect.left;
+        const cy = e.clientY - rect.top;
+        const factor = e.deltaY < 0 ? 1.15 : 1/1.15;
+        zoomBy(factor, cx, cy);
       }, { passive: false });
 
+      // touch (1-finger drag, 2-finger pinch zoom)
+      wrap.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+          dragging = true;
+          lastX = e.touches[0].clientX;
+          lastY = e.touches[0].clientY;
+        } else if (e.touches.length === 2) {
+          dragging = false;
+          pinchDist = touchDistance(e);
+          pinchScaleStart = scale;
+        }
+      }, { passive: true });
+
+      wrap.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        if (e.touches.length === 1 && dragging) {
+          tx += e.touches[0].clientX - lastX;
+          ty += e.touches[0].clientY - lastY;
+          lastX = e.touches[0].clientX;
+          lastY = e.touches[0].clientY;
+          applyTransform();
+        } else if (e.touches.length === 2) {
+          const newDist = touchDistance(e);
+          if (pinchDist > 0) {
+            const factor = newDist / pinchDist;
+            const targetScale = clamp(pinchScaleStart * factor, MIN_SCALE, MAX_SCALE);
+            const rect = wrap.getBoundingClientRect();
+            const cx = (e.touches[0].clientX + e.touches[1].clientX)/2 - rect.left;
+            const cy = (e.touches[0].clientY + e.touches[1].clientY)/2 - rect.top;
+            const ratio = targetScale / scale;
+            tx = cx - (cx - tx) * ratio;
+            ty = cy - (cy - ty) * ratio;
+            scale = targetScale;
+            applyTransform();
+          }
+        }
+      }, { passive: false });
+
+      wrap.addEventListener('touchend', () => {
+        dragging = false;
+        pinchDist = 0;
+      });
+
+      // close on Escape
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && backdrop.classList.contains('active')) close();
       });
     }
 
-    function curPinchDist() {
-      const a = [...pointers.values()];
-      if (a.length < 2) return 0;
-      return Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y);
-    }
-    function pinchCenter() {
-      const a = [...pointers.values()];
-      const r = wrap.getBoundingClientRect();
-      return { x: (a[0].x + a[1].x) / 2 - r.left, y: (a[0].y + a[1].y) / 2 - r.top };
+    function touchDistance(e) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      return Math.hypot(dx, dy);
     }
 
-    function zoomAt(newScale, cx, cy) {
-      newScale = clamp(newScale, MIN_SCALE, MAX_SCALE);
+    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+    function zoomBy(factor, cx, cy) {
+      const newScale = clamp(scale * factor, MIN_SCALE, MAX_SCALE);
       const ratio = newScale / scale;
       tx = cx - (cx - tx) * ratio;
       ty = cy - (cy - ty) * ratio;
       scale = newScale;
-      clampPan(); applyTransform();
-    }
-
-    // 夾住平移範圍：圖至少蓋滿視窗，否則置中，避免露出圖外空白
-    function clampPan() {
-      const lw = imgNaturalW * scale, lh = imgNaturalH * scale;
-      if (lw <= wrapW) tx = (wrapW - lw) / 2;
-      else tx = Math.min(0, Math.max(wrapW - lw, tx));
-      if (lh <= wrapH) ty = (wrapH - lh) / 2;
-      else ty = Math.min(0, Math.max(wrapH - lh, ty));
+      applyTransform();
     }
 
     function applyTransform() {
-      layer.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+      img.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
       if (zoomInd) zoomInd.textContent = `${Math.round(scale * 100)}%`;
     }
 
-    // 預設放大：以該島所有 NM 座標的範圍（含 padding）覆蓋視窗，去除外側海面
-    function fitToIsland(zone) {
+    function fitToScreen() {
       if (!imgNaturalW || !imgNaturalH) return;
-      wrapW = wrap.clientWidth; wrapH = wrap.clientHeight;
-      const nms = (typeof NM_DATA !== 'undefined' && NM_DATA[zone] && NM_DATA[zone].nms) || [];
-      const pts = nms.filter(n => typeof n.x === 'number' && typeof n.y === 'number');
-      if (!pts.length) { fitWhole(); return; }
-      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-      pts.forEach(n => {
-        if (n.x < minX) minX = n.x; if (n.x > maxX) maxX = n.x;
-        if (n.y < minY) minY = n.y; if (n.y > maxY) maxY = n.y;
-      });
-      const pad = 3.2; // 座標單位外擴，讓島緣與標籤不貼邊
-      minX -= pad; maxX += pad; minY -= pad; maxY += pad;
-      const toPxX = v => (v - 1) / 41 * imgNaturalW;
-      const toPxY = v => (v - 1) / 41 * imgNaturalH;
-      const bx = toPxX(minX), by = toPxY(minY);
-      const bw = Math.max(1, toPxX(maxX) - bx), bh = Math.max(1, toPxY(maxY) - by);
-      scale = clamp(Math.min(wrapW / bw, wrapH / bh), MIN_SCALE, MAX_SCALE);
-      const cx = bx + bw / 2, cy = by + bh / 2;
-      tx = wrapW / 2 - cx * scale;
-      ty = wrapH / 2 - cy * scale;
-      clampPan(); applyTransform();
-    }
-
-    // 後備：整張圖 fit 進視窗（該島無座標資料時用）
-    function fitWhole() {
-      wrapW = wrap.clientWidth; wrapH = wrap.clientHeight;
-      scale = Math.min(wrapW / imgNaturalW, wrapH / imgNaturalH) * 0.98;
+      wrapW = wrap.clientWidth;
+      wrapH = wrap.clientHeight;
+      const sx = wrapW / imgNaturalW;
+      const sy = wrapH / imgNaturalH;
+      scale = Math.min(sx, sy) * 0.95;
+      // v2.8.2: 部分島嶼基礎倍率與垂直位置微調，讓整座島剛好入框
+      const ZONE_MUL = { anemos: 1.34, hydatos: 1.55 };
+      const ZONE_DY  = { anemos: 28, hydatos: 28 };
+      if (ZONE_MUL[currentZone]) scale *= ZONE_MUL[currentZone];
+      // centre
       tx = (wrapW - imgNaturalW * scale) / 2;
       ty = (wrapH - imgNaturalH * scale) / 2;
-      clampPan(); applyTransform();
-    }
-
-    function pinLabel(s) {
-      return (typeof escapeHtml === 'function') ? escapeHtml(s || '') : String(s || '');
-    }
-
-    // 依該島 NM 座標建立定位點（雙層圓 + 每秒擴散紅波 + 名稱）
-    function buildPins(zone) {
-      if (!pins) return;
-      pins.innerHTML = '';
-      const nms = (typeof NM_DATA !== 'undefined' && NM_DATA[zone] && NM_DATA[zone].nms) || [];
-      nms.forEach(n => {
-        if (typeof n.x !== 'number' || typeof n.y !== 'number') return;
-        const left = (n.x - 1) / 41 * 100;
-        const top = (n.y - 1) / 41 * 100;
-        const cat = (n.category === 'lord') ? 'lord' : (n.category === 'bao' ? 'bao' : 'other');
-        const el = document.createElement('div');
-        el.className = 'map-pin ' + cat;
-        el.style.left = left + '%';
-        el.style.top = top + '%';
-        el.innerHTML =
-          '<span class="map-pin-wave"></span>' +
-          '<span class="map-pin-dot"></span>' +
-          '<span class="map-pin-label">' + pinLabel(n.name) + '</span>';
-        pins.appendChild(el);
-      });
+      if (ZONE_DY[currentZone]) ty += ZONE_DY[currentZone];
+      applyTransform();
     }
 
     function loadZone(zone) {
       currentZone = zone;
+      // mark active tab
       document.querySelectorAll('.map-zone-tab').forEach(t => {
         t.classList.toggle('active', t.dataset.zone === zone);
       });
       loading.style.display = '';
-      if (layer) layer.style.opacity = '0';
+      img.style.opacity = '0';
       img.onload = () => {
         imgNaturalW = img.naturalWidth;
         imgNaturalH = img.naturalHeight;
-        buildPins(zone);
         loading.style.display = 'none';
-        if (layer) layer.style.opacity = '1';
-        fitToIsland(zone);
+        img.style.opacity = '1';
+        fitToScreen();
       };
-      img.onerror = () => { loading.textContent = '⚠ 地圖載入失敗'; };
+      img.onerror = () => {
+        loading.textContent = '⚠ 地圖載入失敗，請確認 maps/ 資料夾已上傳';
+      };
       loading.textContent = '載入地圖中…';
-      img.src = (typeof MAP_IMG !== 'undefined' && MAP_IMG[zone]) ? MAP_IMG[zone] : '';
+      img.src = `maps/${zone}.jpg`;
     }
 
     function open(zone) {
       backdrop.classList.add('active');
+      // wait one frame for layout, then set sizes
       requestAnimationFrame(() => {
         wrapW = wrap.clientWidth;
         wrapH = wrap.clientHeight;
@@ -12360,7 +12306,9 @@ async function checkAndRecordAction(actionType) {
       });
     }
 
-    function close() { backdrop.classList.remove('active'); }
+    function close() {
+      backdrop.classList.remove('active');
+    }
 
     return { init, open };
   })();
@@ -12780,7 +12728,6 @@ async function checkAndRecordAction(actionType) {
       { key:'baolordKill',     label:'八寶/島主死亡回報' },
       { key:'baolordCancel',   label:'八寶/島主取消回報' },
       { key:'otherAppear',     label:'一般 NM 出現回報' },
-      { key:'otherKill',       label:'一般 NM 死亡回報' },
       { key:'otherCancel',     label:'一般 NM 取消回報' },
       { key:'loginCount',      label:'登入次數' },
       { key:'resets',          label:'新島重置次數' },
@@ -12849,7 +12796,7 @@ async function checkAndRecordAction(actionType) {
       body.innerHTML='<div style="text-align:center;color:var(--ink-faded);padding:20px;">載入中…</div>';
       bd.classList.add('active');
       if(window.__DEMO__ || typeof db==='undefined'){
-        const demo={ s:{ baolordAppear:12, baolordKill:8, otherAppear:40, otherKill:33, loginCount:25, chats:60, resets:5 } };
+        const demo={ s:{ baolordAppear:12, baolordKill:8, otherAppear:40, loginCount:25, chats:60, resets:5 } };
         const aggAll={ me:demo, a:{s:{baolordAppear:3,otherAppear:10,loginCount:5,chats:8}}, b:{s:{baolordAppear:30,otherAppear:80,loginCount:50,chats:200}} };
         const dist=computeStatDistribution(aggAll);
         body.innerHTML=STAT_ITEMS.map(item=>renderStatBar(item, statValOf(demo,item.key), dist[item.key])).join('');
@@ -12860,7 +12807,7 @@ async function checkAndRecordAction(actionType) {
         const dist=computeStatDistribution(aggAll);
         const mine=(meUid&&aggAll[meUid])?aggAll[meUid]:{s:{}};
         body.innerHTML=STAT_ITEMS.map(item=>renderStatBar(item, statValOf(mine,item.key), dist[item.key])).join('');
-      }).catch(()=>{ body.innerHTML='<div style="text-align:center;color:var(--ink-faded);padding:20px;">載入失敗</div>'; });
+      }).catch(()=>{ body.innerHTML='<div style="text-align:center;color:var(--ink-faded);padding:20px;">載入失敗，請稍後再試。</div>'; });
     }
     window.openStatsModal = openStatsModal;
     window.__STAT_ITEMS__ = STAT_ITEMS;
@@ -13027,9 +12974,64 @@ async function checkAndRecordAction(actionType) {
     function applyDensityAll(){
       Object.keys(NM_DATA).forEach(zid=>applyDensityZone(zid));
     }
+    function ensureNmMapModal(){
+      if (document.getElementById('nmMapModal')) return;
+      const div = document.createElement('div');
+      div.className = 'modal-backdrop'; div.id = 'nmMapModal';
+      div.innerHTML = `<div class="modal nmmap-modal">
+        <div class="nmmap-head"><span id="nmMapTitle"></span><button class="nmmap-x" data-nmmap-close>✕</button></div>
+        <div class="nmmap-stage" id="nmMapStage">
+          <img id="nmMapImg" alt="" draggable="false">
+          <div class="nmmap-pins" id="nmMapPins"></div>
+          <div class="nmmap-tip" id="nmMapTip" style="display:none;"></div>
+        </div>
+      </div>`;
+      document.body.appendChild(div);
+      // 需求2：點視窗外(背景)即關閉，不必按關閉鈕
+      div.addEventListener('click', (e)=>{ if (e.target===div || e.target.closest('[data-nmmap-close]')) div.classList.remove('active'); });
+    }
     function showMapPlaceholder(nmId){
-      const nm=findNm(nmId);
-      showModal(`🗺️ ${nm?nm.name:''} 地圖位置`, '此 NM 的地圖位置圖製作中，敬請期待。', null, { hideConfirm:true, cancelText:'關閉' });
+      const info = (typeof findNmData==='function') ? findNmData(nmId) : null;
+      if (!info || !info.nm) return;
+      const zone = info.zoneId;
+      const src = (typeof MAP_IMG!=='undefined' && MAP_IMG[zone]) ? MAP_IMG[zone] : `maps/${zone}.jpg`;
+      const zoneNms = (NM_DATA[zone] && NM_DATA[zone].nms)
+        ? NM_DATA[zone].nms.filter(n => typeof n.x === 'number' && typeof n.y === 'number') : [];
+      const ea = (s)=> String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      ensureNmMapModal();
+      const bd = document.getElementById('nmMapModal');
+      document.getElementById('nmMapTitle').textContent = `🗺️ ${info.zoneLabel}`;
+      document.getElementById('nmMapImg').src = src;
+      const pinsEl = document.getElementById('nmMapPins');
+      pinsEl.innerHTML = zoneNms.map(n=>{
+        const sel = (n.id === nmId);
+        const left = (n.x - 1) / 41 * 100, top = (n.y - 1) / 41 * 100;
+        const tag = `Lv.${n.level || '?'} ${n.name}`;
+        const t1 = `Lv.${n.level || '?'}　${n.nickname ? n.nickname + '－' : ''}${n.name}`;
+        const t2 = n.mob ? `觸發怪：${n.mob}` : '';
+        return `<div class="nmmap-pin ${sel ? 'sel' : 'dim'}" style="left:${left}%;top:${top}%;" data-t1="${ea(t1)}" data-t2="${ea(t2)}">
+            <div class="nmmap-wave"></div><div class="nmmap-dot"></div>
+            ${sel ? `<div class="nmmap-tag">${ea(tag)}</div>` : ''}
+          </div>`;
+      }).join('');
+      // hover 浮窗（需求5）：任一 NM(選取或非選取)滑入都顯示兩排資訊
+      const stage = document.getElementById('nmMapStage');
+      const tip = document.getElementById('nmMapTip');
+      pinsEl.querySelectorAll('.nmmap-pin').forEach(p=>{
+        p.addEventListener('mouseenter', ()=>{
+          const l1 = p.getAttribute('data-t1') || '', l2 = p.getAttribute('data-t2') || '';
+          tip.innerHTML = `<div>${l1}</div>${l2 ? `<div>${l2}</div>` : ''}`;
+          tip.style.display = 'block';
+        });
+        p.addEventListener('mousemove', (e)=>{
+          const r = stage.getBoundingClientRect();
+          let x = e.clientX - r.left + 14, y = e.clientY - r.top + 14;
+          tip.style.left = Math.min(x, r.width - tip.offsetWidth - 6) + 'px';
+          tip.style.top = Math.min(y, r.height - tip.offsetHeight - 6) + 'px';
+        });
+        p.addEventListener('mouseleave', ()=>{ tip.style.display = 'none'; });
+      });
+      bd.classList.add('active');
     }
     // 紀錄「剛點出現」的時間戳，用於取消鈕的 10 秒鎖（只在剛剛回報的當下生效）
     const justSpawnedAt = {};
@@ -13502,7 +13504,7 @@ async function checkAndRecordAction(actionType) {
           <td class="cc-lv">Lv${nm.level}</td>
           <td class="cc-nm"><b>${nm.name}</b><span class="nk">${nm.nickname||''}</span> ${roleTag}</td>
           <td class="cc-zone">${zoneShort[zid]||''}</td>
-          <td><button class="cc-map" data-nm="${nm.id}" title="地圖位置（製作中）">🗺️</button></td>
+          <td><button class="cc-map" data-nm="${nm.id}" title="地圖位置">🗺️</button></td>
           <td class="cc-mob">${nm.mob||''}</td>
           <td><div class="cc-cond">${cond}</div></td>
           <td class="cc-last">${(typeof state!=='undefined' && state.otherReporters && state.otherReporters[nm.id]) ? state.otherReporters[nm.id] : '—'}</td>
@@ -13613,7 +13615,7 @@ async function checkAndRecordAction(actionType) {
         return `<tr class="${cls}" data-ccrow="${nm.id}" data-cczone="${zid}">
           <td class="cc-lv">Lv${nm.level}</td>
           <td class="cc-nm"><b>${nm.name}</b><span class="nk">${nm.nickname||''}</span> ${roleTag}</td>
-          <td><button class="cc-map" data-nm="${nm.id}" title="地圖位置（製作中）">🗺️</button></td>
+          <td><button class="cc-map" data-nm="${nm.id}" title="地圖位置">🗺️</button></td>
           <td class="cc-mob">${nm.mob||''}</td>
           <td><div class="cc-cond">${cond}</div></td>
           <td class="cc-last">${lastReporter}</td>
