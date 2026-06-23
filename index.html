@@ -2920,8 +2920,10 @@ const WX_ICON = {
   .nmmap-head{ display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid var(--border); font-weight:700; color:var(--ink-bright); }
   .nmmap-x{ background:none; border:none; color:var(--ink-faded); font-size:18px; line-height:1; cursor:pointer; padding:2px 6px; }
   .nmmap-x:hover{ color:var(--ink-bright); }
-  .nmmap-stage{ position:relative; width:100%; background:var(--bg-deep); line-height:0; }
-  .nmmap-stage > img{ width:100%; height:auto; display:block; user-select:none; -webkit-user-drag:none; }
+  .nmmap-stage{ position:relative; width:100%; aspect-ratio:1/1; background:var(--bg-deep); overflow:hidden; line-height:0; touch-action:none; cursor:grab; }
+  .nmmap-stage:active{ cursor:grabbing; }
+  .nmmap-canvas{ position:absolute; top:0; left:0; width:100%; transform-origin:0 0; }
+  .nmmap-canvas > img{ width:100%; height:auto; display:block; user-select:none; -webkit-user-drag:none; }
   .nmmap-pins{ position:absolute; inset:0; }
   .nmmap-pin{ position:absolute; transform:translate(-50%,-50%); pointer-events:auto; cursor:pointer; }
   .nmmap-dot{ position:absolute; top:50%; left:50%; width:13px; height:13px; margin:-6.5px 0 0 -6.5px; border-radius:50%; box-shadow:0 0 4px rgba(0,0,0,.55); }
@@ -2936,7 +2938,10 @@ const WX_ICON = {
   .nmmap-pin.dim:hover .nmmap-dot{ background:rgba(220,220,225,.95); border-color:#fff; }
   @keyframes nmmapWave{ 0%{transform:scale(1);opacity:.7;} 100%{transform:scale(3.6);opacity:0;} }
   .nmmap-tag{ position:absolute; top:50%; left:50%; transform:translate(-50%, 9px); white-space:nowrap; font-family:var(--font-cjk); font-size:12px; font-weight:700; line-height:1.1; color:#fff; text-shadow:0 1px 2px #000,0 0 4px #000,0 0 6px #000; pointer-events:none; }
-  .nmmap-tip{ position:absolute; z-index:20; background:rgba(15,15,20,.96); border:1px solid var(--border-light); border-radius:6px; padding:6px 9px; font-family:var(--font-cjk); font-size:12px; line-height:1.55; color:var(--ink-bright); white-space:nowrap; pointer-events:none; box-shadow:0 4px 12px rgba(0,0,0,.5); }
+  .nmmap-tip{ position:absolute; z-index:20; background:rgba(15,15,20,.97); border:1px solid var(--gold); border-radius:8px; padding:10px 14px; font-family:var(--font-cjk); font-size:15px; font-weight:600; line-height:1.7; color:var(--ink-bright); white-space:nowrap; pointer-events:none; box-shadow:0 6px 18px rgba(0,0,0,.6); }
+  .nmmap-zoombtns{ position:absolute; right:10px; bottom:10px; display:flex; flex-direction:column; gap:5px; z-index:15; }
+  .nmmap-zoombtns button{ width:32px; height:32px; border-radius:7px; border:1px solid var(--border-light); background:rgba(20,20,26,.85); color:var(--ink-bright); font-size:17px; line-height:1; cursor:pointer; font-family:var(--font-cjk); }
+  .nmmap-zoombtns button:hover{ border-color:var(--gold); color:var(--gold-bright); }
 
   .map-loading {
     position: absolute;
@@ -7192,36 +7197,36 @@ const SKILLS = {
       label: '常風之地 Anemos',
       summary: '風蝕奇巖林立，疾風終年長嘯。',
       nms: [
-        { id: 'pazuzu', name: '帕祖祖', nickname: '島主(PZZ)', en: 'Pazuzu', fate: 'I Amm Bemhart', level: 20, weather: '強風', timeReq: '夜晚', drop: '帕祖祖的羽毛', mob: '暗影幽靈', x: 7.4, y: 21.7, category: 'lord' },
+        { id: 'pazuzu', name: '帕祖祖', nickname: '暴風魔王', en: 'Pazuzu', fate: 'I Amm Bemhart', level: 20, weather: '強風', timeReq: '夜晚', drop: '帕祖祖的羽毛', mob: '暗影幽靈', x: 7.4, y: 21.7, category: 'lord' },
       ],
     },
     pagos: {
       label: '恆冰之地 Pagos',
       summary: '萬古冰封，極寒不化之地。',
       nms: [
-        { id: 'arthro', name: '亞瑟羅王', nickname: '螃蟹', en: 'King Arthro', fate: 'Morte Arthro', level: 29, weather: '薄霧', timeReq: null, drop: '閃襲指環', mob: '瓦爾利螯陸蟹', x: 8.7, y: 15.5, category: 'bao' },
-        { id: 'cassie', name: '凱西', nickname: 'KC', en: 'Copycat Cassie', fate: 'Cassie and the Copycats', level: 35, weather: '暴雪', timeReq: null, drop: '凱西耳墜', mob: '阿米雷戴', x: 22.3, y: 14.4, category: 'bao' },
-        { id: 'louhi', name: '婁希', nickname: '島主(Louhi)', en: 'Louhi', fate: 'Lousy Louhi', level: 35, weather: null, timeReq: '夜晚', drop: '婁希的冰片', mob: '瓦爾腐屍', x: 36, y: 19, category: 'lord' },
+        { id: 'arthro', name: '亞瑟羅王', nickname: '圓桌的霧王', en: 'King Arthro', fate: 'Morte Arthro', level: 29, weather: '薄霧', timeReq: null, drop: '閃襲指環', mob: '瓦爾利螯陸蟹', x: 8.7, y: 15.5, category: 'bao' },
+        { id: 'cassie', name: '複製魔花凱西', nickname: '模仿犯', en: 'Copycat Cassie', fate: 'Cassie and the Copycats', level: 35, weather: '暴雪', timeReq: null, drop: '凱西耳墜', mob: '阿米雷戴', x: 22.3, y: 14.4, category: 'bao' },
+        { id: 'louhi', name: '婁希', nickname: '蒼藍冰刃', en: 'Louhi', fate: 'Lousy Louhi', level: 35, weather: null, timeReq: '夜晚', drop: '婁希的冰片', mob: '瓦爾腐屍', x: 36, y: 19, category: 'lord' },
       ],
     },
     pyros: {
       label: '湧火之地 Pyros',
       summary: '雪覆熔岩，烈焰與寒霜共舞。',
       nms: [
-        { id: 'lamebrix', name: '傭兵雷姆普里克斯', nickname: '傭兵', en: 'Lamebrix Strikebocks', fate: 'Thirty Whacks', level: 45, weather: null, timeReq: null, drop: '雷姆普里克斯骰子', mob: '青藍之手逃亡者', x: 22.1, y: 8.3, category: 'bao' },
-        { id: 'yinyang', name: '陰陽', nickname: 'YY', en: 'Yin-Yang', fate: 'Haunter of the Dark', level: 49, weather: null, timeReq: null, drop: '陰陽的皮膜', mob: '湧火百目妖', x: 11.7, y: 34.3, category: 'bao' },
-        { id: 'skoll', name: '斯庫爾', nickname: '狗', en: 'Skoll', fate: "Heavens' Warg", level: 50, weather: '暴雪', timeReq: null, drop: '斯庫爾的牙', mob: '湧火狗靈', x: 24, y: 30, category: 'bao' },
-        { id: 'penthesilea', name: '彭忒希勒亞', nickname: '島主(Penny)', en: 'Penthesilea', fate: 'Lost Epic', level: 50, weather: '熱浪', timeReq: null, drop: '彭忒希勒亞的火種', mob: '瓦爾血飛蛾', x: 36, y: 6, category: 'lord' },
+        { id: 'lamebrix', name: '傭兵雷姆普里克斯', nickname: '奇蹟的生還者', en: 'Lamebrix Strikebocks', fate: 'Thirty Whacks', level: 45, weather: null, timeReq: null, drop: '雷姆普里克斯骰子', mob: '青藍之手逃亡者', x: 22.1, y: 8.3, category: 'bao' },
+        { id: 'yinyang', name: '陰·陽', nickname: '相反的雙子', en: 'Yin-Yang', fate: 'Haunter of the Dark', level: 49, weather: null, timeReq: null, drop: '陰陽的皮膜', mob: '湧火百目妖', x: 11.7, y: 34.3, category: 'bao' },
+        { id: 'skoll', name: '斯庫爾', nickname: '嘲諷的霜狼', en: 'Skoll', fate: "Heavens' Warg", level: 50, weather: '暴雪', timeReq: null, drop: '斯庫爾的牙', mob: '湧火狗靈', x: 24, y: 30, category: 'bao' },
+        { id: 'penthesilea', name: '彭忒西勒亞', nickname: '炎蝶的女王', en: 'Penthesilea', fate: 'Lost Epic', level: 50, weather: '熱浪', timeReq: null, drop: '彭忒希勒亞的火種', mob: '瓦爾血飛蛾', x: 36, y: 6, category: 'lord' },
       ],
     },
     hydatos: {
       label: '豐水之地 Hydatos',
       summary: '湖光晶瑩，水族棲息之鄉。',
       nms: [
-        { id: 'molech', name: '摩洛', nickname: '牛', en: 'Molech', fate: 'Bullheaded Berserker', level: 52, weather: null, timeReq: null, drop: '摩洛的角', mob: '瓦爾爛泥食腐獸', x: 7.8, y: 22.2, category: 'bao' },
-        { id: 'goldemar', name: '戈爾德馬爾王', nickname: '馬王', en: 'King Goldemar', fate: 'Duty-free', level: 56, weather: null, timeReq: '夜晚', drop: '戈爾德馬爾的角', mob: '豐水幽靈', x: 29, y: 23.5, category: 'bao' },
-        { id: 'ceto', name: '刻托', nickname: 'CT', en: 'Ceto', fate: 'Stone-cold Killer', level: 59, weather: null, timeReq: null, drop: '刻托的爪子', mob: '豐水達菲妮', x: 36, y: 14, category: 'bao' },
-        { id: 'pw', name: '起源守望者', nickname: '島主(PW)', en: 'Provenance Watcher', fate: 'Crystalline Provenance', level: 60, weather: null, timeReq: null, drop: '水晶龍之鱗', mob: '水晶爪', x: 32.8, y: 19.7, category: 'lord' },
+        { id: 'molech', name: '摩洛', nickname: '落淚的君主', en: 'Molech', fate: 'Bullheaded Berserker', level: 52, weather: null, timeReq: null, drop: '摩洛的角', mob: '瓦爾爛泥食腐獸', x: 7.8, y: 22.2, category: 'bao' },
+        { id: 'goldemar', name: '戈爾德馬爾王', nickname: '異世界的鍛冶王', en: 'King Goldemar', fate: 'Duty-free', level: 56, weather: null, timeReq: '夜晚', drop: '戈爾德馬爾的角', mob: '豐水幽靈', x: 29, y: 23.5, category: 'bao' },
+        { id: 'ceto', name: '刻托', nickname: '魔蛇女王', en: 'Ceto', fate: 'Stone-cold Killer', level: 59, weather: null, timeReq: null, drop: '刻托的爪子', mob: '豐水達菲妮', x: 36, y: 14, category: 'bao' },
+        { id: 'pw', name: '起源守望者', nickname: '水晶之龍', en: 'Provenance Watcher', fate: 'Crystalline Provenance', level: 60, weather: null, timeReq: null, drop: '水晶龍之鱗', mob: '水晶爪', x: 32.8, y: 19.7, category: 'lord' },
       ],
     },
   };
@@ -9309,12 +9314,18 @@ async function checkAndRecordAction(actionType) {
       });
     }
     body.innerHTML='<div style="text-align:center;color:var(--ink-faded);padding:14px;">載入中…</div>';
-    db.ref('eureka/statsAgg').once('value').then(snap=>{
-      const aggAll=snap.val()||{};
-      const entries=Object.entries(aggAll); // admin 看全部（含站長自己）
+    // v2.8.2: admin 直接讀 eureka/users 聚合(admin 本就有全讀權限,不依賴 statsAgg 規則)
+    db.ref('eureka/users').once('value').then(snap=>{
+      const all=snap.val()||{};
+      const entries=Object.entries(all);
       body.innerHTML = items.map(item=>{
         const ranked = entries
-          .map(([uid,v])=>({uid, name:(v&&v.name)||'?', val:(v&&v.s&&v.s[item.key])||0}))
+          .map(([uid,u])=>{
+            const val = (item.key==='loginCount')
+              ? ((u && u.loginCount) || 0)
+              : ((u && u.stats && u.stats[item.key]) || 0);
+            return { uid, name:(u && u.name) || '?', val };
+          })
           .filter(x=>x.val>0)
           .sort((a,b)=>b.val-a.val);
         const total = ranked.reduce((s,x)=>s+x.val,0);
@@ -9339,7 +9350,7 @@ async function checkAndRecordAction(actionType) {
           btn.textContent = showing ? `展開全部 ▾` : `收合 ▴`;
         };
       });
-    }).catch(()=>{ body.innerHTML='<div style="text-align:center;color:var(--ink-faded);padding:14px;">載入失敗。若剛部署請重開分頁；若持續失敗，請確認 Firebase 已加入 statsAgg 讀取規則。</div>'; });
+    }).catch(()=>{ body.innerHTML='<div style="text-align:center;color:var(--ink-faded);padding:14px;">載入失敗，請稍後再試。</div>'; });
   }
 
   function renderOverview() {
@@ -12263,14 +12274,9 @@ async function checkAndRecordAction(actionType) {
       const sx = wrapW / imgNaturalW;
       const sy = wrapH / imgNaturalH;
       scale = Math.min(sx, sy) * 0.95;
-      // v2.8.2: 部分島嶼基礎倍率與垂直位置微調，讓整座島剛好入框
-      const ZONE_MUL = { anemos: 1.34, hydatos: 1.55 };
-      const ZONE_DY  = { anemos: 28, hydatos: 28 };
-      if (ZONE_MUL[currentZone]) scale *= ZONE_MUL[currentZone];
       // centre
       tx = (wrapW - imgNaturalW * scale) / 2;
       ty = (wrapH - imgNaturalH * scale) / 2;
-      if (ZONE_DY[currentZone]) ty += ZONE_DY[currentZone];
       applyTransform();
     }
 
@@ -12981,14 +12987,41 @@ async function checkAndRecordAction(actionType) {
       div.innerHTML = `<div class="modal nmmap-modal">
         <div class="nmmap-head"><span id="nmMapTitle"></span><button class="nmmap-x" data-nmmap-close>✕</button></div>
         <div class="nmmap-stage" id="nmMapStage">
-          <img id="nmMapImg" alt="" draggable="false">
-          <div class="nmmap-pins" id="nmMapPins"></div>
+          <div class="nmmap-canvas" id="nmMapCanvas">
+            <img id="nmMapImg" alt="" draggable="false">
+            <div class="nmmap-pins" id="nmMapPins"></div>
+          </div>
           <div class="nmmap-tip" id="nmMapTip" style="display:none;"></div>
+          <div class="nmmap-zoombtns"><button data-nmz="in" title="放大">＋</button><button data-nmz="out" title="縮小">－</button><button data-nmz="reset" title="還原">⟲</button></div>
         </div>
       </div>`;
       document.body.appendChild(div);
-      // 需求2：點視窗外(背景)即關閉，不必按關閉鈕
+      // 需求2：點視窗外(背景)即關閉
       div.addEventListener('click', (e)=>{ if (e.target===div || e.target.closest('[data-nmmap-close]')) div.classList.remove('active'); });
+      // 需求4：縮放/拖曳/雙指縮放（預設 scale=1 即現況）
+      const stage = div.querySelector('#nmMapStage');
+      const canvas = div.querySelector('#nmMapCanvas');
+      const z = { s:1, tx:0, ty:0 };
+      div._nmZoom = z;
+      div._nmApply = ()=>{ canvas.style.transform = `translate(${z.tx}px,${z.ty}px) scale(${z.s})`; };
+      const clampS = (v)=> Math.max(1, Math.min(5, v));
+      function zoomAt(factor, cx, cy){
+        const ns = clampS(z.s*factor); const ratio = ns/z.s;
+        z.tx = cx-(cx-z.tx)*ratio; z.ty = cy-(cy-z.ty)*ratio; z.s = ns;
+        if (z.s===1){ z.tx=0; z.ty=0; }
+        div._nmApply();
+      }
+      stage.addEventListener('wheel', (e)=>{ e.preventDefault(); const r=stage.getBoundingClientRect(); zoomAt(e.deltaY<0?1.15:1/1.15, e.clientX-r.left, e.clientY-r.top); }, {passive:false});
+      const pts = new Map(); let pinchD = 0; let drag=false, lx=0, ly=0;
+      stage.addEventListener('pointerdown', (e)=>{ pts.set(e.pointerId,e); if(pts.size===1){ drag=true; lx=e.clientX; ly=e.clientY; try{stage.setPointerCapture(e.pointerId);}catch(_){} } });
+      stage.addEventListener('pointermove', (e)=>{
+        if(pts.has(e.pointerId)) pts.set(e.pointerId,e);
+        if(pts.size>=2){ drag=false; const [a,b]=[...pts.values()]; const d=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY); const r=stage.getBoundingClientRect(); const cx=(a.clientX+b.clientX)/2-r.left, cy=(a.clientY+b.clientY)/2-r.top; if(pinchD>0) zoomAt(d/pinchD, cx, cy); pinchD=d; return; }
+        if(drag){ z.tx+=e.clientX-lx; z.ty+=e.clientY-ly; lx=e.clientX; ly=e.clientY; div._nmApply(); }
+      });
+      const clrPt=(e)=>{ pts.delete(e.pointerId); if(pts.size<2) pinchD=0; if(pts.size===0) drag=false; };
+      stage.addEventListener('pointerup', clrPt); stage.addEventListener('pointercancel', clrPt); stage.addEventListener('pointerleave', (e)=>{ if(pts.size<=1) drag=false; });
+      div.querySelectorAll('[data-nmz]').forEach(b=>{ b.addEventListener('click', (e)=>{ e.stopPropagation(); const k=b.dataset.nmz; const r=stage.getBoundingClientRect(); if(k==='in') zoomAt(1.3, r.width/2, r.height/2); else if(k==='out') zoomAt(1/1.3, r.width/2, r.height/2); else { z.s=1; z.tx=0; z.ty=0; div._nmApply(); } }); });
     }
     function showMapPlaceholder(nmId){
       const info = (typeof findNmData==='function') ? findNmData(nmId) : null;
@@ -13008,7 +13041,7 @@ async function checkAndRecordAction(actionType) {
         const left = (n.x - 1) / 41 * 100, top = (n.y - 1) / 41 * 100;
         const tag = `Lv.${n.level || '?'} ${n.name}`;
         const t1 = `Lv.${n.level || '?'}　${n.nickname ? n.nickname + '－' : ''}${n.name}`;
-        const t2 = n.mob ? `觸發怪：${n.mob}` : '';
+        const t2 = n.mob ? `觸發怪：Lv.${(n.level || 0) + 5} ${n.mob}` : '';
         return `<div class="nmmap-pin ${sel ? 'sel' : 'dim'}" style="left:${left}%;top:${top}%;" data-t1="${ea(t1)}" data-t2="${ea(t2)}">
             <div class="nmmap-wave"></div><div class="nmmap-dot"></div>
             ${sel ? `<div class="nmmap-tag">${ea(tag)}</div>` : ''}
@@ -13031,6 +13064,8 @@ async function checkAndRecordAction(actionType) {
         });
         p.addEventListener('mouseleave', ()=>{ tip.style.display = 'none'; });
       });
+      // 每次開啟重置縮放到預設(現況)
+      if (bd._nmZoom){ bd._nmZoom.s=1; bd._nmZoom.tx=0; bd._nmZoom.ty=0; if(bd._nmApply) bd._nmApply(); }
       bd.classList.add('active');
     }
     // 紀錄「剛點出現」的時間戳，用於取消鈕的 10 秒鎖（只在剛剛回報的當下生效）
@@ -14196,24 +14231,25 @@ async function checkAndRecordAction(actionType) {
     return S.filter(st=> st.sel===null || st.before || document.querySelector(st.sel));
   }
 
-  // v2.7.5: 更新導覽步驟（重用同一引擎，僅圈出本次新功能）
+  // v2.8.2: 更新導覽步驟（重用同一引擎，圈出本次新功能）
   function buildUpdateSteps(){
     const S = [];
+    const forceAnemos = ()=>{ try{ const t=document.querySelector('.zone-tab[data-zone="anemos"]'); if(t && !t.classList.contains('active')) t.click(); }catch(e){} };
+    const forceCompact = ()=>{ try{ forceAnemos(); const sw=document.querySelector('.density-switch'); if(sw && !sw.classList.contains('compact')) sw.click(); }catch(e){} };
+    const openPazuzuMap = ()=>{ try{ forceCompact(); if(typeof showMapPlaceholder==='function') showMapPlaceholder('pazuzu'); setTimeout(()=>{ const pin=document.querySelector('#nmMapPins .nmmap-pin.sel'); if(pin) pin.dispatchEvent(new MouseEvent('mouseenter',{bubbles:true})); }, 200); }catch(e){} };
+    const closeMap = ()=>{ try{ const m=document.getElementById('nmMapModal'); if(m) m.classList.remove('active'); }catch(e){} };
+    const openDrawerFn = ()=>{ try{ closeMap(); if(window.openDrawer) window.openDrawer(); }catch(e){} };
+
     S.push({ sel:null, title:'本次更新導覽 ✨',
-      body:'這次更新了幾個新功能，花約 30 秒帶你看過一次。看完就不會再出現囉～' });
-    S.push({ sel:'#soundMasterBtn', title:'提示音快速開關',
-      body:'現在標題列就能一鍵開關提示音，不必再進設定。🔊 為開、🔇 為關，點一下切換。' });
-    const openOther = ()=>{ try{
-      const b=document.getElementById('soundSettingsBtn');
-      const bd=document.getElementById('soundSettingsBackdrop');
-      if(bd && !bd.classList.contains('active') && b) b.click();
-      const tab=document.querySelector('.settings-tab[data-pane="other"]'); if(tab) tab.click();
-    }catch(e){} };
-    S.push({ sel:'#tzSettingRow', title:'排班表時區顯示', before:openOther,
-      body:'兵武塔排班表的時間可選擇「跟隨裝置／固定台灣時區／手動指定時區」。海外的朋友看時間更直覺。（此設定只存在這台裝置）' });
-    const closeSettings = ()=>{ try{ const bd=document.getElementById('soundSettingsBackdrop'); if(bd) bd.classList.remove('active'); }catch(e){} };
-    S.push({ sel:'#chatToggleBtn', title:'即時聊天室', before:closeSettings,
-      body:'左下角新增了即時聊天室，可即時揪人、協調先打哪一隻。登入後就能發言，訊息 20 分鐘後自動清除。' });
+      body:'這次更新了幾個地方，花約 30 秒帶你看過一次。看完就不會再出現囉～' });
+    S.push({ sel:'#nm-pazuzu', title:'島主／八寶冷卻顯示更新', before:forceAnemos, pad:10,
+      body:'島主與八寶若同時在「冷卻中」又「等待天氣條件」，現在右方倒數會顯示「時間較久的那一個」，左方則標示目前的完整狀態，讓你一眼看出還要等多久、卡在哪一關。' });
+    S.push({ sel:'.cc-map[data-nm="pazuzu"], .cc-map', title:'全 NM 地圖（已開放）', before:forceCompact, pad:18,
+      body:'緊湊模式下每一隻 NM 都有地圖按鈕了！點這顆 🗺️ 就能看牠在島上的位置——無論有沒有展開其他列，都能從這裡打開帕祖祖的地圖。' });
+    S.push({ sel:'#nmMapPins .nmmap-pin.sel', title:'地圖標示與資訊', before:openPazuzuMap, pad:20,
+      body:'地圖會標出該 NM 的位置與名稱，其他 NM 以灰點顯示也看得到。把滑鼠移到任一個點上，會跳出該 NM 與「觸發怪」的資訊，方便確認要打什麼來觸發。地圖也支援滾輪／雙指縮放。' });
+    S.push({ sel:'.drawer-item[data-open="lbModal"]', title:'排行榜更新', before:openDrawerFn, pad:8,
+      body:'排行榜現在只保留「主催開團排行」，其餘詳細的個人統計數據將不定時公開。' });
     S.push({ sel:null, title:'就這些！🎉',
       body:'祝你狩獵愉快～有任何建議都歡迎從「選單 → 問題回報」告訴波波露！' });
     return S.filter(st=> st.sel===null || st.before || document.querySelector(st.sel));
