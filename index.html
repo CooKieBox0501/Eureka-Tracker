@@ -7197,15 +7197,15 @@ const SKILLS = {
       label: '常風之地 Anemos',
       summary: '風蝕奇巖林立，疾風終年長嘯。',
       nms: [
-        { id: 'pazuzu', name: '帕祖祖', nickname: '暴風魔王', en: 'Pazuzu', fate: 'I Amm Bemhart', level: 20, weather: '強風', timeReq: '夜晚', drop: '帕祖祖的羽毛', mob: '暗影幽靈', x: 7.4, y: 21.7, category: 'lord' },
+        { id: 'pazuzu', name: '帕祖祖', nickname: '暴風魔王(PZZ)', en: 'Pazuzu', fate: 'I Amm Bemhart', level: 20, weather: '強風', timeReq: '夜晚', drop: '帕祖祖的羽毛', mob: '暗影幽靈', x: 7.4, y: 21.7, category: 'lord' },
       ],
     },
     pagos: {
       label: '恆冰之地 Pagos',
       summary: '萬古冰封，極寒不化之地。',
       nms: [
-        { id: 'arthro', name: '亞瑟羅王', nickname: '圓桌的霧王', en: 'King Arthro', fate: 'Morte Arthro', level: 29, weather: '薄霧', timeReq: null, drop: '閃襲指環', mob: '瓦爾利螯陸蟹', x: 8.7, y: 15.5, category: 'bao' },
-        { id: 'cassie', name: '複製魔花凱西', nickname: '模仿犯', en: 'Copycat Cassie', fate: 'Cassie and the Copycats', level: 35, weather: '暴雪', timeReq: null, drop: '凱西耳墜', mob: '阿米雷戴', x: 22.3, y: 14.4, category: 'bao' },
+        { id: 'arthro', name: '亞瑟羅王', nickname: '螃蟹', en: 'King Arthro', fate: 'Morte Arthro', level: 29, weather: '薄霧', timeReq: null, drop: '閃襲指環', mob: '瓦爾利螯陸蟹', x: 8.7, y: 15.5, category: 'bao' },
+        { id: 'cassie', name: '複製魔花凱西', nickname: 'KC', en: 'Copycat Cassie', fate: 'Cassie and the Copycats', level: 35, weather: '暴雪', timeReq: null, drop: '凱西耳墜', mob: '阿米雷戴', x: 22.3, y: 14.4, category: 'bao' },
         { id: 'louhi', name: '婁希', nickname: '蒼藍冰刃', en: 'Louhi', fate: 'Lousy Louhi', level: 35, weather: null, timeReq: '夜晚', drop: '婁希的冰片', mob: '瓦爾腐屍', x: 36, y: 19, category: 'lord' },
       ],
     },
@@ -7213,9 +7213,9 @@ const SKILLS = {
       label: '湧火之地 Pyros',
       summary: '雪覆熔岩，烈焰與寒霜共舞。',
       nms: [
-        { id: 'lamebrix', name: '傭兵雷姆普里克斯', nickname: '奇蹟的生還者', en: 'Lamebrix Strikebocks', fate: 'Thirty Whacks', level: 45, weather: null, timeReq: null, drop: '雷姆普里克斯骰子', mob: '青藍之手逃亡者', x: 22.1, y: 8.3, category: 'bao' },
-        { id: 'yinyang', name: '陰·陽', nickname: '相反的雙子', en: 'Yin-Yang', fate: 'Haunter of the Dark', level: 49, weather: null, timeReq: null, drop: '陰陽的皮膜', mob: '湧火百目妖', x: 11.7, y: 34.3, category: 'bao' },
-        { id: 'skoll', name: '斯庫爾', nickname: '嘲諷的霜狼', en: 'Skoll', fate: "Heavens' Warg", level: 50, weather: '暴雪', timeReq: null, drop: '斯庫爾的牙', mob: '湧火狗靈', x: 24, y: 30, category: 'bao' },
+        { id: 'lamebrix', name: '傭兵雷姆普里克斯', nickname: '傭兵', en: 'Lamebrix Strikebocks', fate: 'Thirty Whacks', level: 45, weather: null, timeReq: null, drop: '雷姆普里克斯骰子', mob: '青藍之手逃亡者', x: 22.1, y: 8.3, category: 'bao' },
+        { id: 'yinyang', name: '陰·陽', nickname: 'YY', en: 'Yin-Yang', fate: 'Haunter of the Dark', level: 49, weather: null, timeReq: null, drop: '陰陽的皮膜', mob: '湧火百目妖', x: 11.7, y: 34.3, category: 'bao' },
+        { id: 'skoll', name: '斯庫爾', nickname: '狗', en: 'Skoll', fate: "Heavens' Warg", level: 50, weather: '暴雪', timeReq: null, drop: '斯庫爾的牙', mob: '湧火狗靈', x: 24, y: 30, category: 'bao' },
         { id: 'penthesilea', name: '彭忒西勒亞', nickname: '炎蝶的女王', en: 'Penthesilea', fate: 'Lost Epic', level: 50, weather: '熱浪', timeReq: null, drop: '彭忒希勒亞的火種', mob: '瓦爾血飛蛾', x: 36, y: 6, category: 'lord' },
       ],
     },
@@ -7223,10 +7223,10 @@ const SKILLS = {
       label: '豐水之地 Hydatos',
       summary: '湖光晶瑩，水族棲息之鄉。',
       nms: [
-        { id: 'molech', name: '摩洛', nickname: '落淚的君主', en: 'Molech', fate: 'Bullheaded Berserker', level: 52, weather: null, timeReq: null, drop: '摩洛的角', mob: '瓦爾爛泥食腐獸', x: 7.8, y: 22.2, category: 'bao' },
-        { id: 'goldemar', name: '戈爾德馬爾王', nickname: '異世界的鍛冶王', en: 'King Goldemar', fate: 'Duty-free', level: 56, weather: null, timeReq: '夜晚', drop: '戈爾德馬爾的角', mob: '豐水幽靈', x: 29, y: 23.5, category: 'bao' },
-        { id: 'ceto', name: '刻托', nickname: '魔蛇女王', en: 'Ceto', fate: 'Stone-cold Killer', level: 59, weather: null, timeReq: null, drop: '刻托的爪子', mob: '豐水達菲妮', x: 36, y: 14, category: 'bao' },
-        { id: 'pw', name: '起源守望者', nickname: '水晶之龍', en: 'Provenance Watcher', fate: 'Crystalline Provenance', level: 60, weather: null, timeReq: null, drop: '水晶龍之鱗', mob: '水晶爪', x: 32.8, y: 19.7, category: 'lord' },
+        { id: 'molech', name: '摩洛', nickname: '牛', en: 'Molech', fate: 'Bullheaded Berserker', level: 52, weather: null, timeReq: null, drop: '摩洛的角', mob: '瓦爾爛泥食腐獸', x: 7.8, y: 22.2, category: 'bao' },
+        { id: 'goldemar', name: '戈爾德馬爾王', nickname: '馬王', en: 'King Goldemar', fate: 'Duty-free', level: 56, weather: null, timeReq: '夜晚', drop: '戈爾德馬爾的角', mob: '豐水幽靈', x: 29, y: 23.5, category: 'bao' },
+        { id: 'ceto', name: '刻托', nickname: 'CT', en: 'Ceto', fate: 'Stone-cold Killer', level: 59, weather: null, timeReq: null, drop: '刻托的爪子', mob: '豐水達菲妮', x: 36, y: 14, category: 'bao' },
+        { id: 'pw', name: '起源守望者', nickname: '水晶之龍(PW)', en: 'Provenance Watcher', fate: 'Crystalline Provenance', level: 60, weather: null, timeReq: null, drop: '水晶龍之鱗', mob: '水晶爪', x: 32.8, y: 19.7, category: 'lord' },
       ],
     },
   };
@@ -9300,7 +9300,23 @@ async function checkAndRecordAction(actionType) {
   function renderAdminStats(){
     const body = document.getElementById('adminStatsBody');
     if (!body) return;
-    const items = window.__STAT_ITEMS__ || [];
+    const items = (window.__STAT_ITEMS__ && window.__STAT_ITEMS__.length) ? window.__STAT_ITEMS__ : [
+      { key:'baolordAppear', label:'八寶/島主出現回報' },
+      { key:'baolordKill',   label:'八寶/島主死亡回報' },
+      { key:'baolordCancel', label:'八寶/島主取消回報' },
+      { key:'otherAppear',   label:'一般 NM 出現回報' },
+      { key:'otherCancel',   label:'一般 NM 取消回報' },
+      { key:'loginCount',    label:'登入次數' },
+      { key:'resets',        label:'新島重置次數' },
+      { key:'cancelResets',  label:'取消新島重置次數' },
+      { key:'feedbackSubmits', label:'問題回報數' },
+      { key:'chats',         label:'聊天室發言次數' },
+      { key:'baTower',       label:'兵武塔塔內狀況回報' },
+      { key:'ufoAppear',     label:'未確認飛行物體出現回報' },
+      { key:'ufoKill',       label:'未確認飛行物體死亡回報' },
+      { key:'deskAnnounce',  label:'兵武塔調查支援出現預告' },
+      { key:'deskKill',      label:'兵武塔調查支援死亡回報' },
+    ];
     // 開關：讀現值 + 綁定（只綁一次）
     const toggle = document.getElementById('statsPanelToggle');
     if (toggle && !toggle.__wired){
@@ -12814,7 +12830,18 @@ async function checkAndRecordAction(actionType) {
         const dist=computeStatDistribution(aggAll);
         const mine=(meUid&&aggAll[meUid])?aggAll[meUid]:{s:{}};
         body.innerHTML=STAT_ITEMS.map(item=>renderStatBar(item, statValOf(mine,item.key), dist[item.key])).join('');
-      }).catch(()=>{ body.innerHTML='<div style="text-align:center;color:var(--ink-faded);padding:20px;">載入失敗，請稍後再試。</div>'; });
+      }).catch(()=>{
+        // statsAgg 讀不到 → 降級：讀自己的資料，至少顯示個人累計（一般使用者可讀自己的 users 節點）
+        if(!meUid || typeof db==='undefined'){ body.innerHTML='<div style="text-align:center;color:var(--ink-faded);padding:20px;">載入失敗，請稍後再試。</div>'; return; }
+        db.ref('eureka/users/'+meUid).once('value').then(s=>{
+          const u=s.val()||{};
+          const rows=STAT_ITEMS.map(item=>{
+            const v=(item.key==='loginCount')?((u.loginCount)||0):((u.stats&&u.stats[item.key])||0);
+            return `<div class="stat-row"><div class="stat-head"><span class="stat-label">${esc(item.label)}</span><span class="stat-myval">${v} 次</span></div></div>`;
+          }).join('');
+          body.innerHTML=rows+'<div style="text-align:center;color:var(--ink-faded);font-size:12px;padding:10px;">目前先顯示你自己的累計次數；全站排名統計準備中。</div>';
+        }).catch(()=>{ body.innerHTML='<div style="text-align:center;color:var(--ink-faded);padding:20px;">載入失敗，請稍後再試。</div>'; });
+      });
     }
     window.openStatsModal = openStatsModal;
     window.__STAT_ITEMS__ = STAT_ITEMS;
@@ -13070,6 +13097,7 @@ async function checkAndRecordAction(actionType) {
       if (bd._nmZoom){ bd._nmZoom.s=1; bd._nmZoom.tx=0; bd._nmZoom.ty=0; if(bd._nmApply) bd._nmApply(); }
       bd.classList.add('active');
     }
+    window.showMapPlaceholder = showMapPlaceholder;
     // 紀錄「剛點出現」的時間戳，用於取消鈕的 10 秒鎖（只在剛剛回報的當下生效）
     const justSpawnedAt = {};
     function markJustSpawned(nmId){ justSpawnedAt[nmId] = Date.now(); }
@@ -14237,14 +14265,15 @@ async function checkAndRecordAction(actionType) {
   function buildUpdateSteps(){
     const S = [];
     const forceAnemos = ()=>{ try{ const t=document.querySelector('.zone-tab[data-zone="anemos"]'); if(t && !t.classList.contains('active')) t.click(); }catch(e){} };
+    const forceStandard = ()=>{ try{ forceAnemos(); const sw=document.querySelector('.density-switch'); if(sw && sw.classList.contains('compact')) sw.click(); }catch(e){} };
     const forceCompact = ()=>{ try{ forceAnemos(); const sw=document.querySelector('.density-switch'); if(sw && !sw.classList.contains('compact')) sw.click(); }catch(e){} };
-    const openPazuzuMap = ()=>{ try{ forceCompact(); if(typeof showMapPlaceholder==='function') showMapPlaceholder('pazuzu'); setTimeout(()=>{ const pin=document.querySelector('#nmMapPins .nmmap-pin.sel'); if(pin) pin.dispatchEvent(new MouseEvent('mouseenter',{bubbles:true})); }, 200); }catch(e){} };
+    const openPazuzuMap = ()=>{ try{ forceCompact(); const fn = window.showMapPlaceholder; if(typeof fn==='function') fn('pazuzu'); setTimeout(()=>{ const pin=document.querySelector('#nmMapPins .nmmap-pin.sel'); if(pin) pin.dispatchEvent(new MouseEvent('mouseenter',{bubbles:true})); }, 250); }catch(e){} };
     const closeMap = ()=>{ try{ const m=document.getElementById('nmMapModal'); if(m) m.classList.remove('active'); }catch(e){} };
     const openDrawerFn = ()=>{ try{ closeMap(); if(window.openDrawer) window.openDrawer(); }catch(e){} };
 
     S.push({ sel:null, title:'本次更新導覽 ✨',
       body:'這次更新了幾個地方，花約 30 秒帶你看過一次。看完就不會再出現囉～' });
-    S.push({ sel:'#nm-pazuzu', title:'島主／八寶冷卻顯示更新', before:forceAnemos, pad:10,
+    S.push({ sel:'#nm-pazuzu .nm-status', title:'島主／八寶冷卻顯示更新', before:forceStandard, pad:8,
       body:'島主與八寶若同時在「冷卻中」又「等待天氣條件」，現在右方倒數會顯示「時間較久的那一個」，左方則標示目前的完整狀態，讓你一眼看出還要等多久、卡在哪一關。' });
     S.push({ sel:'.cc-map[data-nm="pazuzu"], .cc-map', title:'全 NM 地圖（已開放）', before:forceCompact, pad:18,
       body:'緊湊模式下每一隻 NM 都有地圖按鈕了！點這顆 🗺️ 就能看牠在島上的位置——無論有沒有展開其他列，都能從這裡打開帕祖祖的地圖。' });
