@@ -3735,7 +3735,7 @@ const WX_ICON = {
   <header>
     <div class="title-block">
       <h1>Eureka NM Tracker</h1>
-      <div class="subtitle">優雷卡惡名菁英追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.8.1</button> · <span class="sync-indicator"><span class="sync-dot" id="syncDot"></span><span id="syncText">已同步</span></span></div>
+      <div class="subtitle">優雷卡惡名菁英追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.8.2</button> · <span class="sync-indicator"><span class="sync-dot" id="syncDot"></span><span id="syncText">已同步</span></span></div>
       <div class="auth-row">
         <div class="auth-box" id="authBox">
           <span class="auth-status-text" id="authStatusText">🔒 請登入</span>
@@ -3889,15 +3889,28 @@ const WX_ICON = {
   <div class="modal" style="max-width: 520px; max-height: 70vh; overflow-y: auto;">
     <h3>📜 更新日誌</h3>
 
-	<div class="changelog-entry changelog-feature">
+  <div class="changelog-entry changelog-feature">
+	<div class="changelog-version">v2.8.2 <span class="changelog-date">— 2026/06/23</span></div>
+	<div class="changelog-tagline">✨ 新功能 & 體驗優化</div>
+	  <ul class="changelog-list">
+		  <li>✦ <strong>全 NM 地圖位置</strong>：緊湊模式下每一隻 NM 都能查看在島上的位置，地圖可縮放，滑鼠移到任一標點即顯示該 NM 與「觸發怪」資訊</li>
+		  <li>✦ <strong>水母出現預測改為滾動式</strong>：永遠顯示接下來的 10 隻，並標註距離上次水母回報已過多久，中間沒人回報也不會消失</li>
+		  <li>✦ <strong>歷史統計</strong>：新增個人各項累計次數與排名查看（不定時開放）</li>
+		  <li>✦ 島主／八寶若同時在冷卻中又等待天氣，倒數會顯示「時間較久的那一個」，並標示目前完整狀態</li>
+		  <li>✦ 修正取消新島重置時會誤觸發提示音的問題</li>
+		  <li>✦ 排行榜調整為僅保留「主催開團排行」</li>
+	  </ul>
+  </div>
+    
+	<div class="changelog-entry">
 		<div class="changelog-version">v2.8.1 <span class="changelog-date">— 2026/06/10</span></div>
 		<div class="changelog-tagline">🛠 Bug Fix & 體驗優化</div>
 		<ul class="changelog-list">
 			<li>✦ 現在聊天室新訊息的紅點變得更加醒目</li>
 			<li>✦ 修正了聊天室頭像沒有正確顯示的問題</li>
+     </ul>
 	</div>
-
-	<div class="changelog-entry changelog-feature">
+	<div class="changelog-entry">
   		<div class="changelog-version">v2.8.0 <span class="changelog-date">— 2026/06/10</span></div>
   		<div class="changelog-tagline">🎉 新增即時聊天室 &amp; 多項體驗優化</div>
   			<ul class="changelog-list">
@@ -3910,7 +3923,6 @@ const WX_ICON = {
     		<li>✦ <strong>修復</strong>：緊湊模式／自定義追蹤分頁的計時與狀態，現在會即時刷新，不需再切島或重整。</li>
   		</ul>
 	</div>
-	  
 	<div class="changelog-entry">
       <div class="changelog-version">v2.7.5 <span class="changelog-date">— 2026/06/06</span></div>
       <div class="changelog-tagline">🛠 Bug Fix & 體驗優化</div>
@@ -7321,7 +7333,7 @@ const SKILLS = {
   const AUTH_STORAGE_KEY = 'eureka_user_info';
 	
 　// Current build version — must match Firebase eureka/meta/currentVersion
-  const APP_VERSION = 'v2.8.1';
+  const APP_VERSION = 'v2.8.2';
   const metaRef = db.ref('eureka/meta');
 
   // Watch for version updates: if Firebase has a newer version, prompt reload
