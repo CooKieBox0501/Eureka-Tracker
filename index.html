@@ -2923,8 +2923,8 @@ const WX_ICON = {
   .nmmap-stage{ position:relative; width:100%; aspect-ratio:1/1; background:var(--bg-deep); overflow:hidden; line-height:0; touch-action:none; cursor:grab; }
   .nmmap-stage:active{ cursor:grabbing; }
   .nmmap-canvas{ position:absolute; top:0; left:0; width:100%; transform-origin:0 0; }
-  .nmmap-canvas > img{ width:100%; height:auto; display:block; user-select:none; -webkit-user-drag:none; }
-  .nmmap-pins{ position:absolute; inset:0; }
+  .nmmap-canvas > img{ width:100%; height:auto; display:block; user-select:none; -webkit-user-drag:none; -webkit-user-select:none; pointer-events:none; }
+  .nmmap-pins{ position:absolute; inset:0; pointer-events:none; }
   .nmmap-pin{ position:absolute; transform:translate(-50%,-50%); pointer-events:auto; cursor:pointer; }
   .nmmap-dot{ position:absolute; top:50%; left:50%; width:13px; height:13px; margin:-6.5px 0 0 -6.5px; border-radius:50%; box-shadow:0 0 4px rgba(0,0,0,.55); }
   .nmmap-wave{ position:absolute; top:50%; left:50%; width:13px; height:13px; margin:-6.5px 0 0 -6.5px; border-radius:50%; }
@@ -9313,44 +9313,45 @@ async function checkAndRecordAction(actionType) {
           .catch(()=>{ if(st) st.textContent='更新失敗（權限）'; });
       });
     }
-    body.innerHTML='<div style="text-align:center;color:var(--ink-faded);padding:14px;">載入中…</div>';
-    // v2.8.2: admin 直接讀 eureka/users 聚合(admin 本就有全讀權限,不依賴 statsAgg 規則)
-    db.ref('eureka/users').once('value').then(snap=>{
-      const all=snap.val()||{};
-      const entries=Object.entries(all);
-      body.innerHTML = items.map(item=>{
-        const ranked = entries
-          .map(([uid,u])=>{
-            const val = (item.key==='loginCount')
-              ? ((u && u.loginCount) || 0)
-              : ((u && u.stats && u.stats[item.key]) || 0);
-            return { uid, name:(u && u.name) || '?', val };
-          })
-          .filter(x=>x.val>0)
-          .sort((a,b)=>b.val-a.val);
-        const total = ranked.reduce((s,x)=>s+x.val,0);
-        const mkRows = (arr)=> arr.map((x,i)=>`<div class="as-row"><span class="as-rk">${i+1}</span><span class="as-nm">${esc(x.name)}</span><span class="as-vl">${x.val}</span></div>`).join('');
-        const topRows = ranked.length ? mkRows(ranked.slice(0,10)) : '<div class="as-empty">尚無資料</div>';
-        const moreBtn = ranked.length>10 ? `<button class="as-more" data-as-key="${item.key}">展開全部 ${ranked.length} 人 ▾</button>` : '';
-        return `<div class="as-item">
+    // v2.8.2: 直接用 adminUsersCache（與「使用者列表」同一份快取，必定可用、不需再讀 db）
+    const all = (typeof adminUsersCache !== 'undefined' && adminUsersCache) ? adminUsersCache : {};
+    const entries = Object.entries(all);
+    if (!entries.length) {
+      body.innerHTML = '<div style="text-align:center;color:var(--ink-faded);padding:14px;">尚無使用者資料，請先點一下「總覽」分頁載入，再回來查看。</div>';
+      return;
+    }
+    body.innerHTML = items.map(item=>{
+      const ranked = entries
+        .map(([uid,u])=>{
+          const val = (item.key==='loginCount')
+            ? ((u && u.loginCount) || 0)
+            : ((u && u.stats && u.stats[item.key]) || 0);
+          return { uid, name:(u && u.name) || '?', val };
+        })
+        .filter(x=>x.val>0)
+        .sort((a,b)=>b.val-a.val);
+      const total = ranked.reduce((s,x)=>s+x.val,0);
+      const mkRows = (arr)=> arr.map((x,i)=>`<div class="as-row"><span class="as-rk">${i+1}</span><span class="as-nm">${esc(x.name)}</span><span class="as-vl">${x.val}</span></div>`).join('');
+      const topRows = ranked.length ? mkRows(ranked.slice(0,10)) : '<div class="as-empty">尚無資料</div>';
+      const moreBtn = ranked.length>10 ? `<button class="as-more" data-as-key="${item.key}">展開全部 ${ranked.length} 人 ▾</button>` : '';
+      return `<div class="as-item">
           <div class="as-head"><span class="as-title">${esc(item.label)}</span><span class="as-sum">共 ${total} 次 · ${ranked.length} 人</span></div>
           <div class="as-list" data-as-list="${item.key}">${topRows}</div>
           <div class="as-list-full" data-as-full="${item.key}" style="display:none;">${mkRows(ranked)}</div>
           ${moreBtn}
         </div>`;
-      }).join('');
-      body.querySelectorAll('.as-more').forEach(btn=>{
-        btn.onclick=()=>{
-          const key=btn.dataset.asKey;
-          const full=body.querySelector(`[data-as-full="${key}"]`);
-          const top=body.querySelector(`[data-as-list="${key}"]`);
-          const showing = full.style.display!=='none';
-          full.style.display = showing?'none':'';
-          top.style.display = showing?'':'none';
-          btn.textContent = showing ? `展開全部 ▾` : `收合 ▴`;
-        };
-      });
-    }).catch(()=>{ body.innerHTML='<div style="text-align:center;color:var(--ink-faded);padding:14px;">載入失敗，請稍後再試。</div>'; });
+    }).join('');
+    body.querySelectorAll('.as-more').forEach(btn=>{
+      btn.onclick=()=>{
+        const key=btn.dataset.asKey;
+        const full=body.querySelector(`[data-as-full="${key}"]`);
+        const top=body.querySelector(`[data-as-list="${key}"]`);
+        const showing = full.style.display!=='none';
+        full.style.display = showing?'none':'';
+        top.style.display = showing?'':'none';
+        btn.textContent = showing ? `展開全部 ▾` : `收合 ▴`;
+      };
+    });
   }
 
   function renderOverview() {
@@ -13011,9 +13012,10 @@ async function checkAndRecordAction(actionType) {
         if (z.s===1){ z.tx=0; z.ty=0; }
         div._nmApply();
       }
+      stage.addEventListener('dragstart', (e)=>{ e.preventDefault(); });
       stage.addEventListener('wheel', (e)=>{ e.preventDefault(); const r=stage.getBoundingClientRect(); zoomAt(e.deltaY<0?1.15:1/1.15, e.clientX-r.left, e.clientY-r.top); }, {passive:false});
       const pts = new Map(); let pinchD = 0; let drag=false, lx=0, ly=0;
-      stage.addEventListener('pointerdown', (e)=>{ pts.set(e.pointerId,e); if(pts.size===1){ drag=true; lx=e.clientX; ly=e.clientY; try{stage.setPointerCapture(e.pointerId);}catch(_){} } });
+      stage.addEventListener('pointerdown', (e)=>{ e.preventDefault(); pts.set(e.pointerId,e); if(pts.size===1){ drag=true; lx=e.clientX; ly=e.clientY; try{stage.setPointerCapture(e.pointerId);}catch(_){} } });
       stage.addEventListener('pointermove', (e)=>{
         if(pts.has(e.pointerId)) pts.set(e.pointerId,e);
         if(pts.size>=2){ drag=false; const [a,b]=[...pts.values()]; const d=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY); const r=stage.getBoundingClientRect(); const cx=(a.clientX+b.clientX)/2-r.left, cy=(a.clientY+b.clientY)/2-r.top; if(pinchD>0) zoomAt(d/pinchD, cx, cy); pinchD=d; return; }
