@@ -4263,6 +4263,25 @@ const WX_ICON = {
         </div>
       </label>
       <label class="sound-row">
+        <span class="sound-label">新島重置提示音</span>
+        <label class="switch">
+          <input type="checkbox" id="soundResetToggle">
+          <span class="slider"></span>
+        </label>
+      </label>
+      <label class="sound-row">
+        <span class="sound-label">新島重置 — 音效</span>
+        <div style="display:flex; gap:6px; flex:1; justify-content:flex-end; align-items:center;">
+          <select id="soundResetEffect" class="sound-select">
+            <option value="duduDu">嘟嘟嘟（預設）</option>
+            <option value="quack">呱呱</option>
+            <option value="custom1">自訂音效 1</option>
+            <option value="custom2">自訂音效 2</option>
+          </select>
+          <button class="modal-btn small" id="soundResetTestBtn" title="測試新島重置提示音">🔔 測試</button>
+        </div>
+      </label>
+      <label class="sound-row">
         <span class="sound-label">主音量</span>
         <div style="display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end;">
           <input type="range" id="soundMasterVolume" min="0" max="100" value="50" style="width:160px;">
@@ -4270,8 +4289,8 @@ const WX_ICON = {
         </div>
       </label>
       <hr style="border:none;border-top:1px dashed var(--border);margin:12px 0;">
-      <div class="settings-subtitle">自訂音效（可上傳 2 份，三種情境共用）</div>
-      <div class="ba-set-note" style="margin-bottom:10px;">支援 mp3 / ogg / wav，≤120KB、≤5 秒。上傳後可在「一般 NM 音效」「水母音效」「服務台音效」自由選用。</div>
+      <div class="settings-subtitle">自訂音效（可上傳 2 份，四種情境共用）</div>
+      <div class="ba-set-note" style="margin-bottom:10px;">支援 mp3 / ogg / wav，≤120KB、≤5 秒。上傳後可在「一般 NM 音效」「新島重置」「水母音效」「服務台音效」自由選用。</div>
       <!-- 自訂槽 1 -->
       <label class="sound-row">
         <span class="sound-label">自訂音效 1<br><span id="soundCustom1Name" style="font-size:11px;color:var(--ink-faded);">尚未上傳</span></span>
@@ -8145,10 +8164,12 @@ async function processAuthCallback() {
     volume: 50,
     perNm: {},
     baShow: {},         // 兵武塔顯示開關 {jelly:bool, desk:bool}，預設關
-    // 三情境各自選音效：'duduDu' | 'quack' | 'custom1' | 'custom2'
+    resetEnabled: true, // 新島重置提示音，預設開
+    // 四情境各自選音效：'duduDu' | 'quack' | 'custom1' | 'custom2'
     effectGeneral: 'duduDu',  // 一般 NM
     effectJelly: 'duduDu',    // 水母
     effectDesk: 'duduDu',     // 服務台
+    effectReset: 'duduDu',    // 新島重置
     // 兩個自訂音效槽
     custom1Url: null, custom1Name: null,
     custom2Url: null, custom2Name: null,
@@ -8166,9 +8187,11 @@ async function processAuthCallback() {
       volume: typeof v.volume === 'number' ? v.volume : 50,
       perNm: (v.perNm && typeof v.perNm === 'object') ? v.perNm : {},
       baShow: (v.baShow && typeof v.baShow === 'object') ? v.baShow : {},
+      resetEnabled: v.resetEnabled !== undefined ? !!v.resetEnabled : true,
       effectGeneral: typeof v.effectGeneral === 'string' ? v.effectGeneral : oldCustomToSlot(oldEffect),
       effectJelly: typeof v.effectJelly === 'string' ? v.effectJelly : 'duduDu',
       effectDesk: typeof v.effectDesk === 'string' ? v.effectDesk : 'duduDu',
+      effectReset: typeof v.effectReset === 'string' ? v.effectReset : 'duduDu',
       custom1Url: typeof v.custom1Url === 'string' ? v.custom1Url : (typeof v.customUrl === 'string' ? v.customUrl : null),
       custom1Name: typeof v.custom1Name === 'string' ? v.custom1Name : (typeof v.customName === 'string' ? v.customName : null),
       custom2Url: typeof v.custom2Url === 'string' ? v.custom2Url : null,
@@ -8183,9 +8206,11 @@ async function processAuthCallback() {
       volume: soundPrefs.volume ?? 50,
       perNm: soundPrefs.perNm || {},
       baShow: soundPrefs.baShow || {},
+      resetEnabled: !!soundPrefs.resetEnabled,
       effectGeneral: soundPrefs.effectGeneral || 'duduDu',
       effectJelly: soundPrefs.effectJelly || 'duduDu',
       effectDesk: soundPrefs.effectDesk || 'duduDu',
+      effectReset: soundPrefs.effectReset || 'duduDu',
       custom1Url: soundPrefs.custom1Url || null,
       custom1Name: soundPrefs.custom1Name || null,
       custom2Url: soundPrefs.custom2Url || null,
@@ -8316,6 +8341,7 @@ async function processAuthCallback() {
   function effectForScenario(scenario){
     if (scenario === 'jelly') return soundPrefs.effectJelly || 'duduDu';
     if (scenario === 'desk') return soundPrefs.effectDesk || 'duduDu';
+    if (scenario === 'reset') return soundPrefs.effectReset || 'duduDu';
     return soundPrefs.effectGeneral || soundPrefs.effect || 'duduDu';
   }
   // 取自訂槽的 url/name
@@ -8324,7 +8350,7 @@ async function processAuthCallback() {
     return { url: soundPrefs.custom1Url, name: soundPrefs.custom1Name };
   }
 
-  // Main play function — scenario: 'general' | 'jelly' | 'desk'
+  // Main play function — scenario: 'general' | 'jelly' | 'desk' | 'reset'
   async function playAlertSound(scenario) {
     const ctx = getAudioCtx();
     if (!ctx) return;
@@ -8366,6 +8392,11 @@ async function processAuthCallback() {
     if (per[nmId] === undefined) return defaultOn;
     return per[nmId] !== false;
   }
+  // 新島重置提示音開關（預設開）
+  function isResetSoundEnabled() {
+    if (!soundPrefs.enabled) return false;
+    return soundPrefs.resetEnabled !== false;
+  }
   // 兵武塔水母/服務台「顯示」開關（預設關閉）；kind = 'jelly' | 'desk'
   // 關閉時，進行中區域不顯示該項。供 BA 模組透過 window 呼叫。
   window.isBaShowEnabled = function(kind){
@@ -8384,6 +8415,36 @@ async function processAuthCallback() {
     return ev.nmId + '@' + ev.spawnedAt;
   }
   function handleSpawnsDiffForSound(_newSpawns) { /* deprecated no-op，保留以防外部呼叫 */ }
+
+  // v2.8.3: 新島重置提示音 — 監看 state.instanceResets 的「新增/更新」，以 zone@resetTs 為去重 key，
+  // 邏輯跟 handleActiveEventsDiffForSound 同一套精神（首次快照全記為已播、不誤響）。
+  let soundPlayedResetKeys = null; // null = 尚未建立基線
+  function resetSoundKey(zone, ts) { return (zone && ts) ? (zone + '@' + ts) : null; }
+  function handleInstanceResetsDiffForSound(newInstanceResets) {
+    const resets = newInstanceResets || {};
+    if (soundPlayedResetKeys === null) {
+      soundPlayedResetKeys = new Set();
+      Object.entries(resets).forEach(([zone, ts]) => {
+        const k = resetSoundKey(zone, ts);
+        if (k) soundPlayedResetKeys.add(k);
+      });
+      return;
+    }
+    const seen = new Set();
+    Object.entries(resets).forEach(([zone, ts]) => {
+      const k = resetSoundKey(zone, ts);
+      if (!k) return;
+      seen.add(k);
+      if (!soundPlayedResetKeys.has(k)) {
+        soundPlayedResetKeys.add(k);
+        if (isResetSoundEnabled()) playAlertSound('reset');
+      }
+    });
+    if (soundPlayedResetKeys.size > 200) {
+      soundPlayedResetKeys.forEach(k => { if (!seen.has(k)) soundPlayedResetKeys.delete(k); });
+    }
+  }
+
   function handleActiveEventsDiffForSound(newActiveEvents) {
     const events = newActiveEvents || {};
     if (soundPlayedEventKeys === null) {
@@ -8518,8 +8579,10 @@ async function processAuthCallback() {
     };
     const setSel = (id, val)=>{ const el=document.getElementById(id); if(el){ el.innerHTML=optsHtml(); el.value=val||'duduDu'; if(el.selectedIndex<0) el.value='duduDu'; } };
     setSel('soundEffectSelect', soundPrefs.effectGeneral);
+    setSel('soundResetEffect', soundPrefs.effectReset);
     setSel('baJellyEffect', soundPrefs.effectJelly);
     setSel('baDeskEffect', soundPrefs.effectDesk);
+    { const el = document.getElementById('soundResetToggle'); if (el) el.checked = soundPrefs.resetEnabled !== false; }
 
     // 自訂槽名稱顯示 + 移除鈕
     const slotName = (slot, nameId)=>{
@@ -8649,6 +8712,20 @@ async function processAuthCallback() {
       try { updateSoundMasterBtn(); } catch(e){}
     });
 
+    const resetToggle = document.getElementById('soundResetToggle');
+    if (resetToggle) resetToggle.addEventListener('change', () => {
+      soundPrefs.resetEnabled = resetToggle.checked;
+      saveSoundPrefs();
+    });
+    const resetTestBtn = document.getElementById('soundResetTestBtn');
+    if (resetTestBtn) resetTestBtn.addEventListener('click', async () => {
+      tryUnlockAudio();
+      const oldEnabled = soundPrefs.enabled;
+      soundPrefs.enabled = true;
+      try { await playAlertSound('reset'); } catch (e) { console.warn('[sound] reset test play failed', e); }
+      soundPrefs.enabled = oldEnabled;
+    });
+
     // 兵武塔四開關
     const baToggle = (id, fn)=>{ const el=document.getElementById(id); if(el) el.addEventListener('change', ()=>{ fn(el.checked); saveSoundPrefs(); if(window.BA&&window.BA.renderAll) window.BA.renderAll(); }); };
     baToggle('baToggleJellySound', v=>{ if(!soundPrefs.perNm) soundPrefs.perNm={}; soundPrefs.perNm['ba_jellyfish']=v; });
@@ -8711,6 +8788,7 @@ async function processAuthCallback() {
     // 三情境音效下拉
     const wireEffect = (id, key)=>{ const el=document.getElementById(id); if(el) el.addEventListener('change', ()=>{ soundPrefs[key]=el.value; saveSoundPrefs(); }); };
     wireEffect('soundEffectSelect', 'effectGeneral');
+    wireEffect('soundResetEffect', 'effectReset');
     wireEffect('baJellyEffect', 'effectJelly');
     wireEffect('baDeskEffect', 'effectDesk');
 
@@ -10211,6 +10289,7 @@ async function checkAndRecordAction(actionType) {
       const newSpawns = data?.spawns || {};
       // Sound alert diffing — must run BEFORE state is replaced
       try { handleActiveEventsDiffForSound(data?.activeEvents || {}); } catch (e) { console.warn('[sound] diff failed', e); }
+      try { handleInstanceResetsDiffForSound(data?.instanceResets || {}); } catch (e) { console.warn('[sound] reset diff failed', e); }
       if (data) {
         state = {
           spawns: newSpawns,
