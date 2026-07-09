@@ -8427,15 +8427,13 @@ async function processAuthCallback() {
     return per[key] === true;  // 預設關
   };
 
-  // v2.8.2: 提示音改為監看 activeEvents 的「新增」，以 nmId@spawnedAt 為去重 key。
-  // 好處：取消新島還原時 spawnedAt 不變 → key 已播過 → 不再誤響；
-  //       補報「存活」會建立新 activeEvent(新 spawnedAt) → 視為新事件 → 正常播；
-  //       補報「死亡」不建立 activeEvent → 永不播。
+  // v2.8.4: 提示音改為監看 activeEvents 的「新增」，以 evtId 為去重 key。
+  // 好處：
+  //   - 補報「存活」若是修正既有進行中事件(evtId 不變、只改 spawnedAt) → 已播過 → 不再誤響（只是想改時間）；
+  //   - 補報「存活」若是全新事件(新 evtId) → 正常播；
+  //   - 取消新島還原時沿用原 evtId → 已播過 → 不再誤響；
+  //   - 補報「死亡」不建立 activeEvent → 永不播。
   // 註：兵武塔水母/服務台在 eureka/ba，不在 state.activeEvents，由 BA 模組自有 soundDiff 處理，不受影響。
-  function eventSoundKey(ev) {
-    if (!ev || !ev.nmId || !ev.spawnedAt) return null;
-    return ev.nmId + '@' + ev.spawnedAt;
-  }
   function handleSpawnsDiffForSound(_newSpawns) { /* deprecated no-op，保留以防外部呼叫 */ }
 
   // v2.8.3: 新島重置提示音 — 監看 state.instanceResets 的「新增/更新」，以 zone@resetTs 為去重 key，
@@ -8472,23 +8470,19 @@ async function processAuthCallback() {
     if (soundPlayedEventKeys === null) {
       // 初次快照：把現有事件全部記為「已播過」，不發音（避免重整頁面狂響）
       soundPlayedEventKeys = new Set();
-      Object.values(events).forEach(ev => {
-        const k = eventSoundKey(ev);
-        if (k) soundPlayedEventKeys.add(k);
-      });
+      Object.keys(events).forEach(evtId => soundPlayedEventKeys.add(evtId));
       return;
     }
     const seen = new Set();
-    Object.values(events).forEach(ev => {
-      const k = eventSoundKey(ev);
-      if (!k) return;
-      seen.add(k);
-      if (!soundPlayedEventKeys.has(k)) {
-        soundPlayedEventKeys.add(k);
+    Object.entries(events).forEach(([evtId, ev]) => {
+      if (!ev || !ev.nmId) return;
+      seen.add(evtId);
+      if (!soundPlayedEventKeys.has(evtId)) {
+        soundPlayedEventKeys.add(evtId);
         if (isSoundEnabledForNm(ev.nmId)) playAlertSound('general');
       }
     });
-    // 清掉已不存在的舊 key，避免集合無限增長（同 spawnedAt 還原仍會被擋，因為還原時事件仍在或剛離開）
+    // 清掉已不存在的舊 key，避免集合無限增長（還原沿用原 evtId 仍會被擋，因為還原時事件重新出現或剛離開）
     if (soundPlayedEventKeys.size > 400) {
       soundPlayedEventKeys.forEach(k => { if (!seen.has(k)) soundPlayedEventKeys.delete(k); });
     }
@@ -9696,7 +9690,7 @@ async function checkAndRecordAction(actionType) {
         <div class="ud-section-title">主催代表色（排班表色塊用）</div>
         <div style="display:flex;gap:10px;align-items:center;">
           <input type="color" id="udSponsorColor" value="${user.sponsorColor || '#d4a84b'}" style="width:48px;height:34px;background:var(--bg-deep);border:1px solid var(--border-light);cursor:pointer;padding:2px;">
-          <span style="font-family:var(--font-mono);font-size:13px;color:var(--ink-faded);" id="udSponsorColorVal">${user.sponsorColor || '#d4a84b'}</span>
+          <input type="text" id="udSponsorColorHex" value="${user.sponsorColor || '#d4a84b'}" maxlength="7" placeholder="#RRGGBB" spellcheck="false" style="width:100px;font-family:var(--font-mono);font-size:13px;color:var(--ink-bright);background:var(--bg-deep);border:1px solid var(--border-light);padding:7px 8px;">
           <button class="modal-btn" id="udSaveColorBtn">儲存代表色</button>
         </div>
       </div>
@@ -9746,18 +9740,26 @@ async function checkAndRecordAction(actionType) {
       } catch (e) { appToast('儲存失敗：' + e.message); }
     });
 
-    // Save sponsor color (v2.6.2)
+    // Save sponsor color (v2.6.2；v2.8.4：支援直接輸入 16 進位色碼)
     const colorInput = document.getElementById('udSponsorColor');
-    const colorVal = document.getElementById('udSponsorColorVal');
-    if (colorInput && colorVal) {
-      colorInput.addEventListener('input', () => { colorVal.textContent = colorInput.value; });
+    const colorHex = document.getElementById('udSponsorColorHex');
+    const HEX6_RE = /^#[0-9a-fA-F]{6}$/;
+    const normHex = (s) => { let v = (s || '').trim(); if (v && v[0] !== '#') v = '#' + v; return v.toLowerCase(); };
+    if (colorInput && colorHex) {
+      // 色票 → 文字框
+      colorInput.addEventListener('input', () => { colorHex.value = colorInput.value; });
+      // 文字框 → 色票（僅在格式正確時同步色票預覽）
+      colorHex.addEventListener('input', () => { const v = normHex(colorHex.value); if (HEX6_RE.test(v)) colorInput.value = v; });
     }
     const saveColorBtn = document.getElementById('udSaveColorBtn');
     if (saveColorBtn) saveColorBtn.addEventListener('click', async () => {
-      const color = colorInput.value;
+      const color = normHex(colorHex ? colorHex.value : (colorInput && colorInput.value));
+      if (!HEX6_RE.test(color)) { appToast('色碼格式錯誤，請輸入 #RRGGBB（例如 #d4a84b）'); return; }
       try {
         await usersRef.child(uid).child('sponsorColor').set(color);
         if (adminUsersCache[uid]) adminUsersCache[uid].sponsorColor = color;
+        if (colorHex) colorHex.value = color;
+        if (colorInput) colorInput.value = color;
         appToast('已儲存代表色');
       } catch (e) { appToast('儲存失敗：' + e.message); }
     });
@@ -11489,7 +11491,6 @@ async function checkAndRecordAction(actionType) {
         <button class="manual-opt alive" id="moAlive"><span class="mo-ico">🟢</span><span><span class="mo-t">補報存活（修正時間）</span><span class="mo-d">怪還活著，但要修正出現／開戰時間</span></span></button>
         <button class="manual-opt dead" id="moDead"><span class="mo-ico">🔴</span><span><span class="mo-t">補報死亡</span><span class="mo-d">怪已經死了，補登或修正出現時間</span></span></button>
       </div>
-      <p class="lb-note" style="margin-top:14px;">分兩種是為了避免「其實死了卻被報活」（出現後需滿 8 分鐘才安全）。<br>＊第二階段接上後會自動帶入時間判斷。</p>
     `;
     showModal(`手動補報「${nm.name}」`, '', null, { extraHtml, hideConfirm: true, cancelText: '取消' });
     // 綁定兩鈕（showModal 後 DOM 已就緒）
