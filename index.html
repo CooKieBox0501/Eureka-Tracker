@@ -11487,7 +11487,7 @@ async function checkAndRecordAction(actionType) {
     const nm = findNm(nmId);
     if (!nm) return;
     const extraHtml = `
-      <div class="manual-choose">
+      <div class="manual-choose" style="margin-bottom:20px;">
         <button class="manual-opt alive" id="moAlive"><span class="mo-ico">🟢</span><span><span class="mo-t">補報存活（修正時間）</span><span class="mo-d">怪還活著，但要修正出現／開戰時間</span></span></button>
         <button class="manual-opt dead" id="moDead"><span class="mo-ico">🔴</span><span><span class="mo-t">補報死亡</span><span class="mo-d">怪已經死了，補登或修正出現時間</span></span></button>
       </div>
@@ -12950,12 +12950,13 @@ async function checkAndRecordAction(actionType) {
     ];
     const STATS_ADMIN_UID = '371526999078076426';
     function statValOf(agg, key){ return (agg && agg.s && agg.s[key]) || 0; }
-    // 計算每項分布（排除站長自己）
+    // 計算每項分布（排除站長自己）。v2.8.4：分母只算「有參與過此項（次數 > 0）」的人，
+    // 避免大量沒用過該功能的 0 次使用者把百分位灌高。
     function computeStatDistribution(aggAll){
       const entries = Object.entries(aggAll || {}).filter(([uid])=>uid!==STATS_ADMIN_UID);
       const dist = {};
       STAT_ITEMS.forEach(item=>{
-        const sorted = entries.map(([,v])=>statValOf(v,item.key)).sort((a,b)=>a-b);
+        const sorted = entries.map(([,v])=>statValOf(v,item.key)).filter(x=>x>0).sort((a,b)=>a-b);
         const n = sorted.length;
         let median = 0;
         if (n){ const mid=Math.floor(n/2); median = (n%2)?sorted[mid]:(sorted[mid-1]+sorted[mid])/2; }
@@ -12969,6 +12970,13 @@ async function checkAndRecordAction(actionType) {
       return Math.round(below/n*100);
     }
     function renderStatBar(item, myVal, d){
+      // 沒參與過此項 → 不給百分位（避免誤導），只標示尚未參與
+      if (myVal <= 0){
+        return `<div class="stat-row">
+          <div class="stat-head"><span class="stat-label">${escapeHtml(item.label)}</span><span class="stat-myval">0 次</span></div>
+          <div class="stat-foot"><span class="stat-beat" style="flex:1;text-align:center;color:var(--ink-faded);">尚未參與此項（共 ${d.n} 人參與過）</span></div>
+        </div>`;
+      }
       const min=d.min, max=d.max, median=d.median, sorted=d.sorted;
       const range = Math.max(1, max-min);
       const clampPct = (x)=> Math.max(0, Math.min(100, (x-min)/range*100));
@@ -12980,7 +12988,7 @@ async function checkAndRecordAction(actionType) {
           <div class="stat-fill" style="width:${fillPct}%;"></div>
           <div class="stat-median" style="left:${medPct}%;" title="中位數 ${median}"></div>
         </div>
-        <div class="stat-foot"><span>最少 ${min}</span><span class="stat-beat">你超越了 ${beat}% 的人</span><span>最多 ${max}</span></div>
+        <div class="stat-foot"><span>最少 ${min}</span><span class="stat-beat">在參與者中你超越了 ${beat}%</span><span>最多 ${max}</span></div>
       </div>`;
     }
     function ensureStatsModal(){
@@ -12989,7 +12997,7 @@ async function checkAndRecordAction(actionType) {
       div.className='modal-backdrop'; div.id='statsModal';
       div.innerHTML=`<div class="modal stats-modal" style="max-width:540px;">
         <h3 style="margin:0 0 6px;">📊 歷史統計</h3>
-        <p class="stats-sub">你的各項累計次數，以及在所有人之中的位置。進度條中間黑線為中位數。（所有排行一律不計手動補報）</p>
+        <p class="stats-sub">你的各項累計次數，以及在「有參與過該項的人」之中的位置。進度條中間黑線為中位數。（所有排行一律不計手動補報）</p>
         <div id="statsBody" class="stats-body-scroll"></div>
         <div class="modal-actions"><button class="modal-btn" data-close-stats>關閉</button></div>
       </div>`;
@@ -13048,6 +13056,7 @@ async function checkAndRecordAction(actionType) {
       const dki=document.getElementById('drawerKnownIssues'); if(dki) dki.onclick=()=>{ const b=document.getElementById('knownIssuesBtn'); if(b) b.click(); };
       const dfb=document.getElementById('drawerFeedback'); if(dfb) dfb.onclick=()=>{ const b=document.getElementById('feedbackBtn'); if(b) b.click(); };
       const dgh=document.getElementById('drawerGithub'); if(dgh) dgh.onclick=()=>{ const a=document.getElementById('githubLink'); if(a) window.open(a.href,'_blank','noopener'); };
+      const dga=document.getElementById('drawerGuideArticle'); if(dga) dga.onclick=()=>{ window.open('https://forum.gamer.com.tw/C.php?bsn=17608&snA=30934&tnum=1','_blank','noopener'); };
       const dst=document.getElementById('drawerStats'); if(dst) dst.onclick=()=>{ if(typeof closeDrawer==='function') closeDrawer(); openStatsModal(); };
       attachStatsPanelConfig();
       // 抽屜內開啟各 modal（開啟後選單不收回）
@@ -14045,7 +14054,8 @@ async function checkAndRecordAction(actionType) {
 
   // ════════════════ v2.7.5: 即時聊天室（全站單一房間）════════════════
   const chatRef = db.ref(`${DATA_ROOT}/chat`);
-  const CHAT_EXPIRY_MS = 20 * 60 * 1000;   // 訊息 20 分鐘後過期
+  const CHAT_EXPIRY_MS = 20 * 60 * 1000;         // 顯示：訊息 20 分鐘後從聊天室畫面消失
+  const CHAT_RETENTION_MS = 24 * 60 * 60 * 1000; // 資料：實際保留 24 小時後才刪除（供事後回顧／每日整理）
   const CHAT_LIMIT = 50;                     // 顯示最近 50 則
   const CHAT_MAXLEN = 200;
   const CHAT_LAST_READ_KEY = 'chat_last_read';
@@ -14215,9 +14225,10 @@ async function checkAndRecordAction(actionType) {
   }
 
   function pruneChatExpired(){
-    // 已登入者順手刪除過期訊息（best-effort；規則允許任何登入者刪 >20 分鐘訊息）
+    // 已登入者順手刪除「超過 24 小時」的訊息（best-effort；規則允許任何登入者刪 >20 分鐘的訊息）。
+    // 注意：只刪 24 小時以上，20 分鐘~24 小時的訊息保留在資料庫供事後回顧／每日整理，只是不顯示在畫面上。
     if (!((typeof isLoggedIn==='function') && isLoggedIn())) return;
-    const cut = Date.now() - CHAT_EXPIRY_MS;
+    const cut = Date.now() - CHAT_RETENTION_MS;
     chatCache.forEach(m=>{ if (m.ts && m.ts < cut) chatRef.child(m.id).remove().catch(()=>{}); });
   }
 
@@ -14293,6 +14304,7 @@ async function checkAndRecordAction(actionType) {
   <button class="drawer-item" data-open="lbModal"><span class="di-ico">🗼</span> 主催開團排行</button>
   <button class="drawer-item" id="drawerStats" style="display:none;"><span class="di-ico">📊</span> 歷史統計</button>
   <button class="drawer-item" data-open="guideModal"><span class="di-ico">📖</span> 新手教學</button>
+  <button class="drawer-item" id="drawerGuideArticle"><span class="di-ico">📘</span> 圖文使用教學（巴哈）</button>
   <button class="drawer-item" id="drawerSettings"><span class="di-ico">⚙</span> 使用者設定</button>
   <button class="drawer-item" id="drawerFeedback"><span class="di-ico">💬</span> 問題回報</button>
   <button class="drawer-item" id="drawerKnownIssues"><span class="di-ico">⚠</span> 已知問題 <span class="drawer-ki-count" id="drawerKiCount"></span></button>
