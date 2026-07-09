@@ -14084,10 +14084,26 @@ async function checkAndRecordAction(actionType) {
   }
   function chatMyUid(){ return (auth.currentUser && auth.currentUser.uid) || (currentUser && currentUser.id) || null; }
 
+  // 一次性清掉「超過 24 小時」的舊訊息（用範圍查詢，不受畫面 CHAT_LIMIT 限制，
+  // 避免高流量時舊訊息落在顯示視窗外、永遠不被前端清理而無限累積）。
+  // best-effort：只有登入者會執行；規則允許任何登入者刪除 >20 分鐘的訊息。
+  function pruneChatBeyondRetention(){
+    if (!((typeof isLoggedIn==='function') && isLoggedIn())) return;
+    const cut = Date.now() - CHAT_RETENTION_MS;
+    try {
+      chatRef.orderByChild('ts').endAt(cut - 1).once('value', (snap)=>{
+        snap.forEach(ch=>{ chatRef.child(ch.key).remove().catch(()=>{}); });
+      });
+    } catch(e){ /* best-effort，失敗不影響聊天功能 */ }
+  }
+
   function attachChatListener(){
     if (chatListenerAttached) return;
     chatListenerAttached = true;
     try {
+      // 掛上監聽時先做一次 24 小時範圍清理，之後每小時再清一次（多人同時清為冪等、互不影響）
+      pruneChatBeyondRetention();
+      setInterval(pruneChatBeyondRetention, 60 * 60 * 1000);
       chatRef.orderByChild('ts').limitToLast(CHAT_LIMIT).on('value', (snap)=>{
         const arr = [];
         snap.forEach(ch=>{
