@@ -5275,7 +5275,7 @@ const SKILLS = {
   function getBaRef(){
     if (baRef) return baRef;
     try {
-      if (typeof db !== 'undefined' && db) { baRef = db.ref('eureka/ba'); return baRef; }
+      if (typeof db !== 'undefined' && db) { const root = (typeof DATA_ROOT !== 'undefined') ? DATA_ROOT : 'eureka'; baRef = db.ref(`${root}/ba`); return baRef; }
     } catch(e){}
     return null;
   }
@@ -7344,9 +7344,23 @@ const SKILLS = {
   // initialise
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
-  const stateRef = db.ref('eureka/state');
+  // v2.8.3: 測試模式 —— 網址帶 ?mode=test 時，「大家看得到」的即時資料（NM 追蹤／兵武塔／聊天室／觸發意願）
+  // 改讀寫 eureka_test/* 這個獨立資料樹，不影響正式站；帳號、身份組、回報等資料仍共用正式站，不特別隔離。
+  const TEST_MODE = new URLSearchParams(location.search).get('mode') === 'test';
+  const DATA_ROOT = TEST_MODE ? 'eureka_test' : 'eureka';
+  const stateRef = db.ref(`${DATA_ROOT}/state`);
   const auth = firebase.auth();
   const storage = firebase.storage();
+
+  // 測試模式視覺標記：避免忘記自己在測試站
+  if (TEST_MODE && document.body) {
+    document.title = '🧪 測試模式 · ' + document.title;
+    const banner = document.createElement('div');
+    banner.textContent = '🧪 測試模式 — 資料與正式站分開，僅供自己測試用';
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#a83a3a;color:#fff;text-align:center;font-size:13px;padding:6px 8px;font-family:var(--font-cjk, sans-serif);letter-spacing:0.5px;box-shadow:0 2px 8px rgba(0,0,0,0.4);';
+    document.body.prepend(banner);
+    document.body.style.paddingTop = '30px';
+  }
 
   /* ----------- AUTH MODULE ----------- */
   // OAuth 流程：
@@ -7471,8 +7485,9 @@ async function processAuthCallback() {
   }
 
   function getUserStub() {
-    if (!currentUser) return null;
-    return { id: currentUser.id, name: currentUser.name, avatar: currentUser.avatar };
+    if (currentUser) return { id: currentUser.id, name: currentUser.name, avatar: currentUser.avatar };
+    if (TEST_MODE) return { id: 'test-guest', name: '測試員', avatar: null }; // 測試模式：免登入也能有個佔位身分
+    return null;
   }
 
   function updateAuthUI() {
@@ -7626,6 +7641,7 @@ async function processAuthCallback() {
 
   // Require login: returns true if user is logged in, otherwise pops modal and returns false
   function requireLogin() {
+    if (TEST_MODE) return true; // 測試模式：不需要登入就能操作各項功能
     if (isLoggedIn()) return true;
     showLoginRequired();
     return false;
@@ -8011,7 +8027,7 @@ async function processAuthCallback() {
   // - onDisconnect cleans up if the user closes tab / disconnects.
   // - When an NM is reported as spawned, its entire triggering bucket is cleared.
 
-  const triggeringRef = db.ref('eureka/triggering');
+  const triggeringRef = db.ref(`${DATA_ROOT}/triggering`);
   let triggeringData = {};        // mirror of /triggering for fast lookups
   let triggeringMyChoice = null;  // nmId I currently marked, or null
   let triggeringListener = null;
@@ -9091,6 +9107,7 @@ async function processAuthCallback() {
   // Check + record an action attempt. Returns true if allowed, false if blocked.
   // Call this BEFORE every write action.
 async function checkAndRecordAction(actionType) {
+    if (TEST_MODE) return true; // 測試模式：不做濫用防護限制
     if (!isLoggedIn()) return false;
     const uid = currentUser.id;
 
@@ -9342,7 +9359,7 @@ async function checkAndRecordAction(actionType) {
       refreshAdminTab('memo');
     });
     // sponsorStats：仍需快取供公開開團排行（後台分頁已移除）
-    db.ref('eureka/ba/sponsorStats').on('value', (snap) => {
+    db.ref(`${DATA_ROOT}/ba/sponsorStats`).on('value', (snap) => {
       adminSponsorStatsCache = snap.val() || {};
     });
   }
@@ -9364,7 +9381,7 @@ async function checkAndRecordAction(actionType) {
     const json = JSON.stringify(desired);
     if (json === _lastSponsorListJson) return; // 無變化不重寫
     _lastSponsorListJson = json;
-    db.ref('eureka/ba/sponsorList').set(desired).catch(e=>console.error('[BA] sponsorList set', e));
+    db.ref(`${DATA_ROOT}/ba/sponsorList`).set(desired).catch(e=>console.error('[BA] sponsorList set', e));
   }
 
   function renderSponsorRank() {
@@ -12891,7 +12908,7 @@ async function checkAndRecordAction(actionType) {
       // 開團排行（讀 eureka/ba/sponsorStats）
       const sp=document.getElementById('lbSponsorList');
       if(sp) sp.innerHTML='<div style="text-align:center;color:var(--ink-faded);padding:14px;">載入中…</div>';
-      db.ref('eureka/ba/sponsorStats').once('value').then(snap=>{
+      db.ref(`${DATA_ROOT}/ba/sponsorStats`).once('value').then(snap=>{
         const all=snap.val()||{};
         const cache=(typeof adminUsersCache!=='undefined')?adminUsersCache:{};
         // 建立 sanitizedUid → avatar 對照（從使用者快取）
@@ -13933,7 +13950,7 @@ async function checkAndRecordAction(actionType) {
 
     // attach realtime listener — first snapshot will populate state and trigger updateCards
     attachRealtimeListener();
-    attachVersionListener();
+    if (!TEST_MODE) attachVersionListener(); // 測試模式不需要「有新版本請重新整理」的提示
     attachChatListener();   // v2.7.5: 即時聊天室
     wireChatUI();
     updateClock();
@@ -14026,7 +14043,7 @@ async function checkAndRecordAction(actionType) {
   }
 
   // ════════════════ v2.7.5: 即時聊天室（全站單一房間）════════════════
-  const chatRef = db.ref('eureka/chat');
+  const chatRef = db.ref(`${DATA_ROOT}/chat`);
   const CHAT_EXPIRY_MS = 20 * 60 * 1000;   // 訊息 20 分鐘後過期
   const CHAT_LIMIT = 50;                     // 顯示最近 50 則
   const CHAT_MAXLEN = 200;
