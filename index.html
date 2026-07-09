@@ -2626,6 +2626,7 @@ const WX_ICON = {
   .history-item.h-kill .h-icon { color: var(--ready); }
   .history-item.h-unknown .h-icon { color: var(--waiting); }
   .history-item.h-reset .h-icon { color: var(--gold-bright); }
+  .history-item.h-cancel .h-icon { color: var(--ink-faded); }
 
   .history-item .h-text {
     flex: 1;
@@ -11039,11 +11040,49 @@ async function checkAndRecordAction(actionType) {
         const resetReporter = h.reportedBy
           ? `<span class="h-by"> — ${h.reportedBy.name}</span>`
           : '';
+        if (h.cancelledAt) {
+          const cancelHM = fmtHM(new Date(h.cancelledAt));
+          const canceller = h.cancelledBy
+            ? `<span class="h-by"> — ${h.cancelledBy.name}</span>`
+            : '';
+          html += `
+            <li class="history-item h-cancel">
+              <span class="h-time">${time}</span>
+              <span class="h-icon">↩</span>
+              <span class="h-text">新島重置（已取消）· ${zoneLabel}${resetReporter}
+                <span class="h-detail">取消於 ${cancelHM}${canceller}</span>
+              </span>
+            </li>`;
+        } else {
+          html += `
+            <li class="history-item h-reset">
+              <span class="h-time">${time}</span>
+              <span class="h-icon">⟳</span>
+              <span class="h-text">新島重置 · ${zoneLabel}${resetReporter}</span>
+            </li>`;
+        }
+      } else if (h.type === 'cancel') {
+        const data = findNmData(h.nmId);
+        if (!data) return;
+        const { nm, zoneLabel } = data;
+        const spawnHM = fmtHM(new Date(h.spawnedAt));
+        const cancelHM = h.cancelledAt ? fmtHM(new Date(h.cancelledAt)) : spawnHM;
+        const shortZone = zoneLabel.replace(/ [A-Za-z]+$/, '');
+        const reporter = h.reportedBy
+          ? `<span class="h-by"> — ${h.reportedBy.name}</span>`
+          : '';
+        const canceller = h.cancelledBy
+          ? `<span class="h-by"> — ${h.cancelledBy.name}</span>`
+          : '';
         html += `
-          <li class="history-item h-reset">
-            <span class="h-time">${time}</span>
-            <span class="h-icon">⟳</span>
-            <span class="h-text">新島重置 · ${zoneLabel}${resetReporter}</span>
+          <li class="history-item h-cancel">
+            <span class="h-time">${spawnHM}</span>
+            <span class="h-icon">🚫</span>
+            <span class="h-text">
+              <span class="h-name">${nm.name}</span>
+              <span class="h-zone">（${shortZone}）取消回報</span>${reporter}
+              <span class="h-detail">取消於 ${cancelHM}${canceller}</span>
+            </span>
           </li>`;
       } else {
         const data = findNmData(h.nmId);
@@ -11057,6 +11096,9 @@ async function checkAndRecordAction(actionType) {
         const reporter = h.reportedBy
           ? `<span class="h-by"> — ${h.reportedBy.name}</span>`
           : '';
+        const killer = isKill && h.killedBy
+          ? `<span class="h-detail">擊殺 — ${h.killedBy.name}</span>`
+          : '';
         html += `
           <li class="history-item ${cls}">
             <span class="h-time">${spawnHM}</span>
@@ -11064,6 +11106,7 @@ async function checkAndRecordAction(actionType) {
             <span class="h-text">
               <span class="h-name">${nm.name}</span>
               <span class="h-zone">（${shortZone}）出現</span>${reporter}
+              ${killer}
             </span>
           </li>`;
       }
@@ -11607,16 +11650,36 @@ async function checkAndRecordAction(actionType) {
     if (!requireLogin()) return;
     if (isBanned()) { showBannedModal(); return; }
     if (!await checkAndRecordAction('cancel')) return;
+    const cancelledBy = getUserStub();
+    const now = Date.now();
+    const spawnedAt = state.spawns[nmId] || null;
+    const existingEvent = Object.values(state.activeEvents).find(ev => ev.nmId === nmId);
     const updates = {};
     updates[`spawns/${nmId}`] = null;
     updates[`otherReporters/${nmId}`] = null;
     Object.entries(state.activeEvents).forEach(([id, ev]) => {
       if (ev.nmId === nmId) updates[`activeEvents/${id}`] = null;
     });
+    // v2.8.3: 記錄取消回報的歷史（供歷史紀錄面板與 Discord Bot 顯示回報/取消時間與人員）
+    if (spawnedAt) {
+      const hId = `h_cancel_${nmId}_${now}`;
+      updates[`history/${hId}`] = {
+        type: 'cancel',
+        nmId,
+        zone: findZoneOfNm(nmId),
+        spawnedAt,
+        cancelledAt: now,
+        reportedBy: existingEvent?.reportedBy || null,
+        cancelledBy,
+        createdAt: now,
+        updatedAt: now,
+      };
+    }
     await applyUpdates(updates);
     logUserAction('cancel', { nmId });
     updateCards();
     updateActivePanel();
+    updateHistoryModal();
   }
 
   const CANCEL_RESET_WINDOW_MS = 5 * 60 * 1000; // 5 minutes — within this window, the reset can be undone
@@ -11807,6 +11870,7 @@ async function checkAndRecordAction(actionType) {
     Object.entries(state.history || {}).forEach(([id, h]) => {
       if (h.type !== 'reset' || h.zone !== zone) return;
       if (!h._snapshot) return; // legacy resets without snapshot can't be undone
+      if (h.cancelledAt) return; // 已經被取消過，不能再取消一次
       if (now - h.occurredAt > CANCEL_RESET_WINDOW_MS) return;
       if (!latest || h.occurredAt > latest.h.occurredAt) {
         latest = { id, h };
@@ -11821,6 +11885,8 @@ async function checkAndRecordAction(actionType) {
     const target = findUndoableReset(zone);
     if (!target) return;
 
+    const canceller = getUserStub();
+    const cancelledAt = Date.now();
     const updates = {};
     const snap = target.h._snapshot || {};
     const resetTs = (state.instanceResets && state.instanceResets[zone]) || 0;
@@ -11853,8 +11919,10 @@ async function checkAndRecordAction(actionType) {
     });
     // Bug6c：清掉這次重置產生的舊島存檔，避免「還原的怪(無標籤)」與「存檔的怪(舊島標籤)」同時出現
     if (archiveOfThisReset) updates[`oldIsland/${zone}`] = null;
-    // Delete the reset history entry
-    updates[`history/${target.id}`] = null;
+    // v2.8.3: 不再刪除這筆 reset 歷史紀錄，改為標記取消（誰、何時），
+    // 讓歷史紀錄面板與 Discord Bot 都能顯示「新島重置已取消」
+    updates[`history/${target.id}/cancelledAt`] = cancelledAt;
+    updates[`history/${target.id}/cancelledBy`] = canceller;
     // 同時清除 NEW 標籤（既然回到重置前狀態，就不該再顯示新島提示）
     updates[`newIslandMark/${zone}`] = null;
 
