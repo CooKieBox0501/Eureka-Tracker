@@ -1,1 +1,7 @@
 .claude/
+
+# 內部參考資料，不上傳到公開 repo
+交接/
+pic/
+v2.8.2.html
+*rule-v*.json
