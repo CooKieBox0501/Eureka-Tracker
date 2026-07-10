@@ -4267,7 +4267,7 @@ const WX_ICON = {
       </label>
       <hr style="border:none;border-top:1px dashed var(--border);margin:12px 0;">
       <div class="settings-subtitle" style="font-size:11px;">🏝 新島重置</div>
-      <label class="sound-row">
+      <label class="sound-row" id="soundResetRow">
         <span class="sound-label">新島重置提示音</span>
         <label class="switch">
           <input type="checkbox" id="soundResetToggle">
@@ -14474,28 +14474,21 @@ async function checkAndRecordAction(actionType) {
     return S.filter(st=> st.sel===null || st.before || document.querySelector(st.sel));
   }
 
-  // v2.8.2: 更新導覽步驟（重用同一引擎，圈出本次新功能）
+  // 更新導覽步驟（重用同一引擎，圈出本次新功能）。
+  // ※ 慣例：每次改版都要把上一版的步驟整組換掉，只留本次新功能。
+  // 本次（新島重置提示音）：
   function buildUpdateSteps(){
     const S = [];
-    const forceAnemos = ()=>{ try{ const t=document.querySelector('.zone-tab[data-zone="anemos"]'); if(t && !t.classList.contains('active')) t.click(); }catch(e){} };
-    const forceStandard = ()=>{ try{ forceAnemos(); const sw=document.querySelector('.density-switch'); if(sw && sw.classList.contains('compact')) sw.click(); }catch(e){} };
-    const forceCompact = ()=>{ try{ forceAnemos(); const sw=document.querySelector('.density-switch'); if(sw && !sw.classList.contains('compact')) sw.click(); }catch(e){} };
-    const openPazuzuMap = ()=>{ try{ forceCompact(); const fn = window.showMapPlaceholder; if(typeof fn==='function') fn('pazuzu'); setTimeout(()=>{ const pin=document.querySelector('#nmMapPins .nmmap-pin.sel'); if(pin) pin.dispatchEvent(new MouseEvent('mouseenter',{bubbles:true})); }, 250); }catch(e){} };
-    const closeMap = ()=>{ try{ const m=document.getElementById('nmMapModal'); if(m) m.classList.remove('active'); }catch(e){} };
-    const openDrawerFn = ()=>{ try{ closeMap(); if(window.openDrawer) window.openDrawer(); }catch(e){} };
+    const openSound = ()=>{ try{ if(typeof openSoundSettings==='function') openSoundSettings(); }catch(e){} };
 
     S.push({ sel:null, title:'本次更新導覽 ✨',
-      body:'這次更新了幾個地方，花約 30 秒帶你看過一次。看完就不會再出現囉～' });
-    S.push({ sel:'#nm-pazuzu .nm-status', title:'島主／八寶冷卻顯示更新', before:forceStandard, pad:8,
-      body:'島主與八寶若同時在「冷卻中」又「等待天氣條件」，現在右方倒數會顯示「時間較久的那一個」，左方則標示目前的完整狀態，讓你一眼看出還要等多久、卡在哪一關。' });
-    S.push({ sel:'.cc-map[data-nm="pazuzu"], .cc-map', title:'全 NM 地圖（已開放）', before:forceCompact, pad:18,
-      body:'緊湊模式下每一隻 NM 都有地圖按鈕了！點這顆 🗺️ 就能看牠在島上的位置——無論有沒有展開其他列，都能從這裡打開帕祖祖的地圖。' });
-    S.push({ sel:'#nmMapPins .nmmap-pin.sel', title:'地圖標示與資訊', before:openPazuzuMap, pad:20,
-      body:'地圖會標出該 NM 的位置與名稱，其他 NM 以灰點顯示也看得到。把滑鼠移到任一個點上，會跳出該 NM 與「觸發怪」的資訊，方便確認要打什麼來觸發。地圖也支援滾輪／雙指縮放。' });
-    S.push({ sel:'.drawer-item[data-open="lbModal"]', title:'排行榜更新', before:openDrawerFn, pad:8,
-      body:'排行榜現在只保留「主催開團排行」，其餘詳細的個人統計數據將不定時公開。' });
-    S.push({ sel:null, title:'就這些！🎉', before:closeDrawerFn,
-      body:'祝你狩獵愉快～有任何建議都歡迎從「選單 → 問題回報」告訴波波露！' });
+      body:'這次新增了「新島重置提示音」，花幾秒帶你看一下在哪裡設定。看完就不會再自動出現囉～' });
+    S.push({ sel:'#soundSettingsBtn, [title="使用者設定"]', title:'提示音都在這裡設定', pad:8,
+      body:'所有提示音（包含這次的新島重置）都在「⚙ 使用者設定 → 🔔 提示音」分頁裡調整。' });
+    S.push({ sel:'#soundResetRow', title:'新島重置提示音（新功能）', before:openSound, pad:10,
+      body:'現在只要有人按下「新島重置」，就會發出提示音提醒你，不會再錯過重置！可以在這裡開關它；下面那排還能挑選喜歡的音效（嘟嘟嘟／呱呱／你上傳的自訂音效）。' });
+    S.push({ sel:null, title:'就這些！🎉',
+      body:'設定視窗已經幫你打開了，直接試試看新島重置提示音吧～有任何建議都歡迎從「選單 → 問題回報」告訴波波露！' });
     return S.filter(st=> st.sel===null || st.before || document.querySelector(st.sel));
   }
 
@@ -14667,10 +14660,14 @@ async function checkAndRecordAction(actionType) {
   function setLs(k){ try { localStorage.setItem(k, '1'); } catch(e){} }
 
   function run(){
-    // 新用戶（沒跑過新手教學）→ 由完整新手教學負責，這裡只標記避免重複
-    if (!ls(ONBOARD_FLAG)) { setLs(UPD_FLAG); return; }
-    if (ls(UPD_FLAG)) return;          // 這版已看過
-    setLs(UPD_FLAG);                   // 開始即標記（中途關閉也算看過）
+    // 測試模式（?mode=test）：不受「已看過」旗標限制，每次載入都跑，方便預覽更新導覽
+    var testMode = /[?&]mode=test(?:&|=|$)/.test(location.search);
+    if (!testMode) {
+      // 新用戶（沒跑過新手教學）→ 由完整新手教學負責，這裡只標記避免重複
+      if (!ls(ONBOARD_FLAG)) { setLs(UPD_FLAG); return; }
+      if (ls(UPD_FLAG)) return;          // 這版已看過
+      setLs(UPD_FLAG);                   // 開始即標記（中途關閉也算看過）
+    }
     if (typeof window.startUpdateTour === 'function') window.startUpdateTour();
   }
 
