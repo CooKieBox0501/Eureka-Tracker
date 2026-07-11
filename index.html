@@ -3736,7 +3736,7 @@ const WX_ICON = {
   <header>
     <div class="title-block">
       <h1>Eureka NM Tracker</h1>
-      <div class="subtitle">優雷卡惡名菁英追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.8.2</button> · <span class="sync-indicator"><span class="sync-dot" id="syncDot"></span><span id="syncText">已同步</span></span></div>
+      <div class="subtitle">優雷卡惡名菁英追蹤站 By.波波露@巴哈姆特 · <button class="version-btn" id="versionBtn" type="button">v2.8.3</button> · <span class="sync-indicator"><span class="sync-dot" id="syncDot"></span><span id="syncText">已同步</span></span></div>
       <div class="auth-row">
         <div class="auth-box" id="authBox">
           <span class="auth-status-text" id="authStatusText">🔒 請登入</span>
@@ -3891,6 +3891,18 @@ const WX_ICON = {
     <h3>📜 更新日誌</h3>
 
   <div class="changelog-entry changelog-feature">
+	<div class="changelog-version">v2.8.3 <span class="changelog-date">— 2026/07/11</span></div>
+	<div class="changelog-tagline">✨ 新功能 & 體驗優化</div>
+	  <ul class="changelog-list">
+		  <li>✦ <strong>新島重置提示音</strong>：有人按下新島重置時會發出提示音提醒，可在「設定 → 提示音」開關並自訂音效（嘟嘟嘟／呱呱／自訂上傳）</li>
+		  <li>✦ <strong>歷史紀錄增強</strong>：現在也會記錄「取消回報」與「取消新島重置」，並顯示出現回報者、死亡回報者與取消者</li>
+		  <li>✦ 修正「補報存活（修正時間）」時會誤觸發提示音的問題，現在單純修正時間不會再響</li>
+		  <li>✦ 選單新增「📘 圖文使用教學（巴哈）」連結，提供更詳盡的圖文說明</li>
+		  <li>✦ 提示音設定介面重新分區（NM 出現／新島重置），更好閱讀</li>
+	  </ul>
+  </div>
+
+  <div class="changelog-entry">
 	<div class="changelog-version">v2.8.2 <span class="changelog-date">— 2026/06/23</span></div>
 	<div class="changelog-tagline">✨ 新功能 & 體驗優化</div>
 	  <ul class="changelog-list">
@@ -7372,7 +7384,7 @@ const SKILLS = {
   const AUTH_STORAGE_KEY = 'eureka_user_info';
 	
 　// Current build version — must match Firebase eureka/meta/currentVersion
-  const APP_VERSION = 'v2.8.2';
+  const APP_VERSION = 'v2.8.3';
   const metaRef = db.ref('eureka/meta');
 
   // Watch for version updates: if Firebase has a newer version, prompt reload
