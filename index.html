@@ -8500,6 +8500,37 @@ async function processAuthCallback() {
     }
   }
 
+  // v2.8.4: 「其他」類 NM 的提示音 —— 它們用 handleOtherSpawn 只寫 spawns、不建 activeEvent，
+  // 所以 handleActiveEventsDiffForSound 看不到；這裡改監看 spawns 的新增（僅限 category==='other'，
+  // 避免與八寶/島主的 activeEvents 路徑重複播放）。以 nmId@spawnTs 去重，取消還原沿用原時間戳→不誤響。
+  let soundPlayedOtherKeys = null;
+  function otherSpawnSoundKey(nmId, ts) { return (nmId && ts) ? (nmId + '@' + ts) : null; }
+  function handleOtherSpawnsDiffForSound(newSpawns) {
+    const spawns = newSpawns || {};
+    if (soundPlayedOtherKeys === null) {
+      soundPlayedOtherKeys = new Set();
+      Object.entries(spawns).forEach(([nmId, ts]) => {
+        const k = otherSpawnSoundKey(nmId, ts);
+        if (k) soundPlayedOtherKeys.add(k);
+      });
+      return;
+    }
+    const seen = new Set();
+    Object.entries(spawns).forEach(([nmId, ts]) => {
+      const k = otherSpawnSoundKey(nmId, ts);
+      if (!k) return;
+      seen.add(k);
+      if (!soundPlayedOtherKeys.has(k)) {
+        soundPlayedOtherKeys.add(k);
+        const nm = (typeof findNm === 'function') ? findNm(nmId) : null;
+        if (nm && (nm.category || 'bao') === 'other' && isSoundEnabledForNm(nmId)) playAlertSound('general');
+      }
+    });
+    if (soundPlayedOtherKeys.size > 600) {
+      soundPlayedOtherKeys.forEach(k => { if (!seen.has(k)) soundPlayedOtherKeys.delete(k); });
+    }
+  }
+
   // Persistence
   async function saveSoundPrefs() {
     const sanitized = sanitizeSoundForSave();
@@ -10326,6 +10357,7 @@ async function checkAndRecordAction(actionType) {
       const newSpawns = data?.spawns || {};
       // Sound alert diffing — must run BEFORE state is replaced
       try { handleActiveEventsDiffForSound(data?.activeEvents || {}); } catch (e) { console.warn('[sound] diff failed', e); }
+      try { handleOtherSpawnsDiffForSound(newSpawns); } catch (e) { console.warn('[sound] other diff failed', e); }
       try { handleInstanceResetsDiffForSound(data?.instanceResets || {}); } catch (e) { console.warn('[sound] reset diff failed', e); }
       if (data) {
         state = {
