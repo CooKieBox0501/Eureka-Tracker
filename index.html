@@ -11159,8 +11159,10 @@ async function checkAndRecordAction(actionType) {
         const reporter = h.reportedBy
           ? `<span class="h-by"> — ${h.reportedBy.name}</span>`
           : '';
-        const killer = isKill && h.killedBy
-          ? `<span class="h-detail">死亡回報 — ${h.killedBy.name}</span>`
+        const killer = isKill
+          ? (h.systemTimeout
+              ? `<span class="h-detail">死亡回報 — 系統清除(超時)</span>`
+              : (h.killedBy ? `<span class="h-detail">死亡回報 — ${h.killedBy.name}</span>` : ''))
           : '';
         html += `
           <li class="history-item ${cls}">
@@ -12208,7 +12210,7 @@ async function checkAndRecordAction(actionType) {
     let changed = false;
     Object.entries(state.activeEvents).forEach(([id, ev]) => {
       const pullAt = ev.spawnedAt + (NM_LIFETIME_SEC - ev.pullSecondsLeft) * 1000;
-      const autoExpireAt = pullAt + 5 * 60 * 1000;
+      const autoExpireAt = pullAt + 10 * 60 * 1000;  // v2.8.4：開打後 10 分鐘
       const failSafe = ev.spawnedAt + (NM_LIFETIME_SEC + 600) * 1000;
       if (now > autoExpireAt || now > failSafe) {
         // Remove active event
@@ -12233,13 +12235,14 @@ async function checkAndRecordAction(actionType) {
         } else {
           const hId = `h_${ev.nmId}_${ev.spawnedAt}`;
           updates[`history/${hId}`] = {
-            type: 'unknown',
+            type: 'kill',          // v2.8.4：超時統一判定為死亡（系統超時）
             nmId: ev.nmId,
             zone: ev.zone,
             spawnedAt: ev.spawnedAt,
-            killedAt: null,
+            killedAt: now,
             reportedBy: ev.reportedBy || null,
             killedBy: null,
+            systemTimeout: true,
             createdAt: now,
             updatedAt: now,
           };
