@@ -5163,7 +5163,8 @@ const SKILLS = {
 
   const ADMIN_UID = '371526999078076426';
   const BA_LIFETIME_MS = 15 * 60 * 1000;      // 水母/服務台存活 15 分鐘
-  const BA_NATURAL_MS  = 15 * 60 * 1000;      // 15 分無人擊殺 → 自然消失
+  const BA_NATURAL_MS  = 15 * 60 * 1000;      // 沒設開打時間 → 出現後 15 分自動判定死亡
+  const BA_DEATH_AFTER_PULL_MS = 5 * 60 * 1000; // v2.8.4：有設開打時間 → 開打後 5 分自動判定死亡
   const TELEPORT_MS    = 10 * 60 * 1000;      // 傳送準備倒數 10 分鐘
   const TOWER_TIMEOUT_MS = 30 * 60 * 1000;    // 塔內狀態 30 分逾時
   const TOWER_COOLDOWN_MS = 30 * 1000;        // 塔內回報 30 秒冷卻
@@ -5737,22 +5738,30 @@ const SKILLS = {
   // ════════ 自然消失偵測（水母 & 服務台）════════
   function autoNaturalCheck(){
     const now = Date.now();
-    // 水母
+    // 水母：有設開打時間 → 開打後 5 分；沒設 → 出現後 15 分
     const j = baState.jellyfish;
-    if (j && j.spawnedAt && !j.killedAt && (now - j.spawnedAt) > BA_NATURAL_MS) {
-      baUpdate({
-        'jellyfish/killedAt': j.spawnedAt + BA_NATURAL_MS,
-        'jellyfish/isNatural': true, 'jellyfish/inActiveEvent': false,
-      }); // 自然消失不啟動傳送倒數
+    if (j && j.spawnedAt && !j.killedAt) {
+      const jDeathAt = (typeof j.pullTargetMs === 'number' && j.pullTargetMs)
+        ? j.pullTargetMs + BA_DEATH_AFTER_PULL_MS
+        : j.spawnedAt + BA_NATURAL_MS;
+      if (now > jDeathAt) {
+        baUpdate({
+          'jellyfish/killedAt': jDeathAt,
+          'jellyfish/isNatural': true, 'jellyfish/inActiveEvent': false,
+        }); // 自然消失不啟動傳送倒數
+      }
     }
-    // 服務台（active 後 15 分無人擊殺）
+    // 服務台：active 代表已踩塔開打（spawnedAt = 開打）→ 開打後 5 分
     const d = baState.desk;
-    if (d && d.status==='active' && d.spawnedAt && !d.killedAt && (now - d.spawnedAt) > BA_NATURAL_MS) {
-      const kAt = d.spawnedAt + BA_NATURAL_MS;
-      baUpdate({
-        'desk/killedAt': kAt, 'desk/isNatural': true,
-        'desk/lastKill': { killedAt:kAt, killedBy:null, isNatural:true, announcedBy:d.announcedBy||null, announcedByAvatar:d.announcedByAvatar||null },
-      });
+    if (d && d.status==='active' && d.spawnedAt && !d.killedAt) {
+      const dDeathAt = d.spawnedAt + BA_DEATH_AFTER_PULL_MS;
+      if (now > dDeathAt) {
+        const kAt = dDeathAt;
+        baUpdate({
+          'desk/killedAt': kAt, 'desk/isNatural': true,
+          'desk/lastKill': { killedAt:kAt, killedBy:null, isNatural:true, announcedBy:d.announcedBy||null, announcedByAvatar:d.announcedByAvatar||null },
+        });
+      }
     }
     // 項目9：塔內變無人、或服務台已結束（被擊殺/自然消失）→ 服務台回到初始（保留上次死亡資訊供 idle 顯示）
     if (d && d.status && d.status!=='idle') {
