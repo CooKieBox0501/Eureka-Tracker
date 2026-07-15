@@ -6362,7 +6362,7 @@ const SKILLS = {
   const DOW = ['日','一','二','三','四','五','六'];
   const FINAL_STATUSES = ['達成目標','道中團滅/返回','場次取消','場次延後/改期','其它'];
   const COUNTABLE = ['達成目標','道中團滅/返回'];   // 計入開團次數的狀態
-  const FINAL_EDIT_WINDOW_MS = 48*3600*1000;   // 開始後 48 小時內主催可改
+  const FINAL_EDIT_WINDOW_MS = 7*24*3600*1000;   // 開始後 7 天內主催可改
   let schView = 'calendar';   // calendar | history | pinned
 
   function statusClass(st){ return 'sch-status-' + (st||'未設定').replace(/[\/]/g,''); }
