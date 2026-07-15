@@ -11160,7 +11160,7 @@ async function checkAndRecordAction(actionType) {
           ? `<span class="h-by"> — ${h.reportedBy.name}</span>`
           : '';
         const killer = isKill && h.killedBy
-          ? `<span class="h-detail">擊殺 — ${h.killedBy.name}</span>`
+          ? `<span class="h-detail">死亡回報 — ${h.killedBy.name}</span>`
           : '';
         html += `
           <li class="history-item ${cls}">
