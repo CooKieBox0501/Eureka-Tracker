@@ -3894,10 +3894,8 @@ const WX_ICON = {
 	<div class="changelog-version">v2.8.4 <span class="changelog-date">— 2026/07/16</span></div>
 	<div class="changelog-tagline">🛠 Bug Fix & 體驗優化</div>
 	  <ul class="changelog-list">
-		  <li>✦ <strong>自動判定死亡</strong>：NM、水母、服務台 存活過久卻無人回報死亡時，會自動判定為死亡，不再一直卡在「進行中」（NM 開打後 10 分鐘；水母／服務台 開打後 5 分鐘，未設開打時間則出現後 15 分鐘）</li>
 		  <li>✦ <strong>主催編輯時限延長</strong>：主催可編輯已結束場次的時間，從 2 天延長為 7 天</li>
 		  <li>✦ 修正部分「其他」類 NM 開啟提示音後仍不會發出提示音的問題</li>
-		  <li>✦ 歷史紀錄的「擊殺」用詞統一改為「死亡回報」</li>
 	  </ul>
   </div>
 
@@ -14545,11 +14543,9 @@ async function checkAndRecordAction(actionType) {
   // ※ 慣例：每次改版都要把上一版的步驟整組換掉，只留本次新功能。
   // 本次（新島重置提示音）：
   function buildUpdateSteps(){
-    // v2.8.4：本次為修正與體驗優化，沒有需要走查的新互動介面，故用單一摘要步驟。
-    const S = [];
-    S.push({ sel:null, title:'v2.8.4 更新內容 ✨',
-      body:'這次是幾項修正與優化：\n・NM／水母／服務台 存活過久會自動判定死亡，不再卡在「進行中」\n・主催可編輯場次的時限延長為 7 天\n・修正部分「其他」NM 提示音不會響的問題\n完整內容可點右上角版本號查看更新日誌。' });
-    return S.filter(st=> st.sel===null || st.before || document.querySelector(st.sel));
+    // v2.8.4：本次無新功能，關閉更新導覽（更新日誌會自動彈出，已相當於更新導覽）。
+    // 下一版若有新互動功能要導覽，於此加回步驟即可。
+    return [];
   }
 
   function firstEl(sel){ if(!sel) return null; for(const s of sel.split(',')){ const el=document.querySelector(s.trim()); if(el) return el; } return null; }
